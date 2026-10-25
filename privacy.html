@@ -12,7 +12,6 @@
     <script defer src="doc.js"></script>
     
     <style>
-        /* 复用 rules.html 的微调样式 */
         .legal-top-nav { display: flex; justify-content: space-between; align-items: center; padding: 16px 5%; background: var(--bg-card); border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 100; }
         .legal-brand { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--text-main); font-weight: 800; font-size: 1.2rem; }
         .legal-brand img { width: 32px; height: 32px; border-radius: 50%; }
@@ -33,7 +32,7 @@
         </a>
         <div class="nav-actions">
             <div class="lang-switch">
-                <button class="lang-btn active" data-lang-btn="zh" onclick="setLang('zh')">中文</button>
+                <button class="lang-btn" data-lang-btn="zh" onclick="setLang('zh')">中文</button>
                 <button class="lang-btn" data-lang-btn="en" onclick="setLang('en')">English</button>
             </div>
             <a href="/index.html" class="btn-back">← <span class="zh-inline">返回首页</span><span class="en-inline">Back</span></a>
@@ -47,7 +46,6 @@
         </aside>
 
         <main class="doc-content" id="docContent">
-            <!-- 中文版 -->
             <div class="zh-text">
                 <h1>隐私政策</h1>
                 <div class="subhead">最后更新：2026 年 10 月 25 日</div>
@@ -76,7 +74,6 @@
                 <p>我们非常重视未成年人的隐私保护。若您是未满 14 周岁的儿童，请在监护人指导下使用本平台。我们不会主动收集未成年人的个人信息。</p>
             </div>
 
-            <!-- 英文版 -->
             <div class="en-text">
                 <h1>Privacy Policy</h1>
                 <div class="subhead">Last updated: October 25, 2026</div>
@@ -112,10 +109,10 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             DocEngine.init({ tocContentId: 'docContent', tocContainerId: 'tocContainer' });
-            const currentLang = window.getLang();
-            document.querySelectorAll('.lang-btn').forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.langBtn === currentLang);
-            });
+        });
+
+        window.addEventListener('langChanged', () => {
+            DocEngine.init({ tocContentId: 'docContent', tocContainerId: 'tocContainer' });
         });
     </script>
 </body>

@@ -38,7 +38,7 @@
             document.body.appendChild(toast);
         }
         toast.textContent = message;
-        void toast.offsetWidth; // 触发重绘
+        void toast.offsetWidth; 
         toast.classList.add('show');
         
         if (window.toastTimer) clearTimeout(window.toastTimer);
@@ -47,7 +47,6 @@
         }, duration);
     };
 
-    // 封装统一的埋点函数
     window.leleleTrack = function(eventName, eventData) {
         if (typeof umami !== 'undefined' && umami.track) {
             try { umami.track(eventName, eventData); } catch(e) {}
@@ -84,12 +83,15 @@
         document.documentElement.setAttribute('lang', lang === 'zh' ? 'zh-CN' : 'en');
         try { localStorage.setItem('lelele_read_lang', lang); } catch (e) {}
         
-        // 重新渲染依赖语言的部分
+        // 【核心修复】统一在此处同步页面上的语言切换按钮 active 状态
+        document.querySelectorAll('.lang-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.langBtn === lang);
+        });
+        
         injectFooter();
         updateFloatToolsLang();
         initManifest(); 
         
-        // 广播事件，让各页面自行监听更新
         window.dispatchEvent(new Event('langChanged'));
     };
 
@@ -108,7 +110,6 @@
         };
     }
 
-    // 动态加载 PWA Manifest
     function initManifest() {
         try {
             const lang = getLang();
@@ -131,9 +132,7 @@
                 window.AUTHORS_DATA = data;
                 window.dispatchEvent(new Event('authorsLoaded'));
             })
-            .catch(err => {
-                console.warn('获取外部作者列表失败:', err);
-            });
+            .catch(err => console.warn('获取外部作者列表失败:', err));
     }
 
     // ==================== 5. UI 动态注入 ====================
@@ -178,8 +177,6 @@
 
         const btnTop = document.getElementById('commonBtnTop');
         const btnFeedback = document.getElementById('commonBtnFeedback');
-        
-        // 反馈按钮默认显示
         btnFeedback.classList.add('show');
 
         window.addEventListener('scroll', () => {
@@ -233,7 +230,6 @@
             try { localStorage.setItem(storageKey, JSON.stringify(now)); } catch(e){}
             setTimeout(() => hint.remove(), 400);
         }
-
         document.getElementById('slideHintBtn').onclick = closeHint;
     }
 
@@ -249,7 +245,7 @@
     // ==================== 8. 初始化执行 ====================
     initLang();
     initTheme();
-    initManifest(); // 初始加载一次 Manifest
+    initManifest();
 
     document.addEventListener('DOMContentLoaded', () => {
         injectFooter();
@@ -257,6 +253,12 @@
         fetchAuthors();
         initPWA();
         initSlideHint();
+        
+        // 初始加载同步一次状态
+        const currentLang = getLang();
+        document.querySelectorAll('.lang-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.langBtn === currentLang);
+        });
     });
 
 })();

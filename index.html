@@ -3,111 +3,113 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>了了了读 - 探索未至之境</title>
+    <title>了了了读 - 纯净在线电子书阅读器</title>
     
-    <!-- 全站核心样式 -->
     <link rel="stylesheet" href="common.css">
+    <script src="common.js"></script>
     
     <style>
-        /* 首页专属样式 */
+        :root {
+            --bg-gradient: linear-gradient(145deg, #f0f4f9 0%, #e8ecf5 100%);
+        }
+        html.dark-mode {
+            --bg-gradient: linear-gradient(145deg, #0f172a 0%, #1e293b 100%);
+        }
         body {
+            background: var(--bg-gradient);
             display: flex;
             flex-direction: column;
             min-height: 100vh;
-            background: linear-gradient(145deg, var(--bg-page) 0%, #e8ecf5 100%);
-        }
-        html.dark-mode body {
-            background: linear-gradient(145deg, var(--bg-page) 0%, #0f172a 100%);
         }
 
-        /* 顶部导航 */
-        .top-nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px 5%;
-            max-width: 1200px;
-            margin: 0 auto;
+        /* 顶部导航栏 (类似游站) */
+        .top-bar {
             width: 100%;
-        }
-        .brand {
+            background: var(--bg-card);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            padding: 12px 28px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.04);
+            border-bottom: 1px solid var(--border-color);
             display: flex;
             align-items: center;
-            gap: 12px;
-            text-decoration: none;
-            color: var(--text-main);
-            font-size: 1.4rem;
-            font-weight: 800;
-        }
-        .brand img { width: 40px; height: 40px; border-radius: 50%; }
-        .nav-actions { display: flex; gap: 12px; }
-        .action-btn {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            padding: 8px 16px;
-            border-radius: 20px;
-            color: var(--text-main);
-            cursor: pointer;
-            font-size: 0.9rem;
-            font-weight: 600;
-            transition: all 0.2s;
-            text-decoration: none;
-        }
-        .action-btn:hover { border-color: var(--primary); color: var(--primary); }
-
-        /* Hero 区域 */
-        .hero {
-            text-align: center;
-            padding: 60px 20px 40px;
-        }
-        .hero h1 {
-            font-size: 2.8rem;
-            color: var(--text-main);
-            margin-bottom: 16px;
-            background: linear-gradient(135deg, var(--primary), #8b5cf6);
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .hero p {
-            color: var(--text-muted);
-            font-size: 1.1rem;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
-        /* 搜索与筛选控制区 */
-        .controls {
-            max-width: 800px;
-            margin: 0 auto 40px;
-            padding: 0 20px;
-            display: flex;
-            flex-direction: column;
+            justify-content: space-between;
             gap: 20px;
         }
-        .search-box {
-            position: relative;
-            width: 100%;
-        }
-        .search-box input {
-            width: 100%;
-            padding: 16px 24px;
-            border-radius: 30px;
-            border: 2px solid var(--border-color);
-            background: var(--bg-card);
+        .site-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 800;
+            font-size: 1.2rem;
             color: var(--text-main);
-            font-size: 1rem;
-            outline: none;
-            transition: all 0.3s;
-            box-shadow: var(--shadow-sm);
+            text-decoration: none;
+            white-space: nowrap;
         }
-        .search-box input:focus {
+        .site-title img { height: 32px; width: 32px; border-radius: 50%; }
+
+        /* 搜索框居中 */
+        .search-wrapper {
+            flex: 1;
+            max-width: 500px;
+            position: relative;
+        }
+        .search-wrapper input {
+            width: 100%;
+            padding: 10px 20px 10px 40px;
+            border-radius: 30px;
+            border: 1px solid var(--border-color);
+            background: rgba(148, 163, 184, 0.1);
+            color: var(--text-main);
+            font-size: 0.95rem;
+            outline: none;
+            transition: all 0.2s;
+        }
+        .search-wrapper input:focus {
+            background: var(--bg-page);
             border-color: var(--primary);
-            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+        }
+        .search-wrapper::before {
+            content: '🔍';
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.9rem;
+            opacity: 0.5;
         }
 
+        .right-actions { display: flex; gap: 8px; align-items: center; }
+        .action-btn {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            border-radius: 30px;
+            padding: 8px 16px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .action-btn:hover { color: var(--primary); border-color: var(--primary); }
+
+        /* 分类导航 */
+        .categories-container {
+            max-width: 1200px;
+            margin: 24px auto 0;
+            padding: 0 20px;
+            width: 100%;
+        }
         .categories {
             display: flex;
-            justify-content: center;
             gap: 12px;
             flex-wrap: wrap;
         }
@@ -131,17 +133,17 @@
         }
 
         /* 书籍网格区 */
-        .book-grid-container {
+        .main-content {
             max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px 60px;
+            margin: 20px auto 60px;
+            padding: 0 20px;
             width: 100%;
             flex: 1;
         }
         .book-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-            gap: 24px;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 20px;
         }
         .book-card {
             background: var(--bg-card);
@@ -152,38 +154,51 @@
             transition: all 0.3s ease;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            text-align: center;
             box-shadow: var(--shadow-sm);
+            position: relative;
+            overflow: hidden;
         }
         .book-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
             border-color: var(--primary);
         }
-        .book-icon {
-            font-size: 3.5rem;
+        .book-card-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
             margin-bottom: 16px;
         }
+        .book-icon {
+            font-size: 2.5rem;
+            background: rgba(148, 163, 184, 0.1);
+            width: 60px; height: 60px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 12px;
+        }
         .book-title {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             font-weight: 700;
             color: var(--text-main);
-            margin-bottom: 8px;
+            margin-bottom: 4px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
         .book-author {
             font-size: 0.85rem;
             color: var(--text-muted);
-            margin-bottom: 16px;
         }
         .book-btn {
             margin-top: auto;
-            padding: 8px 20px;
+            align-self: flex-start;
+            padding: 6px 16px;
             background: rgba(79, 70, 229, 0.1);
             color: var(--primary);
             border-radius: 20px;
             font-weight: 600;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             transition: all 0.2s;
         }
         .book-card:hover .book-btn {
@@ -191,77 +206,55 @@
             color: #fff;
         }
 
-        /* 状态提示 */
-        .status-msg {
-            text-align: center;
-            color: var(--text-muted);
-            padding: 40px 0;
-            grid-column: 1 / -1;
+        .status-msg { text-align: center; color: var(--text-muted); padding: 40px 0; grid-column: 1 / -1; }
+
+        @media (max-width: 768px) {
+            .top-bar { padding: 12px 16px; flex-wrap: wrap; }
+            .search-wrapper { order: 3; max-width: 100%; width: 100%; margin-top: 8px; }
+            .site-title span { display: none; }
         }
     </style>
 </head>
 <body>
 
-    <!-- 顶部导航 -->
-    <nav class="top-nav">
-        <a href="/" class="brand">
+    <!-- 顶部栏 -->
+    <nav class="top-bar">
+        <a href="/" class="site-title">
             <img src="leleleread.svg" alt="Logo" onerror="this.style.display='none'">
-            <span class="zh-inline">了了了读</span>
-            <span class="en-inline">lelele Read</span>
+            <span><span class="zh-inline">了了了读</span><span class="en-inline">lelele Read</span></span>
         </a>
-        <div class="nav-actions">
+        
+        <div class="search-wrapper">
+            <input type="text" id="searchInput" placeholder="搜索书名或作者..." autocomplete="off">
+        </div>
+
+        <div class="right-actions">
             <button class="action-btn" onclick="toggleTheme()">🌙 <span class="zh-inline">主题</span><span class="en-inline">Theme</span></button>
             <button class="action-btn" onclick="toggleLang()">🌐 <span class="zh-inline">EN</span><span class="en-inline">中文</span></button>
+            <a href="about.html" class="action-btn"><span class="zh-inline">关于</span><span class="en-inline">About</span></a>
         </div>
     </nav>
 
-    <!-- Hero 区 -->
-    <header class="hero">
-        <h1>
-            <span class="zh-inline">探索未至之境</span>
-            <span class="en-inline">Explore the Unreached</span>
-        </h1>
-        <p>
-            <span class="zh-inline">轻量、干净、无广告的在线电子书阅读器。打开就能看。</span>
-            <span class="en-inline">A lightweight, clean, and ad-free web reader. Just open and read.</span>
-        </p>
-    </header>
-
-    <!-- 搜索与控制区 -->
-    <div class="controls">
-        <div class="search-box">
-            <input type="text" id="searchInput" placeholder="搜索书名或作者..." autocomplete="off">
-        </div>
+    <!-- 分类 -->
+    <div class="categories-container">
         <div class="categories">
-            <button class="cat-btn active" data-cat="all">
-                <span class="zh-inline">全部</span><span class="en-inline">All</span>
-            </button>
-            <button class="cat-btn" data-cat="classic">
-                <span class="zh-inline">古典文学</span><span class="en-inline">Classics</span>
-            </button>
-            <button class="cat-btn" data-cat="religion">
-                <span class="zh-inline">宗教经典</span><span class="en-inline">Religion</span>
-            </button>
-            <button class="cat-btn" data-cat="community">
-                <span class="zh-inline">共创书库</span><span class="en-inline">Community</span>
-            </button>
+            <button class="cat-btn active" data-cat="all"><span class="zh-inline">全部</span><span class="en-inline">All</span></button>
+            <button class="cat-btn" data-cat="classic"><span class="zh-inline">古典</span><span class="en-inline">Classics</span></button>
+            <button class="cat-btn" data-cat="religion"><span class="zh-inline">宗教</span><span class="en-inline">Religion</span></button>
+            <button class="cat-btn" data-cat="community"><span class="zh-inline">共创书库</span><span class="en-inline">Community</span></button>
         </div>
     </div>
 
-    <!-- 书籍网格 -->
-    <div class="book-grid-container">
+    <!-- 网格 -->
+    <main class="main-content">
         <div class="book-grid" id="bookGrid">
             <div class="status-msg">正在加载书目...</div>
         </div>
-    </div>
+    </main>
 
-    <!-- 占位 Footer -->
     <div id="footerPlaceholder"></div>
 
-    <!-- 页面专属逻辑 -->
     <script>
-        // 模拟书目数据 (未来可改为 fetch('/data/books.json'))
-        // 注意：author 如果是数字，代表从外部 API 查；如果是拼音(如 luxun)，代表硬编码
         const MOCK_BOOKS = [
             { id: 'bible', title_zh: '圣经', title_en: 'Holy Bible', author: '了了了岭工作室', cat: 'religion', icon: '📖', url: 'data/bible/bible_a.html' },
             { id: 'luxun', title_zh: '鲁迅全集', title_en: 'Lu Xun Works', author: 'luxun', cat: 'classic', icon: '🖋️', url: 'data/tree_zhou/tree_zhou.html' },
@@ -271,14 +264,11 @@
 
         let currentCategory = 'all';
         let currentKeyword = '';
-
         const gridEl = document.getElementById('bookGrid');
 
-        // 渲染书籍列表
         function renderBooks() {
             gridEl.innerHTML = '';
             
-            // 1. 筛选
             const filtered = MOCK_BOOKS.filter(book => {
                 const matchCat = currentCategory === 'all' || book.cat === currentCategory;
                 
@@ -286,7 +276,6 @@
                 const titleEn = (book.title_en || '').toLowerCase();
                 let authorName = '';
                 
-                // 解析作者名用于搜索
                 if (typeof book.author === 'number' || /^\d+$/.test(book.author)) {
                     const apiAuthor = window.AUTHORS_DATA?.find(a => a.id === book.author);
                     authorName = apiAuthor ? apiAuthor.name_zh : '';
@@ -297,14 +286,10 @@
                     authorName = book.author;
                 }
                 
-                const matchKeyword = titleZh.includes(currentKeyword) || 
-                                     titleEn.includes(currentKeyword) || 
-                                     (authorName || '').toLowerCase().includes(currentKeyword);
-                
+                const matchKeyword = titleZh.includes(currentKeyword) || titleEn.includes(currentKeyword) || (authorName || '').toLowerCase().includes(currentKeyword);
                 return matchCat && matchKeyword;
             });
 
-            // 2. 渲染
             if (filtered.length === 0) {
                 gridEl.innerHTML = '<div class="status-msg">没有找到匹配的书籍</div>';
                 return;
@@ -315,7 +300,6 @@
             filtered.forEach(book => {
                 const title = lang === 'en' ? (book.title_en || book.title_zh) : (book.title_zh || book.title_en);
                 
-                // 作者名匹配逻辑
                 let displayAuthor = book.author;
                 if (book.author === 'luxun') {
                     displayAuthor = lang === 'en' ? 'Lu Xun' : '鲁迅';
@@ -331,16 +315,19 @@
                 const card = document.createElement('div');
                 card.className = 'book-card';
                 card.innerHTML = `
-                    <div class="book-icon">${book.icon}</div>
-                    <div class="book-title">${window.escapeHtml(title)}</div>
-                    <div class="book-author">${window.escapeHtml(displayAuthor)}</div>
+                    <div class="book-card-header">
+                        <div class="book-icon">${book.icon}</div>
+                        <div>
+                            <div class="book-title">${window.escapeHtml(title)}</div>
+                            <div class="book-author">${window.escapeHtml(displayAuthor)}</div>
+                        </div>
+                    </div>
                     <div class="book-btn">
                         <span class="zh-inline">开始阅读</span>
                         <span class="en-inline">Read Now</span>
                     </div>
                 `;
                 card.onclick = () => {
-                    // 记录埋点
                     if (window.leleleTrack) window.leleleTrack('open-book_' + book.title_zh);
                     window.location.href = book.url + (lang === 'en' ? '?lang=en' : '');
                 };
@@ -348,13 +335,11 @@
             });
         }
 
-        // 绑定搜索
         document.getElementById('searchInput').addEventListener('input', (e) => {
             currentKeyword = e.target.value.trim().toLowerCase();
             renderBooks();
         });
 
-        // 绑定分类
         document.querySelectorAll('.cat-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
@@ -364,29 +349,21 @@
             });
         });
 
-        // 语言切换
         function toggleLang() {
             const current = window.getLang();
             window.setLang(current === 'zh' ? 'en' : 'zh');
         }
 
-        // 监听全局事件更新 UI
         window.addEventListener('langChanged', () => {
             renderBooks();
-            updatePlaceholder();
+            const lang = window.getLang();
+            document.getElementById('searchInput').placeholder = lang === 'en' ? 'Search books or authors...' : '搜索书名或作者...';
         });
         window.addEventListener('authorsLoaded', renderBooks);
 
-        // 更新搜索框多语言 placeholder
-        function updatePlaceholder() {
-            const input = document.getElementById('searchInput');
-            const lang = window.getLang();
-            input.placeholder = lang === 'en' ? 'Search books or authors...' : '搜索书名或作者...';
-        }
-
-        // 初始化
         document.addEventListener('DOMContentLoaded', () => {
-            updatePlaceholder();
+            const lang = window.getLang();
+            document.getElementById('searchInput').placeholder = lang === 'en' ? 'Search books or authors...' : '搜索书名或作者...';
             renderBooks();
         });
     </script>

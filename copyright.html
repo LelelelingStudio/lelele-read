@@ -20,7 +20,6 @@
         .lang-btn { padding: 6px 16px; border: none; border-radius: 24px; background: transparent; font-size: 0.85rem; font-weight: 600; color: var(--text-muted); cursor: pointer; transition: all 0.2s; }
         .lang-btn.active { background: var(--primary); color: #fff !important; }
         .btn-back { text-decoration: none; color: var(--text-muted); font-size: 0.95rem; font-weight: 600; }
-        
         .warning-box { background: rgba(239, 68, 68, 0.05); border-left: 5px solid #ef4444; padding: 1.2rem 1.8rem; border-radius: 0 14px 14px 0; margin: 1.6rem 0; color: var(--text-main); }
         .warning-box strong { color: #ef4444; }
     </style>
@@ -35,7 +34,7 @@
         </a>
         <div class="nav-actions">
             <div class="lang-switch">
-                <button class="lang-btn active" data-lang-btn="zh" onclick="setLang('zh')">中文</button>
+                <button class="lang-btn" data-lang-btn="zh" onclick="setLang('zh')">中文</button>
                 <button class="lang-btn" data-lang-btn="en" onclick="setLang('en')">English</button>
             </div>
             <a href="/index.html" class="btn-back">← <span class="zh-inline">返回首页</span><span class="en-inline">Back</span></a>
@@ -49,7 +48,6 @@
         </aside>
 
         <main class="doc-content" id="docContent">
-            <!-- 中文版 -->
             <div class="zh-text">
                 <h1>版权与侵权投诉指引</h1>
                 <div class="subhead">最后更新：2026 年 10 月 25 日</div>
@@ -83,7 +81,6 @@
                 </ul>
             </div>
 
-            <!-- 英文版 -->
             <div class="en-text">
                 <h1>Copyright Infringement Notice Guidelines</h1>
                 <div class="subhead">Last updated: October 25, 2026</div>
@@ -124,10 +121,10 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             DocEngine.init({ tocContentId: 'docContent', tocContainerId: 'tocContainer' });
-            const currentLang = window.getLang();
-            document.querySelectorAll('.lang-btn').forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.langBtn === currentLang);
-            });
+        });
+
+        window.addEventListener('langChanged', () => {
+            DocEngine.init({ tocContentId: 'docContent', tocContainerId: 'tocContainer' });
         });
     </script>
 </body>
