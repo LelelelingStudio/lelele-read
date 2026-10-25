@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>作者主页 - 了了了读</title>
+    
+    <link rel="stylesheet" href="common.css">
+    <script src="common.js"></script>
+    
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            background: var(--bg-page);
+        }
+
+        /* 顶部导航 */
+        .top-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 5%;
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: var(--text-main);
+            font-weight: 800;
+            font-size: 1.2rem;
+        }
+        .brand img { width: 32px; height: 32px; border-radius: 50%; }
+        .btn-back {
+            text-decoration: none;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            font-weight: 600;
+            padding: 8px 16px;
+            border-radius: 20px;
+            background: rgba(148, 163, 184, 0.1);
+            transition: all 0.2s;
+        }
+        .btn-back:hover { color: var(--primary); background: rgba(148, 163, 184, 0.2); }
+
+        /* 作者信息卡片 */
+        .author-hero {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            background: var(--bg-card);
+            border-radius: 24px;
+            border: 1px solid var(--border-color);
+            padding: 40px;
+            box-shadow: var(--shadow-sm);
+        }
+        .author-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), #8b5cf6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            color: white;
+            flex-shrink: 0;
+            box-shadow: 0 10px 20px rgba(79, 70, 229, 0.3);
+            overflow: hidden;
+        }
+        .author-avatar img {
+            width: 100%; height: 100%; object-fit: cover;
+        }
+        .author-info { flex: 1; }
+        .author-name {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-bottom: 12px;
+        }
+        .author-bio {
+            font-size: 1rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        /* 作品列表 */
+        .works-section {
+            max-width: 1000px;
+            margin: 0 auto 60px;
+            padding: 0 20px;
+            width: 100%;
+            flex: 1;
+        }
+        .works-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            padding-left: 12px;
+            border-left: 4px solid var(--primary);
+            color: var(--text-main);
+        }
+        .book-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 20px;
+        }
+        .book-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .book-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--primary);
+        }
+        .book-icon { font-size: 2.5rem; }
+        .book-info h3 { font-size: 1.1rem; color: var(--text-main); margin-bottom: 4px; }
+        .book-info p { font-size: 0.85rem; color: var(--text-muted); }
+
+        @media (max-width: 768px) {
+            .author-hero { flex-direction: column; text-align: center; padding: 30px 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="top-nav">
+        <a href="/index.html" class="brand">
+            <img src="leleleread.svg" alt="Logo" onerror="this.style.display='none'">
+            <span class="zh-inline">了了了读</span><span class="en-inline">lelele Read</span>
+        </a>
+        <a href="/index.html" class="btn-back">← <span class="zh-inline">返回首页</span><span class="en-inline">Back to Home</span></a>
+    </nav>
+
+    <div class="author-hero" id="authorHero" style="display:none;">
+        <div class="author-avatar" id="authorAvatar">👤</div>
+        <div class="author-info">
+            <div class="author-name" id="authorName">加载中...</div>
+            <div class="author-bio" id="authorBio">...</div>
+        </div>
+    </div>
+
+    <div class="works-section">
+        <div class="works-title">
+            <span class="zh-inline">📚 作品列表</span>
+            <span class="en-inline">📚 Works</span>
+        </div>
+        <div class="book-grid" id="worksGrid">
+            <div style="color:var(--text-muted); grid-column: 1/-1;">正在加载作品...</div>
+        </div>
+    </div>
+
+    <div id="footerPlaceholder"></div>
+
+    <script>
+        // 模拟书库（未来接真实数据）
+        const MOCK_BOOKS = [
+            { id: 'bible', title_zh: '圣经', title_en: 'Holy Bible', author: '了了了岭工作室', cat: 'religion', icon: '📖', url: '/data/bible/bible_a.html' },
+            { id: 'luxun', title_zh: '鲁迅全集', title_en: 'Lu Xun Works', author: 'luxun', cat: 'classic', icon: '🖋️', url: '/data/tree_zhou/tree_zhou.html' },
+            { id: 'shijing', title_zh: '诗经', title_en: 'Book of Songs', author: '佚名', cat: 'classic', icon: '🌿', url: '/data/shijing/shijing.html' },
+            // 假设 ID 为 2 的是 Andy Huang，这里模拟他写了一本书
+            { id: 'andys_book', title_zh: '未来的诗篇', title_en: 'Poems of the Future', author: 2, cat: 'community', icon: '✨', url: '/data/community/reader.html?id=andys_book' }
+        ];
+
+        // 内置模拟的作者详细资料（实际可做成单独的 json，如 /data/authors/luxun.json）
+        const MOCK_AUTHOR_PROFILES = {
+            'luxun': {
+                name_zh: '鲁迅', name_en: 'Lu Xun', avatar: '🖋️',
+                bio_zh: '中国现代文学的奠基人。原名周树人，字豫才。他的作品深刻批判了封建社会的黑暗。',
+                bio_en: 'Founder of modern Chinese literature. His works profoundly criticized the darkness of feudal society.'
+            },
+            '2': {
+                name_zh: 'Andy Huang', name_en: 'Andy Huang', avatar: '👨‍💻',
+                bio_zh: '了了了岭工作室的核心贡献者，热爱科幻与代码。',
+                bio_en: 'Core contributor to Leleleling Studio, passionate about sci-fi and code.'
+            }
+        };
+
+        async function initAuthorPage() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const authorId = urlParams.get('id');
+            const lang = window.getLang();
+
+            if (!authorId) {
+                document.getElementById('authorName').textContent = '未知作者';
+                document.getElementById('authorHero').style.display = 'flex';
+                return;
+            }
+
+            // 1. 解析作者信息
+            let displayName = authorId;
+            let profileData = MOCK_AUTHOR_PROFILES[authorId];
+
+            // 如果是纯数字，尝试从外部的 AUTHORS_DATA 找
+            if (!isNaN(authorId) && window.AUTHORS_DATA) {
+                const externalAuthor = window.AUTHORS_DATA.find(a => a.id === parseInt(authorId));
+                if (externalAuthor) {
+                    displayName = lang === 'en' ? externalAuthor.name_en : externalAuthor.name_zh;
+                }
+            } else if (profileData) {
+                displayName = lang === 'en' ? profileData.name_en : profileData.name_zh;
+            }
+
+            // 2. 渲染作者卡片
+            document.getElementById('authorHero').style.display = 'flex';
+            document.getElementById('authorName').textContent = displayName;
+            document.getElementById('authorAvatar').textContent = profileData?.avatar || '👤';
+            document.getElementById('authorBio').textContent = profileData ? (lang === 'en' ? profileData.bio_en : profileData.bio_zh) : '暂无简介';
+
+            // 3. 渲染作品
+            const worksGrid = document.getElementById('worksGrid');
+            const authorWorks = MOCK_BOOKS.filter(b => String(b.author) === String(authorId));
+            
+            worksGrid.innerHTML = '';
+            if (authorWorks.length === 0) {
+                worksGrid.innerHTML = `<div style="color:var(--text-muted); grid-column: 1/-1;">该作者暂未发布任何作品</div>`;
+                return;
+            }
+
+            authorWorks.forEach(book => {
+                const title = lang === 'en' ? (book.title_en || book.title_zh) : (book.title_zh || book.title_en);
+                const card = document.createElement('div');
+                card.className = 'book-card';
+                card.innerHTML = `
+                    <div class="book-icon">${book.icon}</div>
+                    <div class="book-info">
+                        <h3>${window.escapeHtml(title)}</h3>
+                        <p>${lang === 'en' ? 'Read Now' : '点击阅读'}</p>
+                    </div>
+                `;
+                card.onclick = () => window.location.href = book.url + (lang === 'en' ? '&lang=en' : '');
+                worksGrid.appendChild(card);
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', initAuthorPage);
+        
+        // 监听外部作者数据加载和语言切换
+        window.addEventListener('authorsLoaded', initAuthorPage);
+        window.addEventListener('langChanged', initAuthorPage);
+    </script>
+</body>
+</html>

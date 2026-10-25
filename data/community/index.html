@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>共创书库 - 了了了读</title>
+    
+    <!-- 路径注意：需要返回根目录上一层 -->
+    <link rel="stylesheet" href="../../common.css">
+    <script src="../../common.js"></script>
+    
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            background: var(--bg-page);
+        }
+
+        .top-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 5%;
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: var(--text-main);
+            font-weight: 800;
+            font-size: 1.2rem;
+        }
+        .brand img { width: 32px; height: 32px; border-radius: 50%; }
+        .btn-back {
+            text-decoration: none;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .header-area {
+            text-align: center;
+            padding: 40px 20px 20px;
+        }
+        .header-area h1 {
+            font-size: 2.2rem;
+            color: var(--text-main);
+            margin-bottom: 12px;
+        }
+        .header-area p {
+            color: var(--text-muted);
+        }
+
+        /* 搜索框 */
+        .search-container {
+            max-width: 600px;
+            margin: 0 auto 30px;
+            padding: 0 20px;
+        }
+        .search-input {
+            width: 100%;
+            padding: 14px 24px;
+            border-radius: 30px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-card);
+            color: var(--text-main);
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s;
+        }
+        .search-input:focus { border-color: var(--primary); }
+
+        /* 书库网格 */
+        .library-container {
+            max-width: 1200px;
+            margin: 0 auto 60px;
+            padding: 0 20px;
+            width: 100%;
+            flex: 1;
+        }
+        .book-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        .book-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+        }
+        .book-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--primary);
+        }
+        .book-cover {
+            font-size: 3rem;
+            margin-bottom: 12px;
+        }
+        .book-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 6px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .book-author {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="top-nav">
+        <!-- 注意返回路径也要加 ../../ -->
+        <a href="../../index.html" class="brand">
+            <img src="../../leleleread.svg" alt="Logo" onerror="this.style.display='none'">
+            <span class="zh-inline">了了了读</span><span class="en-inline">lelele Read</span>
+        </a>
+        <a href="../../index.html" class="btn-back">← <span class="zh-inline">返回首页</span><span class="en-inline">Back</span></a>
+    </nav>
+
+    <div class="header-area">
+        <h1><span class="zh-inline">共创书库</span><span class="en-inline">Community Library</span></h1>
+        <p><span class="zh-inline">汇集每一位书友的灵感与创作</span><span class="en-inline">Gathering inspiration and creations from every reader</span></p>
+    </div>
+
+    <div class="search-container">
+        <input type="text" id="searchInput" class="search-input" placeholder="搜索书名或作者...">
+    </div>
+
+    <div class="library-container">
+        <div class="book-grid" id="bookGrid">
+            <!-- 数据由 JS 渲染 -->
+        </div>
+    </div>
+
+    <div id="footerPlaceholder"></div>
+
+    <script>
+        // 模拟投稿书籍数据
+        const MOCK_COMMUNITY_BOOKS = [
+            { id: 'andys_book', title_zh: '未来的诗篇', title_en: 'Poems of the Future', author: 2, icon: '✨' },
+            { id: 'kevin_novel', title_zh: '代码与咖啡', title_en: 'Code and Coffee', author: 3, icon: '☕' },
+            { id: 'jonathan_essay', title_zh: '山间随笔', title_en: 'Mountain Essays', author: 4, icon: '⛰️' },
+            { id: 'unknown_1', title_zh: '未命名文档', title_en: 'Untitled', author: '匿名', icon: '📄' }
+        ];
+
+        let currentKeyword = '';
+
+        function renderCommunityBooks() {
+            const grid = document.getElementById('bookGrid');
+            grid.innerHTML = '';
+            const lang = window.getLang();
+
+            // 筛选
+            const filtered = MOCK_COMMUNITY_BOOKS.filter(book => {
+                const title = lang === 'en' ? book.title_en : book.title_zh;
+                return title.toLowerCase().includes(currentKeyword);
+            });
+
+            if (filtered.length === 0) {
+                grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--text-muted);">没有找到匹配的书籍</div>';
+                return;
+            }
+
+            filtered.forEach(book => {
+                const title = lang === 'en' ? (book.title_en || book.title_zh) : book.title_zh;
+                
+                // 作者名匹配
+                let authorName = book.author;
+                if (typeof book.author === 'number' && window.AUTHORS_DATA) {
+                    const authorObj = window.AUTHORS_DATA.find(a => a.id === book.author);
+                    if (authorObj) authorName = lang === 'en' ? authorObj.name_en : authorObj.name_zh;
+                    else authorName = 'Unknown';
+                }
+
+                const card = document.createElement('div');
+                card.className = 'book-card';
+                card.innerHTML = `
+                    <div class="book-cover">${book.icon}</div>
+                    <div class="book-title">${window.escapeHtml(title)}</div>
+                    <div class="book-author">${window.escapeHtml(authorName)}</div>
+                `;
+                // 点击跳转到统一的 community 阅读器页面
+                card.onclick = () => {
+                    window.location.href = `reader.html?id=${book.id}${lang === 'en' ? '&lang=en' : ''}`;
+                };
+                grid.appendChild(card);
+            });
+        }
+
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            currentKeyword = e.target.value.trim().toLowerCase();
+            renderCommunityBooks();
+        });
+
+        window.addEventListener('langChanged', () => {
+            renderCommunityBooks();
+            const lang = window.getLang();
+            document.getElementById('searchInput').placeholder = lang === 'en' ? 'Search books...' : '搜索书名或作者...';
+        });
+
+        window.addEventListener('authorsLoaded', renderCommunityBooks);
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const lang = window.getLang();
+            document.getElementById('searchInput').placeholder = lang === 'en' ? 'Search books...' : '搜索书名或作者...';
+            renderCommunityBooks();
+        });
+    </script>
+</body>
+</html>

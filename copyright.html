@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>版权与侵权投诉 · Copyright Policy</title>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    
+    <link rel="stylesheet" href="common.css">
+    <link rel="stylesheet" href="doc.css">
+    <script src="common.js"></script>
+    <script defer src="doc.js"></script>
+    
+    <style>
+        .legal-top-nav { display: flex; justify-content: space-between; align-items: center; padding: 16px 5%; background: var(--bg-card); border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 100; }
+        .legal-brand { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--text-main); font-weight: 800; font-size: 1.2rem; }
+        .legal-brand img { width: 32px; height: 32px; border-radius: 50%; }
+        .nav-actions { display: flex; gap: 12px; align-items: center; }
+        .lang-switch { display: inline-flex; background: rgba(148, 163, 184, 0.15); border-radius: 30px; padding: 3px; }
+        .lang-btn { padding: 6px 16px; border: none; border-radius: 24px; background: transparent; font-size: 0.85rem; font-weight: 600; color: var(--text-muted); cursor: pointer; transition: all 0.2s; }
+        .lang-btn.active { background: var(--primary); color: #fff !important; }
+        .btn-back { text-decoration: none; color: var(--text-muted); font-size: 0.95rem; font-weight: 600; }
+        
+        .warning-box { background: rgba(239, 68, 68, 0.05); border-left: 5px solid #ef4444; padding: 1.2rem 1.8rem; border-radius: 0 14px 14px 0; margin: 1.6rem 0; color: var(--text-main); }
+        .warning-box strong { color: #ef4444; }
+    </style>
+</head>
+<body>
+    <div class="doc-progress-container"><div class="doc-progress-bar"></div></div>
+
+    <nav class="legal-top-nav">
+        <a href="/index.html" class="legal-brand">
+            <img src="leleleread.svg" alt="Logo" onerror="this.style.display='none'">
+            <span class="zh-inline">了了了读</span><span class="en-inline">lelele Read</span>
+        </a>
+        <div class="nav-actions">
+            <div class="lang-switch">
+                <button class="lang-btn active" data-lang-btn="zh" onclick="setLang('zh')">中文</button>
+                <button class="lang-btn" data-lang-btn="en" onclick="setLang('en')">English</button>
+            </div>
+            <a href="/index.html" class="btn-back">← <span class="zh-inline">返回首页</span><span class="en-inline">Back</span></a>
+        </div>
+    </nav>
+
+    <div class="doc-layout">
+        <aside class="doc-sidebar">
+            <div class="doc-toc-title"><span class="zh-inline">📑 目录</span><span class="en-inline">📑 Contents</span></div>
+            <div id="tocContainer"></div>
+        </aside>
+
+        <main class="doc-content" id="docContent">
+            <!-- 中文版 -->
+            <div class="zh-text">
+                <h1>版权与侵权投诉指引</h1>
+                <div class="subhead">最后更新：2026 年 10 月 25 日</div>
+
+                <p>「了了了读」高度重视知识产权保护。若您认为本平台展示的某部书籍（尤其是共创书库中的投稿作品）侵犯了您的合法权益，请按照本指引向我们提交正式的侵权通知。</p>
+
+                <h2>一、通知要求</h2>
+                <p>根据《中华人民共和国民法典》第 1195 条及相关法律法规，您的侵权通知应当包含以下内容：</p>
+                <ul>
+                    <li><strong>权利人身份证明：</strong>包括您的姓名（或机构名称）、身份证/营业执照复印件、联系方式（电话、邮箱）。</li>
+                    <li><strong>权属证明：</strong>包括但不限于著作权登记证书、首发证明、原创底稿等能够证明您拥有相关权利的材料。</li>
+                    <li><strong>侵权内容定位：</strong>请明确指出涉嫌侵权的书籍名称、作者，以及该书籍在本平台的具体链接（URL）。</li>
+                    <li><strong>真实性声明：</strong>请声明您通知中的陈述真实、准确，并愿意承担因不实通知产生的法律责任。</li>
+                </ul>
+
+                <div class="warning-box">
+                    <strong>⚠️ 注意：</strong>若您发出的通知不完整或不符合法定要求，本平台将暂缓处理。因错误通知导致平台或投稿者遭受损失的，权利人应依法承担赔偿责任。
+                </div>
+
+                <h2>二、提交方式</h2>
+                <p>请将上述材料打包发送至本平台指定邮箱：</p>
+                <p style="font-size: 1.2rem; font-weight: bold; color: var(--primary);">leleleling@2980.com</p>
+                <p>邮件标题请注明：【侵权投诉】+ 书籍名称 + 您的姓名/机构名称。</p>
+
+                <h2>三、平台处理流程</h2>
+                <ul>
+                    <li><strong>审核：</strong>我们在收到符合要求的通知后，将在 2 个工作日内进行初步审核。</li>
+                    <li><strong>转通知：</strong>审核通过后，我们将立即将您的通知转送给被投诉内容的上传者。</li>
+                    <li><strong>下架处理：</strong>依据《民法典》规定，我们将及时采取删除、屏蔽、断开链接等必要措施。</li>
+                    <li><strong>反通知：</strong>若投稿者提交了合规的反通知，我们将把反通知转送给您。若您未在合理期限内提起诉讼，我们将恢复被下架的内容。</li>
+                </ul>
+            </div>
+
+            <!-- 英文版 -->
+            <div class="en-text">
+                <h1>Copyright Infringement Notice Guidelines</h1>
+                <div class="subhead">Last updated: October 25, 2026</div>
+
+                <p>'lelele Read' highly values intellectual property protection. If you believe that a book displayed on the Platform (especially submitted works in the Community Library) infringes your rights, please submit a formal infringement notice according to these guidelines.</p>
+
+                <h2>I. Notice Requirements</h2>
+                <p>According to Article 1195 of the Civil Code of the PRC and relevant laws, your notice must contain:</p>
+                <ul>
+                    <li><strong>Proof of Identity:</strong> Your name (or organization name), ID/Business License copy, and contact info (phone, email).</li>
+                    <li><strong>Proof of Rights:</strong> Copyright registration certificates, proof of first publication, original drafts, etc.</li>
+                    <li><strong>Location of Infringing Content:</strong> The specific name, author, and exact URL of the infringing book on our Platform.</li>
+                    <li><strong>Statement of Truthfulness:</strong> A statement that the information in your notice is accurate, and you are authorized to act on behalf of the rights holder.</li>
+                </ul>
+
+                <div class="warning-box">
+                    <strong>⚠️ Warning:</strong> If your notice is incomplete or non-compliant, the Platform will postpone processing. The rights holder shall bear legal liability for damages caused by false notices.
+                </div>
+
+                <h2>II. How to Submit</h2>
+                <p>Please pack the above materials and send them to our designated email:</p>
+                <p style="font-size: 1.2rem; font-weight: bold; color: var(--primary);">leleleling@2980.com</p>
+                <p>Please use the subject: [Infringement Notice] + Book Name + Your Name/Organization.</p>
+
+                <h2>III. Platform Processing Procedure</h2>
+                <ul>
+                    <li><strong>Review:</strong> We will conduct an initial review within 2 business days of receiving a compliant notice.</li>
+                    <li><strong>Forwarding:</strong> If approved, we will immediately forward your notice to the uploader of the content.</li>
+                    <li><strong>Takedown:</strong> In accordance with the Civil Code, we will promptly remove, block, or disable access to the content.</li>
+                    <li><strong>Counter-Notice:</strong> If the uploader submits a compliant counter-notice, we will forward it to you. If you do not file a lawsuit within a reasonable period, we will restore the content.</li>
+                </ul>
+            </div>
+        </main>
+    </div>
+
+    <div id="footerPlaceholder"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            DocEngine.init({ tocContentId: 'docContent', tocContainerId: 'tocContainer' });
+            const currentLang = window.getLang();
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.langBtn === currentLang);
+            });
+        });
+    </script>
+</body>
+</html>

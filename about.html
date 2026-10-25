@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>关于与更新日志 - 了了了读</title>
+    
+    <!-- 引入全局基础与长文档样式 -->
+    <link rel="stylesheet" href="common.css">
+    <link rel="stylesheet" href="doc.css">
+    
+    <!-- 尽早引入公共脚本以应用主题和语言 -->
+    <script src="common.js"></script>
+    <script defer src="doc.js"></script>
+    
+    <style>
+        /* 顶部导航 */
+        .about-top-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 5%;
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .about-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: var(--text-main);
+            font-weight: 800;
+            font-size: 1.2rem;
+        }
+        .about-brand img { width: 32px; height: 32px; border-radius: 50%; }
+        .btn-back {
+            text-decoration: none;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+        .btn-back:hover { color: var(--primary); }
+        
+        /* 团队卡片网格 */
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .team-card {
+            background: var(--bg-page);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+        .team-avatar { font-size: 2.5rem; margin-bottom: 12px; }
+        .team-name { font-weight: 700; color: var(--text-main); margin-bottom: 4px; }
+        .team-role { font-size: 0.85rem; color: var(--text-muted); }
+    </style>
+</head>
+<body>
+
+    <!-- 阅读进度条 -->
+    <div class="doc-progress-container">
+        <div class="doc-progress-bar"></div>
+    </div>
+
+    <!-- 顶部导航 -->
+    <nav class="about-top-nav">
+        <a href="/index.html" class="about-brand">
+            <img src="leleleread.svg" alt="Logo" onerror="this.style.display='none'">
+            <span class="zh-inline">了了了读</span>
+            <span class="en-inline">lelele Read</span>
+        </a>
+        <a href="/index.html" class="btn-back">
+            ← <span class="zh-inline">返回首页</span><span class="en-inline">Back to Home</span>
+        </a>
+    </nav>
+
+    <!-- 主体布局 -->
+    <div class="doc-layout">
+        
+        <!-- 左侧自动生成的目录 -->
+        <aside class="doc-sidebar">
+            <div class="doc-toc-title">
+                <span class="zh-inline">📑 目录</span>
+                <span class="en-inline">📑 Contents</span>
+            </div>
+            <div id="tocContainer"></div>
+        </aside>
+
+        <!-- 右侧长文内容 -->
+        <main class="doc-content" id="docContent">
+            <h1>
+                <span class="zh-inline">关于了了了读</span>
+                <span class="en-inline">About lelele Read</span>
+            </h1>
+            <p>
+                <span class="zh-inline">「了了了读」是了了了岭工作室旗下的在线阅读产品。我们致力于打造一个轻量、干净、无广告的网页阅读器，让你在繁杂的互联网中拥有一片纯净的阅读空间。</span>
+                <span class="en-inline">'lelele Read' is an online reading product under Leleleling Studio. We are dedicated to creating a lightweight, clean, and ad-free web reader, providing you with a pure reading space amidst the complex internet.</span>
+            </p>
+
+            <h2>
+                <span class="zh-inline">为什么做「了了了读」？</span>
+                <span class="en-inline">Why 'lelele Read'?</span>
+            </h2>
+            <p>
+                <span class="zh-inline">我们发现在网上找一本排版舒服、没有弹窗广告、不需要下载臃肿 App 的电子书越来越难。于是我们决定用最纯粹的 Web 技术（HTML/CSS/JS），把经典的公版书籍、或者是我们自己创作的内容，重新进行精美的排版，直接呈现给每一位读者。</span>
+                <span class="en-inline">We found it increasingly difficult to find e-books online with comfortable typography, no pop-up ads, and no need to download bloated apps. So, we decided to use the purest web technologies (HTML/CSS/JS) to beautifully typeset classic public domain books or our own creations and present them directly to every reader.</span>
+            </p>
+
+            <h2>
+                <span class="zh-inline">关于工作室</span>
+                <span class="en-inline">About the Studio</span>
+            </h2>
+            <p>
+                <span class="zh-inline">了了了岭工作室（Leleleling Studio）由一群热爱技术和创作的开发者组成。我们既做像「了了了游」这样的游戏分享平台，也做像「了了了读」这样纯粹的阅读工具。我们相信，好的工具应该服务于内容，而不是喧宾夺主。</span>
+                <span class="en-inline">Leleleling Studio is composed of developers who love technology and creation. We build game sharing platforms like 'lelele Game' and pure reading tools like 'lelele Read'. We believe that good tools should serve the content, not overshadow it.</span>
+            </p>
+            
+            <div class="team-grid">
+                <div class="team-card">
+                    <div class="team-avatar">👨‍💻</div>
+                    <div class="team-name">David</div>
+                    <div class="team-role"><span class="zh-inline">首席开发者</span><span class="en-inline">Lead Developer</span></div>
+                </div>
+                <div class="team-card">
+                    <div class="team-avatar">🎨</div>
+                    <div class="team-name">Design Team</div>
+                    <div class="team-role"><span class="zh-inline">视觉设计</span><span class="en-inline">Visual Design</span></div>
+                </div>
+            </div>
+
+            <h2>
+                <span class="zh-inline">更新日志</span>
+                <span class="en-inline">Changelog</span>
+            </h2>
+            <p>
+                <span class="zh-inline">我们一直在倾听读者的声音，不断优化阅读体验。以下是「了了了读」的迭代记录：</span>
+                <span class="en-inline">We are always listening to our readers and continuously optimizing the reading experience. Here is the iteration record of 'lelele Read':</span>
+            </p>
+            
+            <!-- 更新日志容器（由 doc.js 渲染） -->
+            <div id="changelogContainer"></div>
+
+            <h2>
+                <span class="zh-inline">联系我们</span>
+                <span class="en-inline">Contact Us</span>
+            </h2>
+            <p>
+                <span class="zh-inline">如果你有好的建议、发现了 Bug，或者想要投稿自己的作品，欢迎随时联系我们：</span>
+                <span class="en-inline">If you have good suggestions, found a bug, or want to submit your work, feel free to contact us:</span>
+            </p>
+            <ul>
+                <li>Email: leleleling@2980.com</li>
+                <li>GitHub: <a href="https://github.com/leleleling/lelele-read" target="_blank">leleleling/lelele-read</a></li>
+            </ul>
+        </main>
+    </div>
+
+    <!-- 占位 Footer -->
+    <div id="footerPlaceholder"></div>
+
+    <!-- 页面专属脚本 -->
+    <script>
+        // 内置测试用的更新日志数据（以后可以改成 fetch('/data/changelog.json')）
+        const CHANGELOG_DATA = [
+            {
+                version: "v1.0.0",
+                date: "2026-10-25",
+                changes: [
+                    "完成前端基础架构搭建（纯静态、无构建）。",
+                    "上线全站双语、深色模式与自定义背景。",
+                    "发布终极版万能阅读器，支持拖拽布局与笔记功能。",
+                    "新增「共创书库」板块，支持外部作者接口接入。"
+                ]
+            },
+            {
+                version: "v0.9.0 (Beta)",
+                date: "2026-09-15",
+                changes: [
+                    "阅读器核心排版引擎内测。",
+                    "圣经、诗经、鲁迅作品数据完成适配。",
+                    "基础 PWA 离线缓存可用。"
+                ]
+            }
+        ];
+
+        // 手动渲染更新日志（为了支持双语，不使用 doc.js 里默认的 json）
+        function renderChangelog() {
+            const container = document.getElementById('changelogContainer');
+            if (!container) return;
+            const lang = window.getLang();
+
+            let html = '<div class="changelog-timeline">';
+            CHANGELOG_DATA.forEach(item => {
+                html += `
+                    <div class="changelog-item">
+                        <div class="changelog-version">${item.version}</div>
+                        <div class="changelog-date">${item.date}</div>
+                        <ul class="changelog-list">
+                            ${item.changes.map(c => `<li>${c}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // 初始化长文引擎（自动生成左侧目录）
+            DocEngine.init({
+                tocContentId: 'docContent',
+                tocContainerId: 'tocContainer'
+            });
+
+            // 渲染更新日志
+            renderChangelog();
+
+            // 监听语言切换，刷新日志和多语言显隐
+            window.addEventListener('langChanged', () => {
+                renderChangelog();
+                // 由于标题可能变化，这里简单粗暴地重新加载页面（如果觉得体验不好可以去掉）
+                // window.location.reload(); 
+            });
+        });
+    </script>
+</body>
+</html>

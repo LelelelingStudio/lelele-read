@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 - 页面未找到 | 了了了读</title>
+    <!-- 引入全局基建 -->
+    <link rel="stylesheet" href="common.css">
+    <!-- 保证脚本尽早执行以判断语言和主题 -->
+    <script src="common.js"></script>
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background: var(--bg-page);
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+        }
+        .error-card {
+            text-align: center;
+            padding: 40px;
+            background: var(--bg-card);
+            border-radius: 24px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-md);
+            max-width: 400px;
+            width: 90%;
+            position: relative;
+            z-index: 2;
+        }
+        .logo {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 20px;
+            border-radius: 50%;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        h1 {
+            font-size: 4rem;
+            color: var(--primary);
+            margin: 0 0 10px 0;
+            line-height: 1;
+        }
+        .subhead {
+            font-size: 1.2rem;
+            color: var(--text-main);
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+        p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+        .btn-home {
+            display: inline-block;
+            padding: 12px 30px;
+            background: var(--primary);
+            color: #fff;
+            text-decoration: none;
+            border-radius: 30px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .btn-home:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(79, 70, 229, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="error-card">
+        <!-- 借用全局 Logo -->
+        <img src="leleleread.svg" alt="Logo" class="logo" onerror="this.style.display='none'">
+        <h1>404</h1>
+        <div class="subhead">
+            <span class="zh-inline">页面走丢了</span>
+            <span class="en-inline">Page Not Found</span>
+        </div>
+        <p>
+            <span class="zh-inline">很抱歉，您访问的页面不存在，可能是链接有误，或者是书本已经下架了。</span>
+            <span class="en-inline">Sorry, the page you are looking for does not exist or has been removed.</span>
+        </p>
+        <a href="/index.html" class="btn-home">
+            <span class="zh-inline">🏠 返回首页</span>
+            <span class="en-inline">🏠 Back to Home</span>
+        </a>
+    </div>
+</body>
+</html>

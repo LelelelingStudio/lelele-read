@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>隐私政策 · Privacy Policy</title>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    
+    <link rel="stylesheet" href="common.css">
+    <link rel="stylesheet" href="doc.css">
+    <script src="common.js"></script>
+    <script defer src="doc.js"></script>
+    
+    <style>
+        /* 复用 rules.html 的微调样式 */
+        .legal-top-nav { display: flex; justify-content: space-between; align-items: center; padding: 16px 5%; background: var(--bg-card); border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 100; }
+        .legal-brand { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--text-main); font-weight: 800; font-size: 1.2rem; }
+        .legal-brand img { width: 32px; height: 32px; border-radius: 50%; }
+        .nav-actions { display: flex; gap: 12px; align-items: center; }
+        .lang-switch { display: inline-flex; background: rgba(148, 163, 184, 0.15); border-radius: 30px; padding: 3px; }
+        .lang-btn { padding: 6px 16px; border: none; border-radius: 24px; background: transparent; font-size: 0.85rem; font-weight: 600; color: var(--text-muted); cursor: pointer; transition: all 0.2s; }
+        .lang-btn.active { background: var(--primary); color: #fff !important; }
+        .btn-back { text-decoration: none; color: var(--text-muted); font-size: 0.95rem; font-weight: 600; }
+    </style>
+</head>
+<body>
+    <div class="doc-progress-container"><div class="doc-progress-bar"></div></div>
+
+    <nav class="legal-top-nav">
+        <a href="/index.html" class="legal-brand">
+            <img src="leleleread.svg" alt="Logo" onerror="this.style.display='none'">
+            <span class="zh-inline">了了了读</span><span class="en-inline">lelele Read</span>
+        </a>
+        <div class="nav-actions">
+            <div class="lang-switch">
+                <button class="lang-btn active" data-lang-btn="zh" onclick="setLang('zh')">中文</button>
+                <button class="lang-btn" data-lang-btn="en" onclick="setLang('en')">English</button>
+            </div>
+            <a href="/index.html" class="btn-back">← <span class="zh-inline">返回首页</span><span class="en-inline">Back</span></a>
+        </div>
+    </nav>
+
+    <div class="doc-layout">
+        <aside class="doc-sidebar">
+            <div class="doc-toc-title"><span class="zh-inline">📑 目录</span><span class="en-inline">📑 Contents</span></div>
+            <div id="tocContainer"></div>
+        </aside>
+
+        <main class="doc-content" id="docContent">
+            <!-- 中文版 -->
+            <div class="zh-text">
+                <h1>隐私政策</h1>
+                <div class="subhead">最后更新：2026 年 10 月 25 日</div>
+
+                <p>了了了岭工作室（以下简称“我们”）深知个人信息对您的重要性。「了了了读」作为一个纯前端静态网站，我们极度重视并采用最小化收集原则来保护您的隐私。</p>
+
+                <h2>1. 我们收集的信息</h2>
+                <p>由于本站为纯前端架构，绝大多数数据均保存在您的本地设备中：</p>
+                <ul>
+                    <li><strong>本地数据（LocalStorage）：</strong>您的阅读进度、书签、高亮、批注、字号设置、背景图以及布局拖拽位置，全部保存在您浏览器的本地存储中。我们不会将其上传到任何服务器。</li>
+                    <li><strong>访问数据：</strong>我们可能使用去中心化的隐私友好型统计工具（如 Umami），收集页面访问量（PV）和独立访客（UV），不收集您的个人身份信息。</li>
+                    <li><strong>投稿信息：</strong>如果您向「共创书库」投稿，我们会收集您提供的笔名、书籍信息及联系邮箱。</li>
+                </ul>
+
+                <h2>2. 我们如何使用信息</h2>
+                <ul>
+                    <li>渲染您的阅读偏好（如恢复上次阅读位置、恢复暗黑模式）。</li>
+                    <li>在阅读器中展示您添加的书签和批注。</li>
+                    <li>分析整体阅读趋势（如哪本书最受欢迎），以优化内容运营。</li>
+                </ul>
+
+                <h2>3. 信息的存储与保护</h2>
+                <p>所有的阅读偏好和笔记数据都存储在您的本地浏览器中。如果您清除浏览器缓存或更换设备，这些数据将无法找回。投稿数据存储在具备合规资质的安全服务器中。</p>
+
+                <h2>4. 未成年人保护</h2>
+                <p>我们非常重视未成年人的隐私保护。若您是未满 14 周岁的儿童，请在监护人指导下使用本平台。我们不会主动收集未成年人的个人信息。</p>
+            </div>
+
+            <!-- 英文版 -->
+            <div class="en-text">
+                <h1>Privacy Policy</h1>
+                <div class="subhead">Last updated: October 25, 2026</div>
+
+                <p>Leleleling Studio ("we", "us", or "our") understands the importance of your personal information. As 'lelele Read' is a pure front-end static website, we highly value and adopt a principle of minimal data collection to protect your privacy.</p>
+
+                <h2>1. Information We Collect</h2>
+                <p>Because the site uses a pure front-end architecture, the vast majority of data is stored on your local device:</p>
+                <ul>
+                    <li><strong>Local Data (LocalStorage):</strong> Your reading progress, bookmarks, highlights, annotations, font settings, background images, and layout positions are all saved in your browser's local storage. We do not upload this to any server.</li>
+                    <li><strong>Access Data:</strong> We may use decentralized, privacy-friendly analytics tools (like Umami) to collect page views (PV) and unique visitors (UV), without collecting personally identifiable information.</li>
+                    <li><strong>Submission Info:</strong> If you submit to the 'Community Library', we collect your pen name, book details, and contact email.</li>
+                </ul>
+
+                <h2>2. How We Use Information</h2>
+                <ul>
+                    <li>To render your reading preferences (e.g., restoring last reading position, dark mode).</li>
+                    <li>To display the bookmarks and annotations you add in the reader.</li>
+                    <li>To analyze overall reading trends (e.g., most popular books) to optimize content curation.</li>
+                </ul>
+
+                <h2>3. Storage and Protection</h2>
+                <p>All reading preferences and notes are stored locally in your browser. If you clear your browser cache or change devices, this data cannot be recovered. Submission data is stored on secure servers with compliance qualifications.</p>
+
+                <h2>4. Protection of Minors</h2>
+                <p>We highly value the privacy of minors. If you are a child under 14, please use this platform under the guidance of a guardian. We do not actively collect personal information from minors.</p>
+            </div>
+        </main>
+    </div>
+
+    <div id="footerPlaceholder"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            DocEngine.init({ tocContentId: 'docContent', tocContainerId: 'tocContainer' });
+            const currentLang = window.getLang();
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.langBtn === currentLang);
+            });
+        });
+    </script>
+</body>
+</html>

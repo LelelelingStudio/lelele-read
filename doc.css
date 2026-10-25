@@ -1,0 +1,205 @@
+/* =========================================
+   doc.css - 长文档、法律页、关于页专用样式
+   ========================================= */
+
+/* 阅读进度条 */
+.doc-progress-container {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 3px;
+    background: transparent;
+    z-index: 9999;
+}
+.doc-progress-bar {
+    height: 100%;
+    background: var(--primary, #4f46e5);
+    width: 0%;
+    transition: width 0.1s;
+}
+
+/* 长文双栏布局 (PC) */
+.doc-layout {
+    display: flex;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 20px;
+    gap: 40px;
+    align-items: flex-start;
+}
+
+/* 侧边目录 */
+.doc-sidebar {
+    width: 240px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 40px;
+    max-height: calc(100vh - 80px);
+    overflow-y: auto;
+}
+.doc-toc-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: var(--text-main, #1e293b);
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border-color, #e2e8f0);
+}
+.doc-toc-list {
+    list-style: none;
+    padding: 0; margin: 0;
+}
+.doc-toc-item {
+    margin-bottom: 8px;
+}
+.doc-toc-link {
+    display: block;
+    font-size: 0.9rem;
+    color: var(--text-muted, #64748b);
+    text-decoration: none;
+    padding: 4px 8px;
+    border-radius: 6px;
+    transition: all 0.2s;
+    border-left: 2px solid transparent;
+}
+.doc-toc-link:hover {
+    color: var(--primary, #4f46e5);
+    background: var(--bg-page, #f8fafc);
+}
+.doc-toc-link.active {
+    color: var(--primary, #4f46e5);
+    font-weight: 600;
+    background: rgba(79, 70, 229, 0.05);
+    border-left-color: var(--primary, #4f46e5);
+}
+
+/* 正文内容区 */
+.doc-content {
+    flex: 1;
+    min-width: 0;
+    background: var(--bg-card, #fff);
+    padding: 40px;
+    border-radius: 16px;
+    box-shadow: var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.05));
+    border: 1px solid var(--border-color, #e2e8f0);
+    line-height: 1.8;
+    font-size: 1rem;
+    color: var(--text-main, #1e293b);
+}
+
+/* 正文排版细节 */
+.doc-content h1 {
+    font-size: 2rem;
+    margin-bottom: 24px;
+    color: var(--text-main);
+}
+.doc-content h2 {
+    font-size: 1.5rem;
+    margin-top: 40px;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-main);
+}
+.doc-content h3 {
+    font-size: 1.2rem;
+    margin-top: 24px;
+    margin-bottom: 12px;
+    color: var(--text-main);
+}
+.doc-content p {
+    margin-bottom: 16px;
+}
+.doc-content ul, .doc-content ol {
+    padding-left: 24px;
+    margin-bottom: 16px;
+}
+.doc-content li {
+    margin-bottom: 8px;
+}
+.doc-content a {
+    color: var(--primary);
+    text-decoration: none;
+}
+.doc-content a:hover {
+    text-decoration: underline;
+}
+.doc-content blockquote {
+    margin: 20px 0;
+    padding: 16px 20px;
+    background: var(--bg-page);
+    border-left: 4px solid var(--primary);
+    color: var(--text-muted);
+    border-radius: 0 8px 8px 0;
+}
+
+/* 更新日志专用时间线 */
+.changelog-timeline {
+    position: relative;
+    padding-left: 20px;
+    border-left: 2px solid var(--border-color);
+    margin-top: 20px;
+}
+.changelog-item {
+    position: relative;
+    margin-bottom: 32px;
+}
+.changelog-item::before {
+    content: '';
+    position: absolute;
+    left: -27px;
+    top: 4px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--primary);
+    border: 2px solid var(--bg-card);
+    box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
+}
+.changelog-version {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--primary);
+    margin-bottom: 4px;
+}
+.changelog-date {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+}
+.changelog-list {
+    list-style: none;
+    padding: 0;
+}
+.changelog-list li {
+    margin-bottom: 6px;
+    padding-left: 16px;
+    position: relative;
+}
+.changelog-list li::before {
+    content: '•';
+    position: absolute;
+    left: 0;
+    color: var(--primary);
+}
+
+/* 移动端适配 */
+@media (max-width: 900px) {
+    .doc-layout {
+        flex-direction: column;
+        padding: 20px 16px;
+    }
+    .doc-sidebar {
+        display: none; /* 移动端暂时隐藏侧边目录，或者可改为抽屉 */
+    }
+    .doc-content {
+        padding: 24px 16px;
+    }
+}
+
+/* 深色模式 */
+html.dark-mode .doc-content {
+    background: #1e293b;
+    border-color: #334155;
+}
+html.dark-mode .doc-content blockquote {
+    background: #0f172a;
+}

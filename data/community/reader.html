@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>正在加载 - 共创书库 | 了了了读</title>
+    
+    <!-- 全站公共与阅读器样式（注意相对路径） -->
+    <link rel="stylesheet" href="../../common.css">
+    <link rel="stylesheet" href="../../window.css">
+    <link rel="stylesheet" href="../../reader.css">
+    
+    <!-- 全站公共与阅读器脚本 -->
+    <script src="../../common.js"></script>
+    <script src="../../window.js"></script>
+    <script defer src="../../reader.js"></script>
+</head>
+<body>
+
+    <!-- 阅读器背景与遮罩 -->
+    <div class="reader-bg-layer" id="readerBgLayer"></div>
+    <div class="reader-bg-overlay" id="readerBgOverlay"></div>
+
+    <!-- 移动端侧边栏开关 -->
+    <div class="reader-menu-toggle" id="readerMenuToggle">☰</div>
+
+    <div class="reader-app">
+        <!-- 左侧边栏 (目录) -->
+        <div class="reader-sidebar">
+            <div class="reader-sidebar-header">
+                <div class="reader-sidebar-title">
+                    <span class="zh-inline">共创书库 · 目录</span>
+                    <span class="en-inline">Community · Contents</span>
+                </div>
+                <a href="./index.html" style="text-decoration:none; font-size:0.8rem; color:var(--read-text-secondary);">
+                    ← <span class="zh-inline">返回书库</span><span class="en-inline">Back</span>
+                </a>
+            </div>
+            <div class="reader-search-box">
+                <input type="text" id="readerSearchInput" class="reader-search-input" placeholder="搜索章节...">
+            </div>
+            <div class="reader-list" id="readerSidebarList">
+                <!-- 章节列表由 JS 渲染 -->
+            </div>
+        </div>
+
+        <!-- 右侧正文区域 -->
+        <div class="reader-main">
+            <div class="reader-content-container" id="readerContent">
+                <!-- 正文由 JS 渲染 -->
+                <div style="text-align:center; padding: 50px; color: var(--read-text-secondary);">
+                    <span class="zh-inline">正在读取书籍配置...</span>
+                    <span class="en-inline">Loading book configuration...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 笔记面板 -->
+    <div class="reader-notes-panel" id="readerNotesPanel">
+        <div class="reader-notes-header">
+            <span style="font-weight:700;"><span class="zh-inline">我的笔记</span><span class="en-inline">My Notes</span></span>
+            <button style="border:none;background:transparent;font-size:1.2rem;cursor:pointer;" onclick="document.getElementById('readerNotesPanel').classList.remove('open')">×</button>
+        </div>
+        <div class="reader-notes-tabs">
+            <div class="reader-notes-tab active" data-tab="bookmarks">书签</div>
+            <div class="reader-notes-tab" data-tab="annotations">批注</div>
+        </div>
+        <div class="reader-notes-list" id="readerNotesList"></div>
+    </div>
+
+    <!-- 悬浮可拖拽工具栏 -->
+    <div class="reader-draggable" id="floatTheme" style="right: 20px; bottom: 80px;">
+        <button onclick="toggleTheme()">🌙 <span class="zh-inline">主题</span><span class="en-inline">Theme</span></button>
+    </div>
+    <div class="reader-draggable" id="floatFont" style="right: 20px; bottom: 140px;">
+        <button onclick="Reader.setFontSize(parseInt(localStorage.getItem('lelele_read_fontSize')||16) - 1)">A-</button>
+        <button onclick="Reader.setFontSize(parseInt(localStorage.getItem('lelele_read_fontSize')||16) + 1)">A+</button>
+    </div>
+    <div class="reader-draggable" id="floatTools" style="right: 20px; bottom: 200px;">
+        <button onclick="document.getElementById('readerNotesPanel').classList.add('open')">📝 <span class="zh-inline">笔记</span><span class="en-inline">Notes</span></button>
+        <button onclick="Reader.toggleLayout()">🖐️ <span class="zh-inline">布局</span><span class="en-inline">Layout</span></button>
+        <button onclick="Reader.exportBook('txt')">📤 <span class="zh-inline">导出</span><span class="en-inline">Export</span></button>
+    </div>
+
+    <!-- 页面启动脚本 -->
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            // 1. 获取 URL 中的书籍 ID
+            const urlParams = new URLSearchParams(window.location.search);
+            const bookId = urlParams.get('id');
+
+            if (!bookId) {
+                document.getElementById('readerContent').innerHTML = '<div style="text-align:center;padding:50px;color:red;">错误：未指定书籍 ID (缺少 ?id=xxx 参数)</div>';
+                return;
+            }
+
+            try {
+                // 2. 读取当前目录下的 books.json 获取配置
+                const response = await fetch('./books.json');
+                if (!response.ok) throw new Error('无法加载 books.json');
+                
+                const books = await response.json();
+                const bookConfig = books.find(b => b.id === bookId);
+
+                if (!bookConfig) {
+                    document.getElementById('readerContent').innerHTML = '<div style="text-align:center;padding:50px;color:red;">错误：书库中未找到该书</div>';
+                    return;
+                }
+
+                // 3. 更新页面标题
+                const lang = window.getLang();
+                const title = lang === 'en' ? (bookConfig.title_en || bookConfig.title_zh) : bookConfig.title_zh;
+                document.title = `${title} - 共创书库`;
+
+                // 4. 初始化阅读器，将外部 JSON 地址传给万能阅读引擎
+                Reader.init({
+                    bookTitle: bookConfig.title_zh, // 作为本地存储的标识
+                    dataUrl: bookConfig.dataUrl,    // 核心：这里指向了外部域名的 JSON 地址
+                    dataType: bookConfig.dataType || 'json',
+                    globalVarName: '',
+                    hasVerseNum: bookConfig.hasVerseNum || false,
+                    defaultFontSize: 18,
+                    defaultFontFamily: "'Noto Serif SC', serif"
+                });
+
+                // 监听标签页切换
+                document.querySelectorAll('.reader-notes-tab').forEach(tab => {
+                    tab.addEventListener('click', (e) => {
+                        document.querySelectorAll('.reader-notes-tab').forEach(t => t.classList.remove('active'));
+                        e.target.classList.add('active');
+                        // TODO: 触发 reader.js 的重新渲染笔记方法（可在未来版本补充）
+                    });
+                });
+
+            } catch (err) {
+                console.error('加载配置失败:', err);
+                document.getElementById('readerContent').innerHTML = '<div style="text-align:center;padding:50px;color:red;">网络错误：无法加载书籍配置。</div>';
+            }
+        });
+    </script>
+</body>
+</html>

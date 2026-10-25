@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>阅读器守则 · Reader Rules</title>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    
+    <!-- 引入全局样式 -->
+    <link rel="stylesheet" href="common.css">
+    <link rel="stylesheet" href="doc.css">
+    
+    <script src="common.js"></script>
+    <script defer src="doc.js"></script>
+    
+    <style>
+        /* 法律页面专属微调 */
+        .legal-top-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 5%;
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .legal-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: var(--text-main);
+            font-weight: 800;
+            font-size: 1.2rem;
+        }
+        .legal-brand img { width: 32px; height: 32px; border-radius: 50%; }
+        .nav-actions { display: flex; gap: 12px; align-items: center; }
+        .lang-switch {
+            display: inline-flex;
+            background: rgba(148, 163, 184, 0.15);
+            border-radius: 30px;
+            padding: 3px;
+        }
+        .lang-btn {
+            padding: 6px 16px;
+            border: none;
+            border-radius: 24px;
+            background: transparent;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .lang-btn.active {
+            background: var(--primary);
+            color: #fff !important;
+        }
+        .btn-back {
+            text-decoration: none;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+        
+        /* 提示框 */
+        .warn-box {
+            background: rgba(239, 68, 68, 0.05);
+            border-left: 5px solid #ef4444;
+            padding: 1.2rem 1.8rem;
+            border-radius: 0 14px 14px 0;
+            margin: 1.6rem 0;
+            color: var(--text-main);
+        }
+        .warn-box strong { color: #ef4444; }
+    </style>
+</head>
+<body>
+    <div class="doc-progress-container"><div class="doc-progress-bar"></div></div>
+
+    <nav class="legal-top-nav">
+        <a href="/index.html" class="legal-brand">
+            <img src="leleleread.svg" alt="Logo" onerror="this.style.display='none'">
+            <span class="zh-inline">了了了读</span><span class="en-inline">lelele Read</span>
+        </a>
+        <div class="nav-actions">
+            <div class="lang-switch">
+                <button class="lang-btn active" data-lang-btn="zh" onclick="setLang('zh')">中文</button>
+                <button class="lang-btn" data-lang-btn="en" onclick="setLang('en')">English</button>
+            </div>
+            <a href="/index.html" class="btn-back">← <span class="zh-inline">返回首页</span><span class="en-inline">Back</span></a>
+        </div>
+    </nav>
+
+    <div class="doc-layout">
+        <aside class="doc-sidebar">
+            <div class="doc-toc-title"><span class="zh-inline">📑 目录</span><span class="en-inline">📑 Contents</span></div>
+            <div id="tocContainer"></div>
+        </aside>
+
+        <main class="doc-content" id="docContent">
+            <!-- 中文版 -->
+            <div class="zh-text">
+                <h1>了了了读 阅读器守则</h1>
+                <div class="subhead">最后更新：2026 年 10 月 25 日 · 版本 1.0.0</div>
+
+                <div class="warn-box">
+                    <strong>提示：</strong>使用「了了了读」（read.leleleling.site）即代表您已阅读并同意本守则。本平台为纯净无广告阅读工具，请自觉维护良好的阅读环境。
+                </div>
+
+                <h2>第一章 总则</h2>
+                <p>1.1 「了了了读」是了了了岭工作室旗下的在线阅读平台，旨在提供排版精美、无广告、轻量化的电子书阅读体验。</p>
+                <p>1.2 本平台所展示的公版书籍（如《圣经》、《诗经》、鲁迅作品等）均来源于公共领域，或已获得合法授权。用户投稿的「共创书库」内容由投稿者自行承担相关责任。</p>
+
+                <h2>第二章 用户行为规范</h2>
+                <p>2.1 <strong>合法使用：</strong>用户不得利用本平台进行任何违反中华人民共和国法律法规的活动。</p>
+                <p>2.2 <strong>禁止恶意攻击：</strong>严禁使用爬虫脚本、DDoS 攻击或其他技术手段恶意消耗本平台静态资源或干扰正常服务。</p>
+                <p>2.3 <strong>尊重知识产权：</strong>未经授权，用户不得将本平台独有的排版样式、代码逻辑用于商业用途。</p>
+
+                <h2>第三章 共创书库与投稿</h2>
+                <p>3.1 投稿者保证对其上传的文字、图片等作品拥有合法的著作权。</p>
+                <p>3.2 严禁投稿包含色情、暴力、政治敏感、侵权或违反公序良俗的内容。</p>
+                <p>3.3 本平台有权对违规内容进行下架、封禁账号处理，并保留追究法律责任的权利。</p>
+
+                <h2>第四章 免责声明</h2>
+                <p>4.1 本平台作为纯前端静态站点，尽力保障服务的连续性，但不对因不可抗力、网络运营商故障、设备兼容性等导致的服务中断或数据丢失承担责任。</p>
+                <p>4.2 用户在使用「导出」或「笔记」功能时，数据保存在浏览器本地（LocalStorage）。清理浏览器缓存可能导致数据丢失，请用户自行做好备份。</p>
+            </div>
+
+            <!-- 英文版 -->
+            <div class="en-text">
+                <h1>lelele Read Rules</h1>
+                <div class="subhead">Last updated: October 25, 2026 · Version 1.0.0</div>
+
+                <div class="warn-box">
+                    <strong>Notice:</strong> By using 'lelele Read' (read.leleleling.site), you agree to these Rules. This platform is a pure, ad-free reading tool; please help maintain a good reading environment.
+                </div>
+
+                <h2>Chapter 1 General Provisions</h2>
+                <p>1.1 'lelele Read' is an online reading platform under Leleleling Studio, dedicated to providing a beautifully typeset, ad-free, and lightweight e-book reading experience.</p>
+                <p>1.2 Public domain books (such as the Bible, Book of Songs, and Lu Xun's works) are sourced from the public domain or legally authorized. Content submitted to the 'Community Library' is the responsibility of the submitter.</p>
+
+                <h2>Chapter 2 User Conduct</h2>
+                <p>2.1 <strong>Legal Use:</strong> Users must not use this platform for any activities that violate the laws and regulations of the PRC.</p>
+                <p>2.2 <strong>No Malicious Attacks:</strong> The use of crawler scripts, DDoS attacks, or other technical means to maliciously consume static resources or disrupt services is strictly prohibited.</p>
+                <p>2.3 <strong>Intellectual Property:</strong> Unauthorized use of the platform's unique layout styles or code logic for commercial purposes is not allowed.</p>
+
+                <h2>Chapter 3 Community Library and Submissions</h2>
+                <p>3.1 Submitters guarantee that they hold legal copyright for the text and images they upload.</p>
+                <p>3.2 Content that is pornographic, violent, politically sensitive, infringing, or against public order is strictly prohibited.</p>
+                <p>3.3 The platform has the right to remove violating content, ban accounts, and reserves the right to pursue legal responsibilities.</p>
+
+                <h2>Chapter 4 Disclaimer</h2>
+                <p>4.1 As a pure front-end static site, the platform strives to ensure continuity of service but is not liable for interruptions or data loss caused by force majeure, network failures, or device compatibility.</p>
+                <p>4.2 Data from 'Export' or 'Notes' features is saved locally (LocalStorage). Clearing browser cache may cause data loss; please back up manually.</p>
+            </div>
+        </main>
+    </div>
+
+    <div id="footerPlaceholder"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            DocEngine.init({ tocContentId: 'docContent', tocContainerId: 'tocContainer' });
+            // 简单的语言按钮状态同步
+            const currentLang = window.getLang();
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.langBtn === currentLang);
+            });
+        });
+    </script>
+</body>
+</html>

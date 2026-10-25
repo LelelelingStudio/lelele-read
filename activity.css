@@ -1,0 +1,81 @@
+/* =========================================
+   activity.css - 活动主题、Banner与下雪特效
+   ========================================= */
+
+/* 1. 全站活动背景层 */
+html.activity-mode body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    background-image: var(--activity-bg-image, none);
+    background-size: cover;
+    background-position: center;
+    z-index: -10;
+    pointer-events: none;
+}
+
+/* 深色模式下活动背景的暗化遮罩 */
+html.dark-mode.activity-mode body::before {
+    filter: brightness(0.4);
+}
+
+/* 2. 活动 Banner 容器（自动插入到页面顶部或指定位置） */
+.activity-banner-container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 16px auto;
+    padding: 0 20px;
+    position: relative;
+    z-index: 10;
+    animation: slideDown 0.5s ease;
+}
+
+.activity-banner-container img {
+    width: 100%;
+    height: auto;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    object-fit: cover;
+}
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* 3. 下雪特效 Canvas 容器 */
+#activity-snowfall-canvas {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    pointer-events: none;
+    z-index: 9998; /* 在内容之上，弹窗之下 */
+}
+
+/* 4. 节日小挂件（如圣诞树、雪人） */
+.activity-sticker {
+    position: fixed;
+    bottom: 20px;
+    z-index: 99;
+    pointer-events: none;
+    max-height: 150px;
+    transition: all 0.3s;
+}
+.activity-sticker.snowman { left: 20px; }
+.activity-sticker.tree { right: 20px; }
+
+@media (max-width: 768px) {
+    .activity-sticker { max-height: 80px; }
+}
+
+/* 5. 活动模式下的 Logo 替换或特殊发光效果 */
+html.activity-mode .site-logo {
+    filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.8));
+}
+
+/* 禁止特效的页面 (比如阅读器正文沉浸模式) */
+html.activity-mode.skip-effects body::before,
+html.activity-mode.skip-effects #activity-snowfall-canvas,
+html.activity-mode.skip-effects .activity-sticker {
+    display: none !important;
+}

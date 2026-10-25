@@ -1,0 +1,219 @@
+/* =========================================
+   common.css - 全站公共样式
+   ========================================= */
+
+/* 1. 全局变量与深浅色模式 */
+:root {
+    --bg-page: #f8fafc;
+    --bg-card: #ffffff;
+    --text-main: #1e293b;
+    --text-muted: #64748b;
+    --border-color: #e2e8f0;
+    --primary: #4f46e5;
+    --primary-hover: #4338ca;
+    --danger: #ef4444;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+}
+
+html.dark-mode {
+    --bg-page: #0f172a;
+    --bg-card: #1e293b;
+    --text-main: #f1f5f9;
+    --text-muted: #94a3b8;
+    --border-color: #334155;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
+    --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.5);
+}
+
+/* 2. 基础重置 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+    background-color: var(--bg-page);
+    color: var(--text-main);
+    transition: background-color 0.3s, color 0.3s;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* 3. 全站双语控制类 */
+.zh-text, .en-text { display: none; }
+.zh-inline, .en-inline { display: none; }
+
+html[data-lang="zh"] .zh-text { display: block; }
+html[data-lang="zh"] .zh-inline { display: inline; }
+html[data-lang="en"] .en-text { display: block; }
+html[data-lang="en"] .en-inline { display: inline; }
+
+html[data-lang="zh"] .en-text, html[data-lang="zh"] .en-inline { display: none; }
+html[data-lang="en"] .zh-text, html[data-lang="en"] .zh-inline { display: none; }
+
+/* 4. 滚动条美化 */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+html.dark-mode ::-webkit-scrollbar-thumb { background: #475569; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+/* 5. 通用底部 Footer */
+.common-footer {
+    text-align: center;
+    padding: 24px 16px;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+    border-top: 1px solid var(--border-color);
+    background: var(--bg-card);
+    margin-top: 40px;
+}
+.common-footer a {
+    color: var(--text-muted);
+    text-decoration: none;
+    margin: 0 6px;
+    transition: color 0.2s;
+}
+.common-footer a:hover { color: var(--primary); }
+
+/* 6. 悬浮工具 (回顶部、反馈) */
+.common-float-tools {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    z-index: 9000;
+}
+.common-float-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-md);
+    color: var(--text-main);
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px);
+}
+.common-float-btn.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+.common-float-btn:hover {
+    background: var(--primary);
+    color: #fff;
+    border-color: var(--primary);
+}
+
+/* 悬浮按钮 Tooltip */
+.common-float-btn[data-tooltip]::before {
+    content: attr(data-tooltip);
+    position: absolute;
+    right: 55px;
+    background: rgba(0,0,0,0.75);
+    color: #fff;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s;
+    transform: translateX(5px);
+    pointer-events: none;
+}
+.common-float-btn[data-tooltip]:hover::before {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(0);
+}
+
+/* 7. 通用弹窗框架 */
+.common-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+.common-modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+.common-modal {
+    background: var(--bg-card);
+    border-radius: 16px;
+    padding: 24px;
+    width: 100%;
+    max-width: 480px;
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border-color);
+    position: relative;
+    transform: translateY(20px);
+    transition: transform 0.3s ease;
+}
+.common-modal-overlay.active .common-modal {
+    transform: translateY(0);
+}
+.common-modal-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: transparent;
+    border: none;
+    font-size: 1.5rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    line-height: 1;
+    transition: color 0.2s;
+}
+.common-modal-close:hover { color: var(--danger); }
+
+/* 8. Toast 轻提示 */
+.common-toast {
+    position: fixed;
+    top: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-20px);
+    background: var(--bg-card);
+    color: var(--text-main);
+    padding: 12px 24px;
+    border-radius: 30px;
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border-color);
+    font-size: 0.9rem;
+    font-weight: 500;
+    z-index: 11000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.common-toast.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
+}

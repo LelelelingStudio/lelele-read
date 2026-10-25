@@ -1,0 +1,20 @@
+{
+  "forceEnable": false,
+  "specialPeriod": {
+    "start": "2026-10-21",
+    "end": "2026-12-31"
+  },
+  "yearlyPeriod": {
+    "start": "11-01",
+    "end": "12-31"
+  },
+  "assets": {
+    "background": "https://game.leleleling.site/background-winter.png",
+    "favicon": "https://game.leleleling.site/favicon-winter.ico",
+    "logo": "https://game.leleleling.site/lelelegame-winter.png",
+    "banner": "https://game.leleleling.site/winter-banner.png",
+    "snowman": "https://game.leleleling.site/winter-snowman.png",
+    "tree": "https://game.leleleling.site/winter-tree.png"
+  },
+  "enableSnowfall": true
+}

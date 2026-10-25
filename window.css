@@ -1,0 +1,191 @@
+/* =========================================
+   window.css - 全站通用弹窗与交互样式
+   ========================================= */
+
+/* 基础遮罩层 */
+.lelele-modal-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 10000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.lelele-modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* 基础弹窗容器 */
+.lelele-modal-box {
+    background: var(--bg-card, #fff);
+    border-radius: 16px;
+    width: 90%;
+    max-width: 500px;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    border: 1px solid var(--border-color, #e2e8f0);
+    transform: translateY(20px) scale(0.95);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    overflow: hidden;
+}
+
+.lelele-modal-overlay.active .lelele-modal-box {
+    transform: translateY(0) scale(1);
+}
+
+/* 弹窗头部 */
+.lelele-modal-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border-color, #e2e8f0);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.lelele-modal-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-main, #1e293b);
+}
+
+.lelele-modal-close {
+    background: transparent;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--text-muted, #64748b);
+    line-height: 1;
+    transition: color 0.2s;
+}
+
+.lelele-modal-close:hover {
+    color: #ef4444;
+}
+
+/* 弹窗内容区 */
+.lelele-modal-body {
+    padding: 20px;
+    overflow-y: auto;
+    font-size: 0.95rem;
+    color: var(--text-main, #1e293b);
+    line-height: 1.6;
+    flex: 1;
+}
+
+/* 弹窗底部操作区 */
+.lelele-modal-footer {
+    padding: 16px 20px;
+    border-top: 1px solid var(--border-color, #e2e8f0);
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    flex-shrink: 0;
+}
+
+/* 通用按钮 */
+.lelele-btn {
+    padding: 8px 20px;
+    border-radius: 8px;
+    border: none;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+}
+
+.lelele-btn-primary {
+    background: var(--primary, #4f46e5);
+    color: white;
+}
+.lelele-btn-primary:hover {
+    background: var(--primary-hover, #4338ca);
+}
+
+.lelele-btn-secondary {
+    background: var(--border-color, #e2e8f0);
+    color: var(--text-main, #1e293b);
+}
+.lelele-btn-secondary:hover {
+    background: #cbd5e1;
+}
+
+/* 特殊：大搜索框弹窗 */
+.lelele-search-modal {
+    max-width: 700px;
+}
+.lelele-search-input-wrapper {
+    display: flex;
+    gap: 10px;
+    padding: 20px;
+    border-bottom: 1px solid var(--border-color, #e2e8f0);
+}
+.lelele-search-input-wrapper input {
+    flex: 1;
+    padding: 12px 16px;
+    border-radius: 10px;
+    border: 1px solid var(--border-color, #e2e8f0);
+    font-size: 1rem;
+    outline: none;
+    background: var(--bg-page, #f8fafc);
+    color: var(--text-main, #1e293b);
+}
+.lelele-search-input-wrapper input:focus {
+    border-color: var(--primary, #4f46e5);
+}
+.lelele-search-results {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px 20px 20px;
+}
+.lelele-search-result-item {
+    padding: 12px;
+    border-bottom: 1px solid var(--border-color, #e2e8f0);
+    cursor: pointer;
+    border-radius: 8px;
+}
+.lelele-search-result-item:hover {
+    background: var(--bg-page, #f8fafc);
+}
+.lelele-search-result-title {
+    font-weight: 600;
+    color: var(--primary, #4f46e5);
+    margin-bottom: 4px;
+}
+.lelele-search-result-text {
+    font-size: 0.85rem;
+    color: var(--text-muted, #64748b);
+}
+
+/* 深色模式适配 */
+html.dark-mode .lelele-modal-box {
+    background: #1e293b;
+    border-color: #334155;
+}
+html.dark-mode .lelele-modal-body {
+    color: #e2e8f0;
+}
+html.dark-mode .lelele-btn-secondary {
+    background: #334155;
+    color: #e2e8f0;
+}
+html.dark-mode .lelele-btn-secondary:hover {
+    background: #475569;
+}
+html.dark-mode .lelele-search-input-wrapper input {
+    background: #0f172a;
+    color: #e2e8f0;
+    border-color: #334155;
+}

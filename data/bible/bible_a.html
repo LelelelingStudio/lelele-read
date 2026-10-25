@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>圣经阅读 - 了了了读</title>
+    
+    <!-- 全局依赖 -->
+    <link rel="stylesheet" href="../../common.css">
+    <link rel="stylesheet" href="../../window.css">
+    <link rel="stylesheet" href="../../reader.css">
+    
+    <script src="../../common.js"></script>
+    <script src="../../window.js"></script>
+    <script defer src="../../reader.js"></script>
+</head>
+<body>
+
+    <!-- 阅读器背景与遮罩 -->
+    <div class="reader-bg-layer" id="readerBgLayer"></div>
+    <div class="reader-bg-overlay" id="readerBgOverlay"></div>
+
+    <!-- 移动端菜单按钮 -->
+    <div class="reader-menu-toggle" id="readerMenuToggle">
+        ☰
+    </div>
+
+    <div class="reader-app">
+        <!-- 左侧边栏 (目录) -->
+        <div class="reader-sidebar">
+            <div class="reader-sidebar-header">
+                <div class="reader-sidebar-title">圣经 · 目录</div>
+                <a href="../../index.html" style="text-decoration:none; font-size:0.8rem; color:var(--read-text-secondary);">
+                    ← <span class="zh-inline">返回</span><span class="en-inline">Back</span>
+                </a>
+            </div>
+            <div class="reader-search-box">
+                <input type="text" id="readerSearchInput" class="reader-search-input" placeholder="搜索章节...">
+            </div>
+            <div class="reader-list" id="readerSidebarList">
+                <!-- 章节列表由 JS 渲染 -->
+            </div>
+        </div>
+
+        <!-- 右侧正文区域 -->
+        <div class="reader-main">
+            <div class="reader-content-container" id="readerContent">
+                <!-- 正文由 JS 渲染 -->
+                <div style="text-align:center; padding: 50px; color: var(--read-text-muted);">加载中...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 笔记面板 -->
+    <div class="reader-notes-panel" id="readerNotesPanel">
+        <div class="reader-notes-header">
+            <span style="font-weight:700;">我的笔记</span>
+            <button style="border:none;background:transparent;font-size:1.2rem;cursor:pointer;" onclick="document.getElementById('readerNotesPanel').classList.remove('open')">×</button>
+        </div>
+        <div class="reader-notes-tabs">
+            <div class="reader-notes-tab active" data-tab="bookmarks">书签</div>
+            <div class="reader-notes-tab" data-tab="annotations">批注</div>
+        </div>
+        <div class="reader-notes-list" id="readerNotesList"></div>
+    </div>
+
+    <!-- 悬浮可拖拽工具栏 -->
+    <div class="reader-draggable" id="floatTheme" style="right: 20px; bottom: 80px;">
+        <button onclick="toggleTheme()">🌙 <span class="zh-inline">主题</span><span class="en-inline">Theme</span></button>
+    </div>
+    <div class="reader-draggable" id="floatFont" style="right: 20px; bottom: 140px;">
+        <button onclick="Reader.setFontSize(parseInt(localStorage.getItem('lelele_read_fontSize')||16) - 1)">A-</button>
+        <button onclick="Reader.setFontSize(parseInt(localStorage.getItem('lelele_read_fontSize')||16) + 1)">A+</button>
+    </div>
+    <div class="reader-draggable" id="floatTools" style="right: 20px; bottom: 200px;">
+        <button onclick="document.getElementById('readerNotesPanel').classList.add('open')">📝 <span class="zh-inline">笔记</span><span class="en-inline">Notes</span></button>
+        <button onclick="Reader.toggleLayout()">🖐️ <span class="zh-inline">布局</span><span class="en-inline">Layout</span></button>
+        <button onclick="Reader.exportBook('txt')">📤 <span class="zh-inline">导出</span><span class="en-inline">Export</span></button>
+        <button onclick="Reader.importBook()">📥 <span class="zh-inline">导入</span><span class="en-inline">Import</span></button>
+    </div>
+
+    <!-- 页面脚本启动 -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // 监听标签页切换（笔记面板）
+            document.querySelectorAll('.reader-notes-tab').forEach(tab => {
+                tab.addEventListener('click', (e) => {
+                    document.querySelectorAll('.reader-notes-tab').forEach(t => t.classList.remove('active'));
+                    e.target.classList.add('active');
+                    // 此处在 reader.js 中有对应方法，目前简单处理
+                });
+            });
+
+            // 初始化阅读器
+            Reader.init({
+                bookTitle: '圣经',
+                dataUrl: 'data/test.json', // 此处填你真实的 JSON 地址，或者用于测试的假数据
+                dataType: 'json', // 或者 'js'
+                globalVarName: '', // 如果是 JS 文件，这里填全局变量名
+                hasVerseNum: true, // 圣经有节号
+                defaultFontSize: 18, // 字体大一点
+                defaultFontFamily: "'Noto Serif SC', serif"
+            });
+        });
+    </script>
+</body>
+</html>
