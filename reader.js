@@ -13,7 +13,10 @@ const Reader = (function () {
         BG_IMAGE: 'lelele_read_bgImage',
         LAYOUT: 'lelele_read_layout',
         NOTES: 'lelele_read_notes_',
-        PROGRESS: 'lelele_read_progress_'
+        PROGRESS: 'lelele_read_progress_',
+        RECENT: 'lelele_read_recent',
+        FAVORITES: 'lelele_read_favorites',
+        STATS: 'lelele_read_stats'
     };
 
     let config = {
@@ -582,6 +585,7 @@ const Reader = (function () {
         renderSidebar();
         await setChapter(0);
         renderNotesPanel();
+        startReadingClock();
         window.dispatchEvent(new CustomEvent('readerBookLoaded', {
             detail: { id: config.bookId, title: normalized.title, chapters: normalized.chapters.length, imported: true }
         }));
@@ -630,6 +634,7 @@ const Reader = (function () {
             renderSidebar();
             await setChapter(currentChapterIndex);
             renderNotesPanel();
+            startReadingClock();
             initDragLayout();
 
             window.dispatchEvent(new CustomEvent('readerBookLoaded', {
@@ -672,6 +677,61 @@ const Reader = (function () {
 
     function saveProgress() {
         try { localStorage.setItem(progressKey(), String(currentChapterIndex)); } catch (e) { }
+        recordRecent();
+    }
+
+    /* ---------- 最近阅读 / 收藏 / 阅读时长（面向读者） ---------- */
+    function getLS(key, fallback) {
+        try { const v = JSON.parse(localStorage.getItem(key)); return v == null ? fallback : v; } catch (e) { return fallback; }
+    }
+    function setLS(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); } catch (e) { } }
+
+    function recordRecent() {
+        if (!bookData || !bookData.chapters) return;
+        const id = config.bookId || bookData.id;
+        if (!id || id === 'empty' || String(id).indexOf('local_') === 0) return;
+        const list = getLS(STORAGE_KEYS.RECENT, []);
+        const arr = Array.isArray(list) ? list : [];
+        const entry = {
+            id: id,
+            title: bookData.title || config.bookTitle || '',
+            chapter: currentChapterIndex,
+            total: bookData.chapters.length,
+            ts: Date.now()
+        };
+        const next = [entry].concat(arr.filter(x => x && x.id !== id)).slice(0, 12);
+        setLS(STORAGE_KEYS.RECENT, next);
+    }
+
+    function getFavorites() {
+        const list = getLS(STORAGE_KEYS.FAVORITES, []);
+        return Array.isArray(list) ? list : [];
+    }
+    function isFavorite() {
+        const id = config.bookId || (bookData && bookData.id);
+        return getFavorites().some(x => x && x.id === id);
+    }
+    function toggleFavorite() {
+        const id = config.bookId || (bookData && bookData.id);
+        if (!id || id === 'empty' || String(id).indexOf('local_') === 0) return false;
+        const list = getFavorites();
+        const exists = list.some(x => x && x.id === id);
+        const next = exists
+            ? list.filter(x => x && x.id !== id)
+            : [{ id: id, title: (bookData && bookData.title) || config.bookTitle || '', ts: Date.now() }].concat(list);
+        setLS(STORAGE_KEYS.FAVORITES, next);
+        window.dispatchEvent(new CustomEvent('readerFavoritesChanged', { detail: { id: id, favorite: !exists } }));
+        return !exists;
+    }
+
+    let readingTimer = null;
+    function startReadingClock() {
+        if (readingTimer) return;
+        readingTimer = setInterval(() => {
+            const s = getLS(STORAGE_KEYS.STATS, {});
+            s.seconds = (s.seconds || 0) + 30;
+            setLS(STORAGE_KEYS.STATS, s);
+        }, 30000);
     }
 
     const api = {
@@ -679,6 +739,7 @@ const Reader = (function () {
         setBookContent, getBookContent, exportBook, importBook, handleImportFile,
         setFontSize, setFontFamily, setColorTheme, handleBgUpload, applyTheme,
         toggleHighlight, toggleBookmark, openNoteModal, jumpTo,
+        isFavorite, toggleFavorite, getFavorites, recordRecent,
         toggleLayout: () => {
             layoutMode = !layoutMode;
             document.body.classList.toggle('layout-mode', layoutMode);

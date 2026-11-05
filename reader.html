@@ -26,6 +26,7 @@
         </div>
         <div class="top-actions">
             <a class="rd-btn" href="data/community/index.html"><span class="zh-inline">共创书库</span><span class="en-inline">Community</span></a>
+            <button class="rd-btn" id="btnFav" title="收藏 / Favorite"><span id="btnFavIcon">☆</span></button>
             <button class="rd-btn" id="btnImportTop"><span class="zh-inline">📥 导入</span><span class="en-inline">📥 Import</span></button>
             <div class="rd-export-wrap">
                 <button class="rd-btn" id="btnExportTop" disabled><span class="zh-inline">📤 导出</span><span class="en-inline">📤 Export</span></button>
@@ -146,7 +147,7 @@
     document.addEventListener('DOMContentLoaded', function () {
         const $ = id => document.getElementById(id);
         const params = new URLSearchParams(location.search);
-        const bookId = params.get('book');
+        const bookId = params.get('book') || params.get('id');
         let currentBook = null;
 
         function setStatus(msg) { $('epubStatus').textContent = msg || ''; }
@@ -192,12 +193,30 @@
             }
         }
 
+        async function resolveBook(id) {
+            try {
+                const books = await fetchJson('/data/books.json');
+                const b = books.find(x => x.id === id);
+                if (b) return b;
+            } catch (e) { }
+            try {
+                const cbooks = await fetchJson('/data/community/books.json');
+                const c = cbooks.find(x => x.id === id);
+                if (c) {
+                    if (c.dataUrl && !/^https?:|^\//.test(c.dataUrl)) {
+                        c.dataUrl = new URL(c.dataUrl, location.origin + '/data/community/').href;
+                    }
+                    return c;
+                }
+            } catch (e) { }
+            return null;
+        }
+
         // 无 book 参数时也要初始化一次引擎，确保 DOM 引用与拖拽/偏好就绪
         async function boot() {
             if (bookId) {
                 try {
-                    const books = await fetchJson('/data/books.json');
-                    currentBook = books.find(b => b.id === bookId);
+                    currentBook = await resolveBook(bookId);
                     if (!currentBook || (!currentBook.configUrl && !currentBook.dataUrl)) {
                         throw new Error('未找到该书的配置');
                     }
@@ -237,6 +256,21 @@
         dz.addEventListener('drop', e => handleFile(e.dataTransfer.files && e.dataTransfer.files[0]));
         input.addEventListener('change', () => { handleFile(input.files && input.files[0]); input.value = ''; });
         $('btnImportTop').addEventListener('click', () => Reader.importBook());
+
+        function refreshFav() {
+            const on = window.Reader && Reader.isFavorite && Reader.isFavorite();
+            const icon = $('btnFavIcon');
+            if (icon) icon.textContent = on ? '★' : '☆';
+            if ($('btnFav')) $('btnFav').style.color = on ? 'var(--primary)' : '';
+        }
+        $('btnFav').addEventListener('click', () => {
+            if (!window.Reader || !Reader.toggleFavorite) return;
+            Reader.toggleFavorite();
+            refreshFav();
+        });
+        window.addEventListener('readerBookLoaded', refreshFav);
+        window.addEventListener('readerFavoritesChanged', refreshFav);
+        refreshFav();
 
         // 阅读器内部导入（隐藏 input）完成后同步 UI
         window.addEventListener('readerBookLoaded', function (e) {

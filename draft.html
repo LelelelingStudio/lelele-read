@@ -89,10 +89,12 @@
                 <button class="rd-btn" id="moveUp" title="上移">↑</button>
                 <button class="rd-btn" id="moveDown" title="下移">↓</button>
                 <button class="rd-btn" id="delChap"><span class="zh-inline">删除本章</span><span class="en-inline">Delete</span></button>
+                <button class="rd-btn" id="dupChap"><span class="zh-inline">复制本章</span><span class="en-inline">Duplicate</span></button>
                 <button class="rd-btn" id="tplSample"><span class="zh-inline">套用模板</span><span class="en-inline">Use template</span></button>
                 <button class="rd-btn" id="previewBtn"><span class="zh-inline">预览</span><span class="en-inline">Preview</span></button>
                 <button class="rd-btn primary" id="downloadBtn"><span class="zh-inline">下载 JSON</span><span class="en-inline">JSON</span></button>
                 <button class="rd-btn" id="txtBtn"><span class="zh-inline">下载 TXT</span><span class="en-inline">TXT</span></button>
+                <button class="rd-btn" id="mdBtn"><span class="zh-inline">下载 MD</span><span class="en-inline">MD</span></button>
                 <button class="rd-btn" id="importBtn"><span class="zh-inline">导入 JSON</span><span class="en-inline">Import</span></button>
                 <button class="rd-btn" id="clearBtn"><span class="zh-inline">清空</span><span class="en-inline">Clear</span></button>
                 <span class="write-stat" id="stat"></span>
@@ -297,6 +299,33 @@
                 URL.revokeObjectURL(a.href);
                 toast(t('已下载 TXT', 'Downloaded TXT'));
             };
+            $('mdBtn').onclick = () => {
+                syncCurFromUI();
+                let md = '# ' + (draft.title_zh || draft.title_en || t('草稿', 'Draft')) + '\n\n';
+                draft.chapters.forEach((c, i) => {
+                    md += '## ' + (c.title || (t('第 ', 'Ch. ') + (i + 1))) + '\n\n';
+                    md += (c.paragraphs || []).map(p => String(p).replace(/\n/g, '  \n')).join('\n\n') + '\n\n';
+                });
+                const blob = new Blob([md], { type: 'text/markdown;charset=utf-8' });
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = (draft.title_zh || 'draft') + '.md';
+                a.click();
+                URL.revokeObjectURL(a.href);
+                toast(t('已下载 Markdown', 'Downloaded Markdown'));
+            };
+            $('dupChap').onclick = () => {
+                syncCurFromUI();
+                const src = draft.chapters[cur];
+                if (!src) return;
+                const copy = JSON.parse(JSON.stringify(src));
+                copy.title = (copy.title || '') + t(' 副本', ' copy');
+                draft.chapters.splice(cur + 1, 0, copy);
+                cur++;
+                renderEditor();
+                saveLocal();
+                toast(t('已复制本章', 'Chapter duplicated'));
+            };
             $('importBtn').onclick = () => $('importFile').click();
             $('importFile').onchange = e => {
                 const f = e.target.files[0]; if (!f) return;
@@ -329,6 +358,12 @@
                     cur = 0; render(); saveLocal();
                 });
             };
+            document.addEventListener('keydown', e => {
+                if (!(e.ctrlKey || e.metaKey)) return;
+                const k = e.key.toLowerCase();
+                if (k === 'p') { e.preventDefault(); togglePreview(); }
+                if (k === 's') { e.preventDefault(); $('downloadBtn').click(); }
+            });
         }
 
         async function init() {
