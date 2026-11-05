@@ -82,6 +82,24 @@
     <script>
     document.addEventListener('DOMContentLoaded', function () {
         const $ = id => document.getElementById(id);
+        function friendlyError(raw) {
+            const m = (raw || '').toString();
+            const map = {
+                'Invalid login credentials': '邮箱或密码不正确',
+                'Email not confirmed': '邮箱尚未验证，请先查收验证邮件',
+                'User not found': '该邮箱尚未注册',
+                'Email logins are disabled': '邮箱登录暂未开启',
+                'Signups not allowed': '当前暂不开放注册',
+                'Password should be at least 6 characters': '密码至少需要 6 位',
+                'User already registered': '该邮箱已注册，请直接登录',
+                'Token has expired or is invalid': '验证码不正确或已过期',
+                'Token has expired': '验证码已过期，请重新发送',
+                'Invalid OTP': '验证码不正确',
+                'Email rate limit exceeded': '发送过于频繁，请稍后再试'
+            };
+            for (const k in map) { if (m.indexOf(k) !== -1) return map[k]; }
+            return m;
+        }
         let mode = 'signin';
         let otpType = null; // null | 'email' | 'signup'
         const redirect = new URLSearchParams(location.search).get('redirect') || 'dashboard.html';
@@ -147,7 +165,7 @@
                 if (!/^\d{4,8}$/.test(code)) { $('authSubmit').disabled = false; return ReadUI.showMsg($('authMsg'), ReadUI.t('请输入 4–8 位验证码', 'Enter a 4–8 digit code'), false); }
                 const res = await UserAPI.verifyOtp(email, code, 'email');
                 $('authSubmit').disabled = false;
-                if (res.error) return ReadUI.showMsg($('authMsg'), res.error.message, false);
+                if (res.error) return ReadUI.showMsg($('authMsg'), friendlyError(res.error.message), false);
                 ReadUI.showMsg($('authMsg'), ReadUI.t('登录成功，正在跳转…', 'Signed in, redirecting…'), true);
                 return setTimeout(() => location.replace(redirect), 400);
             }
@@ -156,7 +174,7 @@
                 if (!/^\d{4,8}$/.test(code)) { $('authSubmit').disabled = false; return ReadUI.showMsg($('authMsg'), ReadUI.t('请输入 4–8 位验证码', 'Enter a 4–8 digit code'), false); }
                 const res = await UserAPI.verifyOtp(email, code, 'signup');
                 $('authSubmit').disabled = false;
-                if (res.error) return ReadUI.showMsg($('authMsg'), res.error.message, false);
+                if (res.error) return ReadUI.showMsg($('authMsg'), friendlyError(res.error.message), false);
                 ReadUI.showMsg($('authMsg'), ReadUI.t('注册成功，正在跳转…', 'Signed up, redirecting…'), true);
                 return setTimeout(() => location.replace(redirect), 400);
             }
@@ -166,7 +184,7 @@
                 ? await UserAPI.signIn(email, password)
                 : await UserAPI.signUp(email, password, { name: $('authName').value.trim() });
             $('authSubmit').disabled = false;
-            if (result.error) return ReadUI.showMsg($('authMsg'), result.error.message, false);
+            if (result.error) return ReadUI.showMsg($('authMsg'), friendlyError(result.error.message), false);
             if (result.data && result.data.needsConfirmation) {
                 otpType = 'signup';
                 $('authPassword').style.display = 'none';
