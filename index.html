@@ -7,6 +7,9 @@
     
     <link rel="stylesheet" href="common.css">
     <script src="common.js"></script>
+    <script src="supabase-js.min.js"></script>
+    <script defer src="user-api.js"></script>
+    <script defer src="user-auth.js"></script>
     
     <style>
         :root {
@@ -247,6 +250,7 @@
             <button class="action-btn" onclick="toggleTheme()">🌙 <span class="zh-inline">主题</span><span class="en-inline">Theme</span></button>
             <button class="action-btn" onclick="toggleLang()">🌐 <span class="zh-inline">EN</span><span class="en-inline">中文</span></button>
             <a href="about.html" class="action-btn"><span class="zh-inline">关于</span><span class="en-inline">About</span></a>
+            <span id="authSlot" class="auth-slot"></span>
         </div>
     </nav>
 
@@ -384,6 +388,7 @@
             document.getElementById('searchInput').placeholder = window.getLang() === 'en' ? 'Search books or authors...' : '搜索书名或作者...';
             renderBooks();
             loadBooks();
+            if (window.UserAuth) UserAuth.init();
         });
     </script>
 </body>

@@ -133,6 +133,27 @@ body[data-color-theme="plum"] { --read-accent: #7e22ce; --read-accent-hover: #6b
     font-weight: 600;
 }
 
+/* 圣经分层目录：旧约/新约 -> 卷(66卷) -> 章 */
+.reader-toc-group {
+    padding: 14px 20px 6px;
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--read-accent);
+    border-bottom: 1px solid var(--read-border);
+    margin-top: 4px;
+}
+.reader-toc-book {
+    padding: 8px 20px 4px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--read-text-primary);
+}
+.reader-list-sub {
+    padding-left: 36px;
+}
+
 /* 4. 右侧正文阅读区 */
 .reader-main {
     flex: 1;

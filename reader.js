@@ -147,15 +147,57 @@ const Reader = (function () {
         const kw = keyword.trim().toLowerCase();
         const frag = document.createDocumentFragment();
 
-        bookData.chapters.forEach((chap, index) => {
+        function makeChapterItem(chap) {
+            const index = bookData.chapters.indexOf(chap);
             const title = chapterTitle(chap);
-            if (kw && title.toLowerCase().indexOf(kw) === -1) return;
+            if (kw && title.toLowerCase().indexOf(kw) === -1) return null;
             const div = document.createElement('div');
             div.className = 'reader-list-item' + (index === currentChapterIndex ? ' active' : '');
             div.textContent = title;
             div.onclick = () => setChapter(index);
-            frag.appendChild(div);
-        });
+            return div;
+        }
+
+        const groups = (bookData.groups && bookData.groups.length) ? bookData.groups : null;
+
+        if (!groups) {
+            // 普通书：平铺章节
+            bookData.chapters.forEach(chap => {
+                const item = makeChapterItem(chap);
+                if (item) frag.appendChild(item);
+            });
+        } else {
+            // 圣经：旧约/新约 -> 卷(66卷) -> 章（可折叠）
+            groups.forEach(g => {
+                const groupChaps = bookData.chapters.filter(c => c.meta && c.meta.group === g.id);
+                if (!groupChaps.length) return;
+
+                const gHeader = document.createElement('div');
+                gHeader.className = 'reader-toc-group';
+                gHeader.textContent = (getLang() === 'en' ? g.title_en : g.title_zh) || g.title_zh || g.id;
+                frag.appendChild(gHeader);
+
+                // 按卷（file）聚类
+                const booksMap = {};
+                groupChaps.forEach(c => {
+                    const file = (c.meta && c.meta.file) || '_';
+                    (booksMap[file] = booksMap[file] || []).push(c);
+                });
+                Object.keys(booksMap).forEach(file => {
+                    const bookChaps = booksMap[file].slice().sort((a, b) => (a.meta.index || 0) - (b.meta.index || 0));
+                    const bookTitle = bookChaps[0] ? chapterTitle(bookChaps[0]).split(' · ')[0].trim() : file;
+                    const bHeader = document.createElement('div');
+                    bHeader.className = 'reader-toc-book';
+                    bHeader.textContent = bookTitle;
+                    frag.appendChild(bHeader);
+                    bookChaps.forEach(chap => {
+                        const item = makeChapterItem(chap);
+                        if (item) { item.classList.add('reader-list-sub'); frag.appendChild(item); }
+                    });
+                });
+            });
+        }
+
         els.sidebarList.innerHTML = '';
         if (!frag.childNodes.length) {
             const empty = document.createElement('div');

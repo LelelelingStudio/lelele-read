@@ -23,7 +23,7 @@ window.UserAuth = (function () {
         if (!slot) return;
         const user = current();
         if (!user) {
-            slot.innerHTML = `<a class="rd-btn" href="login.html">${t('登录 / 注册', 'Sign in / Sign up')}</a>`;
+            slot.innerHTML = `<a class="rd-btn primary" href="login.html">${t('登录 / 注册', 'Sign in / Sign up')}</a>`;
             return;
         }
         const name = window.escapeHtml ? window.escapeHtml(user.email || user.name || '') : (user.email || '');

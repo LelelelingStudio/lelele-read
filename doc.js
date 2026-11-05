@@ -5,16 +5,28 @@
 const DocEngine = (function() {
     'use strict';
 
+    let _toc = { contentId: null, tocContainerId: null };
+
+    // 取当前语言对应的标题文本（避免 zh/en 两个 span 被拼接）
+    function headingText(heading) {
+        const lang = (window.getLang && window.getLang()) === 'en' ? 'en' : 'zh';
+        const target = heading.querySelector('.' + lang + '-inline');
+        if (target) return target.textContent.trim();
+        // 没有分语言 span 时回退到纯文本
+        return heading.textContent.trim();
+    }
+
     // ==================== 1. 自动生成侧边目录 ====================
     function initTOC(contentId, tocContainerId) {
         const content = document.getElementById(contentId);
         const tocContainer = document.getElementById(tocContainerId);
         if (!content || !tocContainer) return;
+        _toc = { contentId, tocContainerId };
 
         // 提取所有 h2 和 h3
         const headings = content.querySelectorAll('h2, h3');
         if (headings.length === 0) {
-            tocContainer.parentElement.style.display = 'none'; // 没标题就隐藏侧边栏
+            if (tocContainer.parentElement) tocContainer.parentElement.style.display = 'none'; // 没标题就隐藏侧边栏
             return;
         }
 
@@ -22,10 +34,8 @@ const DocEngine = (function() {
         ul.className = 'doc-toc-list';
 
         headings.forEach((heading, index) => {
-            // 如果标题没有 id，自动生成一个
-            if (!heading.id) {
-                heading.id = `doc-heading-${index}`;
-            }
+            // 如果标题没有 id，自动生成一个（保证唯一）
+            if (!heading.id) heading.id = `doc-heading-${index}`;
 
             const li = document.createElement('li');
             li.className = 'doc-toc-item';
@@ -36,13 +46,15 @@ const DocEngine = (function() {
             const a = document.createElement('a');
             a.className = 'doc-toc-link';
             a.href = `#${heading.id}`;
-            a.textContent = heading.textContent;
+            a.textContent = headingText(heading);
 
-            // 点击平滑滚动
+            // 点击平滑滚动（留出顶部导航高度）
             a.addEventListener('click', (e) => {
                 e.preventDefault();
-                const targetY = heading.getBoundingClientRect().top + window.scrollY - 20;
-                window.scrollTo({ top: targetY, behavior: 'smooth' });
+                const target = document.getElementById(heading.id);
+                if (!target) return;
+                const y = target.getBoundingClientRect().top + window.scrollY - 80;
+                window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
             });
 
             li.appendChild(a);
@@ -53,30 +65,31 @@ const DocEngine = (function() {
         tocContainer.appendChild(ul);
 
         // 监听滚动高亮
-        initScrollSpy(headings);
+        initScrollSpy();
     }
 
     // ==================== 2. 滚动高亮当前目录项 ====================
-    function initScrollSpy(headings) {
-        const links = document.querySelectorAll('.doc-toc-link');
-        
-        window.addEventListener('scroll', () => {
-            let currentId = '';
-            const scrollPos = window.scrollY + 100; // 偏移量
+    function initScrollSpy() {
+        const content = document.getElementById(_toc.contentId);
+        if (!content) return;
+        const headings = content.querySelectorAll('h2, h3');
+        const links = Array.from(document.querySelectorAll('.doc-toc-link'));
+        if (!headings.length) return;
 
-            headings.forEach(heading => {
-                if (heading.offsetTop <= scrollPos) {
-                    currentId = heading.id;
-                }
+        function onScroll() {
+            let currentId = headings[0].id;
+            const threshold = 90; // 视口顶部偏移
+            headings.forEach(h => {
+                if (h.getBoundingClientRect().top - threshold <= 0) currentId = h.id;
             });
-
             links.forEach(link => {
-                link.classList.remove('active');
-                if (link.getAttribute('href') === `#${currentId}`) {
-                    link.classList.add('active');
-                }
+                link.classList.toggle('active', link.getAttribute('href') === `#${currentId}`);
             });
-        });
+        }
+        window.removeEventListener('scroll', initScrollSpy._handler);
+        initScrollSpy._handler = onScroll;
+        window.addEventListener('scroll', onScroll);
+        onScroll();
     }
 
     // ==================== 3. 顶部阅读进度条 ====================
@@ -116,7 +129,7 @@ const DocEngine = (function() {
                 `;
             });
             html += '</div>';
-            
+
             container.innerHTML = html;
         } catch (e) {
             console.warn('更新日志加载失败', e);
@@ -138,6 +151,11 @@ const DocEngine = (function() {
         if (options.changelogContainerId && options.changelogUrl) {
             renderChangelog(options.changelogContainerId, options.changelogUrl);
         }
+
+        // 语言切换时重建目录文本
+        window.addEventListener('langChanged', () => {
+            if (_toc.contentId) initTOC(_toc.contentId, _toc.tocContainerId);
+        });
     }
 
     return {
