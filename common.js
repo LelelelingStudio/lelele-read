@@ -9,7 +9,7 @@
     const CONFIG = {
         SITE_URL: 'https://read.leleleling.site',
         AUTHOR_API: 'https://authors.surge.sh/lelelereadauthor.json',
-        FEEDBACK_URL: 'mailto:leleleling@2980.com',
+        FEEDBACK_URL: 'https://tally.so/forms/pedeGV',
         DEFAULT_LANG: 'zh'
     };
 
@@ -210,7 +210,13 @@
         });
         
         btnTop.onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
-        btnFeedback.onclick = () => window.open(CONFIG.FEEDBACK_URL, '_blank');
+        btnFeedback.onclick = () => {
+            if (window.Tally && typeof window.Tally.openPopup === 'function') {
+                window.Tally.openPopup('pedeGV');
+            } else {
+                window.open(CONFIG.FEEDBACK_URL, '_blank', 'noopener');
+            }
+        };
 
         updateFloatToolsLang();
     }

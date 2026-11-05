@@ -102,7 +102,19 @@ html.dark-mode ::-webkit-scrollbar-thumb { background: #475569; }
     gap: 12px;
     z-index: 9000;
 }
+/* 阅读器右侧有三组可拖拽工具条（bottom: 80 / 140 / 200px）。
+   全站悬浮按钮改成横排并置于最底部，避免回顶按钮出现后与工具条重叠遮挡。 */
+body.has-topbar .common-float-tools,
+body.reader-page .common-float-tools {
+    flex-direction: row-reverse;
+    align-items: center;
+    right: 20px;
+    bottom: 18px;
+    gap: 10px;
+    z-index: 12000;
+}
 .common-float-btn {
+    position: relative;
     width: 44px;
     height: 44px;
     border-radius: 50%;
