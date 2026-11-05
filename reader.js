@@ -224,11 +224,12 @@ const Reader = (function () {
             html += `<div class="reader-para-html">${chap.html}</div>`;
         } else {
             (chap.content || []).forEach((text, idx) => {
-                const isHl = notes.highlights.some(h => h.chap === currentChapterIndex && h.para === idx);
+                const hl = notes.highlights.find(h => h.chap === currentChapterIndex && h.para === idx);
+                const isHl = !!hl;
                 const isBm = notes.bookmarks.some(b => b.chap === currentChapterIndex && b.para === idx);
                 const ann = notes.annotations.find(a => a.chap === currentChapterIndex && a.para === idx);
                 let paraClass = 'reader-para';
-                if (isHl) paraClass += ' is-highlighted';
+                if (isHl) paraClass += ' is-highlighted hl-' + (hl.color || 'yellow') + ' hs-' + (hl.style || 'marker');
                 if (isBm) paraClass += ' is-bookmarked';
 
                 html += `<div class="${paraClass}" id="para-${idx}">`;
@@ -238,6 +239,7 @@ const Reader = (function () {
                 html += `<button class="reader-action-btn" data-act="highlight" data-idx="${idx}" title="${esc(t('高亮', 'Highlight'))}">${isHl ? '🖍️' : '🖌️'}</button>`;
                 html += `<button class="reader-action-btn" data-act="bookmark" data-idx="${idx}" title="${esc(t('书签', 'Bookmark'))}">${isBm ? '🔖' : '📑'}</button>`;
                 html += `<button class="reader-action-btn" data-act="note" data-idx="${idx}" title="${esc(t('批注', 'Note'))}">💬</button>`;
+                html += `<button class="reader-action-btn" data-act="quote" data-idx="${idx}" title="${esc(t('引用卡片', 'Quote card'))}">🖼️</button>`;
                 html += `</span></div></div>`;
                 if (ann) html += `<div class="reader-para-note">${esc(ann.text)}</div>`;
             });
@@ -259,9 +261,15 @@ const Reader = (function () {
                 const act = btn.dataset.act, idx = parseInt(btn.dataset.idx, 10);
                 if (act === 'prev') return setChapter(currentChapterIndex - 1);
                 if (act === 'next') return setChapter(currentChapterIndex + 1);
-                if (act === 'highlight') return toggleHighlight(idx);
+                if (act === 'highlight') {
+                    if (window.ReaderPlus && ReaderPlus.pickHighlight) return ReaderPlus.pickHighlight(btn, idx);
+                    return toggleHighlight(idx);
+                }
                 if (act === 'bookmark') return toggleBookmark(idx);
                 if (act === 'note') return openNoteModal(idx);
+                if (act === 'quote') return window.dispatchEvent(new CustomEvent('readerQuoteRequest', {
+                    detail: { idx: idx, text: (chap.content || [])[idx] || '' }
+                }));
             });
         });
         const scroller = els.contentContainer.parentElement;
@@ -279,6 +287,7 @@ const Reader = (function () {
             bookData.chapters[index].content = [];
         }
         renderContent();
+        addDaily({ chapters: 1 });
         saveProgress();
         if (window.innerWidth <= 768) {
             const sb = document.querySelector('.reader-sidebar');
@@ -341,26 +350,39 @@ const Reader = (function () {
         if (window.innerWidth > 768 && els.notesPanel) els.notesPanel.classList.remove('open');
     }
 
-    function toggleHighlight(idx) {
+    function addDaily(patch) {
+        if (!window.Lelele || !window.Lelele.Store) return;
+        try { window.Lelele.Store.mergeDaily(window.Lelele.UI.dayKey(), patch); } catch (e) { }
+    }
+    function toggleHighlight(idx, opts) {
         const i = notes.highlights.findIndex(h => h.chap === currentChapterIndex && h.para === idx);
-        if (i !== -1) notes.highlights.splice(i, 1);
-        else notes.highlights.push({ chap: currentChapterIndex, para: idx });
+        if (i !== -1) {
+            const color = opts && opts.color, style = opts && opts.style;
+            const curColor = notes.highlights[i].color || 'yellow';
+            const curStyle = notes.highlights[i].style || 'marker';
+            if (color && color !== curColor) { notes.highlights[i].color = color; if (style) notes.highlights[i].style = style; }
+            else if (style && style !== curStyle) { notes.highlights[i].style = style; }
+            else notes.highlights.splice(i, 1);
+        } else {
+            notes.highlights.push({ chap: currentChapterIndex, para: idx, color: (opts && opts.color) || 'yellow', style: (opts && opts.style) || 'marker' });
+            addDaily({ highlights: 1 });
+        }
         saveNotes();
     }
     function toggleBookmark(idx) {
         const i = notes.bookmarks.findIndex(b => b.chap === currentChapterIndex && b.para === idx);
         if (i !== -1) notes.bookmarks.splice(i, 1);
-        else notes.bookmarks.push({ chap: currentChapterIndex, para: idx });
+        else { notes.bookmarks.push({ chap: currentChapterIndex, para: idx }); addDaily({ bookmarks: 1 }); }
         saveNotes();
     }
     function openNoteModal(idx) {
         const ann = notes.annotations.find(a => a.chap === currentChapterIndex && a.para === idx);
-        const text = prompt(t('编辑批注', 'Edit note'), ann ? ann.text : '');
+        const text = prompt(t('编辑批注（支持 Markdown）', 'Edit note (Markdown supported)'), ann ? ann.text : '');
         if (text === null) return;
         const i = notes.annotations.findIndex(a => a.chap === currentChapterIndex && a.para === idx);
         if (text.trim() === '') { if (i !== -1) notes.annotations.splice(i, 1); }
         else if (i !== -1) notes.annotations[i].text = text;
-        else notes.annotations.push({ chap: currentChapterIndex, para: idx, text: text });
+        else { notes.annotations.push({ chap: currentChapterIndex, para: idx, text: text }); addDaily({ annotations: 1 }); }
         saveNotes();
     }
 
@@ -731,6 +753,7 @@ const Reader = (function () {
             const s = getLS(STORAGE_KEYS.STATS, {});
             s.seconds = (s.seconds || 0) + 30;
             setLS(STORAGE_KEYS.STATS, s);
+            addDaily({ seconds: 30 });
         }, 30000);
     }
 
@@ -740,12 +763,19 @@ const Reader = (function () {
         setFontSize, setFontFamily, setColorTheme, handleBgUpload, applyTheme,
         toggleHighlight, toggleBookmark, openNoteModal, jumpTo,
         isFavorite, toggleFavorite, getFavorites, recordRecent,
+        addDaily, ensureAll: ensureAllChapters,
+        getNotes: () => notes,
+        saveNotesExternal: () => saveNotes(),
         toggleLayout: () => {
             layoutMode = !layoutMode;
             document.body.classList.toggle('layout-mode', layoutMode);
             toast(layoutMode ? t('布局模式已开启，可拖拽浮窗', 'Layout mode on, drag the tools') : t('布局已保存', 'Layout saved'));
         },
-        getState: () => ({ bookId: config.bookId, title: bookData ? bookData.title : '', chapter: currentChapterIndex, chapters: bookData ? bookData.chapters.length : 0 })
+        getState: () => ({
+            bookId: config.bookId, title: bookData ? bookData.title : '',
+            chapter: currentChapterIndex, chapters: bookData ? bookData.chapters.length : 0,
+            bookData: bookData, notes: notes, config: config, els: els
+        })
     };
 
     window.Reader = api;
