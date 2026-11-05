@@ -7,8 +7,10 @@
     <link rel="stylesheet" href="common.css">
     <link rel="stylesheet" href="common-ui.css">
     <link rel="stylesheet" href="other.css">
+    <link rel="stylesheet" href="draft-plus.css">
     <script src="common.js"></script>
     <script src="common-ui.js"></script>
+    <script src="draft-plus.js"></script>
     <script src="other.js"></script>
     <script src="supabase-js.min.js"></script>
     <script defer src="user-api.js"></script>
@@ -160,9 +162,17 @@
         let saveTimer = null;
         function saveLocal() {
             clearTimeout(saveTimer);
+            window.dispatchEvent(new CustomEvent('draftSaveState', { detail: 'saving' }));
             saveTimer = setTimeout(() => {
-                try { localStorage.setItem(key(), JSON.stringify(draft)); toast(t('已自动保存', 'Auto-saved')); }
-                catch (e) { toast(t('保存失败：本地空间不足', 'Save failed')); }
+                try {
+                    if (window.DraftPlus && DraftPlus.beforeSave) try { DraftPlus.beforeSave(draft); } catch (e) { }
+                    localStorage.setItem(key(), JSON.stringify(draft));
+                    toast(t('已自动保存', 'Auto-saved'));
+                    window.dispatchEvent(new CustomEvent('draftSaveState', { detail: 'saved' }));
+                } catch (e) {
+                    toast(t('保存失败：本地空间不足', 'Save failed'));
+                    window.dispatchEvent(new CustomEvent('draftSaveState', { detail: 'error' }));
+                }
             }, 500);
         }
         function splitParas(text) { return text.split(/\n\s*\n/).map(s => s.trim()).filter(Boolean); }
@@ -183,6 +193,7 @@
             draft.chapters.forEach((c, i) => {
                 const div = document.createElement('div');
                 div.className = 'chap-item' + (i === cur ? ' active' : '');
+                div.dataset.idx = i;
                 div.innerHTML = '<span class="num">' + (i + 1) + '</span><span class="ttl">' + esc(c.title || t('未命名', 'Untitled')) + '</span>';
                 div.onclick = () => { syncCurFromUI(); cur = i; renderEditor(); };
                 list.appendChild(div);
@@ -254,12 +265,24 @@
             $('bkEn').oninput = () => { draft.title_en = $('bkEn').value; saveLocal(); };
             $('tplSel').onchange = () => { draft.template = $('tplSel').value; saveLocal(); if (mode === 'preview') renderPreview(); };
             $('chapTitle').oninput = () => { if (draft.chapters[cur]) draft.chapters[cur].title = $('chapTitle').value; saveLocal(); renderList(); };
-            $('chapBody').oninput = () => { if (draft.chapters[cur]) draft.chapters[cur].paragraphs = splitParas($('chapBody').value); saveLocal(); updateStat(); };
-            $('addChap').onclick = () => { syncCurFromUI(); draft.chapters.splice(cur + 1, 0, { title: '', paragraphs: [] }); cur++; renderEditor(); saveLocal(); };
+            $('chapBody').oninput = () => {
+                if (draft.chapters[cur]) draft.chapters[cur].paragraphs = splitParas($('chapBody').value);
+                saveLocal(); updateStat();
+                window.dispatchEvent(new CustomEvent('draftInput', { detail: { index: cur, words: draft.chapters.reduce((n, c) => n + ((c.paragraphs || []).join('').length), 0) } }));
+            };
+            $('addChap').onclick = () => {
+                syncCurFromUI();
+                draft.chapters.splice(cur + 1, 0, { title: t('第 ', 'Ch. ') + (cur + 2) + t('章', ''), paragraphs: [] });
+                cur++; renderEditor(); saveLocal();
+                window.dispatchEvent(new CustomEvent('draftChapterAdded', { detail: { index: cur } }));
+            };
             $('delChap').onclick = () => {
                 if (draft.chapters.length <= 1) { toast(t('至少保留一章', 'Keep at least one chapter')); return; }
                 ReadUI.confirm(t('删除本章？', 'Delete this chapter?'), () => {
+                    const removed = JSON.parse(JSON.stringify(draft.chapters[cur]));
+                    const at = cur;
                     draft.chapters.splice(cur, 1); cur = Math.max(0, cur - 1); renderEditor(); saveLocal();
+                    window.dispatchEvent(new CustomEvent('draftChapterDeleted', { detail: { chapter: removed, index: at } }));
                 });
             };
             $('moveUp').onclick = () => { if (cur <= 0) return; const a = draft.chapters; [a[cur - 1], a[cur]] = [a[cur], a[cur - 1]]; cur--; renderEditor(); saveLocal(); };
@@ -350,6 +373,7 @@
                         };
                         if (!TEMPLATES.some(x => x.id === draft.template)) draft.template = 'novel';
                         cur = 0; render(); saveLocal(); toast(t('已导入', 'Imported'));
+                        window.dispatchEvent(new Event('draftReplaced'));
                     } catch (err) { toast(t('JSON 解析失败', 'Invalid JSON')); }
                 };
                 r.readAsText(f); e.target.value = '';
@@ -377,6 +401,19 @@
             loadLocal();
             bind();
             render();
+
+            window.DraftCore = {
+                get: () => draft,
+                set: d => { draft = d; cur = 0; render(); saveLocal(); },
+                getCur: () => cur,
+                setCur: i => { syncCurFromUI(); cur = i; renderEditor(); },
+                sync: syncCurFromUI,
+                render, renderEditor, renderList, renderPreview, togglePreview,
+                save: saveLocal, splitParas, wordCount,
+                t, toast, TEMPLATES,
+                getAuthorId: () => authorId
+            };
+            window.dispatchEvent(new Event('draftCoreReady'));
         }
 
         window.addEventListener('langChanged', () => { syncCurFromUI(); render(); if (mode === 'preview') renderPreview(); });

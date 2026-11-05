@@ -1,0 +1,147 @@
+/* ============================================================
+   draft-plus.css — 写作台增强样式
+   在 other.css / common-ui.css 之后引入
+   ============================================================ */
+
+/* ---------- 富文本工具条与保存状态 ---------- */
+.dp-format {
+    display: flex; align-items: center; gap: 4px; flex-wrap: wrap;
+    padding: 6px 0 10px; margin-bottom: 8px;
+    border-bottom: 1px dashed var(--border-color);
+}
+.dp-format button {
+    min-width: 30px; height: 28px; border-radius: 7px; cursor: pointer;
+    border: 1px solid var(--border-color); background: var(--bg-card);
+    color: var(--text-main); font-size: .8rem;
+}
+.dp-format button:hover { border-color: var(--primary); color: var(--primary); }
+.dp-save-state { margin-left: auto; font-size: .72rem; color: var(--text-muted); }
+.dp-save-state[data-state="error"] { color: var(--danger, #c0392b); }
+
+/* ---------- 浮动工具坞 ---------- */
+.dp-dock {
+    position: fixed; right: 18px; bottom: 20px; z-index: 9000;
+    display: flex; flex-direction: column-reverse; align-items: flex-end; gap: 8px;
+}
+.dp-dock-toggle {
+    width: 44px; height: 44px; border-radius: 50%; cursor: pointer;
+    border: 1px solid var(--border-color); background: var(--bg-card);
+    color: var(--primary); font-size: 1.1rem; box-shadow: var(--shadow-sm);
+}
+.dp-dock-items {
+    display: none; flex-direction: column; gap: 3px; padding: 8px;
+    background: var(--bg-card); border: 1px solid var(--border-color);
+    border-radius: 14px; box-shadow: var(--shadow-md); max-height: 62vh; overflow-y: auto;
+}
+.dp-dock.open .dp-dock-items { display: flex; }
+.dp-dock-items button {
+    display: flex; align-items: center; gap: 9px; padding: 7px 9px;
+    border: 0; border-radius: 8px; cursor: pointer; white-space: nowrap;
+    background: transparent; color: var(--text-main); font-size: .8rem; text-align: left;
+}
+.dp-dock-items button:hover { background: var(--bg-soft, rgba(127,127,127,.14)); }
+.dp-ring-btn { cursor: pointer; position: relative; width: 54px; height: 54px; }
+.dp-ring-btn svg { width: 54px; height: 54px; display: block; }
+.dp-ring-btn .ll-ring-label { position: absolute; inset: 0; font-size: .66rem; font-weight: 700; }
+
+/* ---------- 抽屉 ---------- */
+.dp-drawer {
+    position: fixed; top: 0; right: 0; bottom: 0; z-index: 11500;
+    width: min(440px, 100%); background: var(--bg-card); color: var(--text-main);
+    border-left: 1px solid var(--border-color); box-shadow: var(--shadow-md);
+    transform: translateX(105%); transition: transform .28s ease;
+    display: flex; flex-direction: column;
+}
+.dp-drawer.open { transform: none; }
+.dp-drawer-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 18px; border-bottom: 1px solid var(--border-color); flex: 0 0 auto;
+}
+.dp-drawer-body { padding: 16px 18px 40px; overflow-y: auto; }
+.dp-drawer-body h4 {
+    margin: 20px 0 9px; font-size: .88rem; color: var(--primary);
+    border-bottom: 1px solid var(--border-color); padding-bottom: 6px;
+}
+.dp-drawer-body h4:first-child { margin-top: 0; }
+.dp-drawer-body textarea, .dp-drawer-body input[type="text"], .dp-drawer-body input[type="number"], .dp-drawer-body select {
+    width: 100%; box-sizing: border-box; padding: 7px 9px; font-size: .82rem;
+    border: 1px solid var(--border-color); border-radius: 8px;
+    background: var(--bg-page); color: var(--text-main); outline: none;
+}
+.dp-drawer-body textarea { resize: vertical; line-height: 1.6; font-family: inherit; }
+.dp-drawer-body textarea:focus, .dp-drawer-body input:focus { border-color: var(--primary); }
+.dp-field { margin: 10px 0; font-size: .8rem; }
+.dp-field label { display: block; margin-bottom: 5px; color: var(--text-muted); }
+.dp-list { margin-top: 12px; }
+.dp-list-item {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    padding: 10px 11px; margin-bottom: 7px; border-radius: 10px;
+    border: 1px solid var(--border-color); background: var(--bg-page);
+}
+.dp-list-item.active { border-color: var(--primary); }
+.dp-list-item b { display: block; font-size: .84rem; }
+.dp-list-item small { display: block; color: var(--text-muted); font-size: .71rem; margin-top: 3px; }
+.dp-item-actions { display: flex; gap: 4px; flex: 0 0 auto; }
+.dp-item-actions button {
+    padding: 4px 8px; border-radius: 7px; cursor: pointer; font-size: .72rem;
+    border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-main);
+}
+.dp-item-actions button:hover { border-color: var(--primary); color: var(--primary); }
+.dp-hit {
+    display: block; width: 100%; text-align: left; padding: 9px 11px; margin-bottom: 6px;
+    border: 1px solid var(--border-color); border-radius: 9px; cursor: pointer;
+    background: var(--bg-page); color: var(--text-main); font-size: .8rem; line-height: 1.5;
+}
+.dp-hit:hover { border-color: var(--primary); }
+.dp-hit small { display: block; color: var(--primary); font-size: .7rem; margin-bottom: 3px; }
+.dp-find-results { margin-top: 12px; max-height: 46vh; overflow-y: auto; }
+.dp-char { display: grid; grid-template-columns: 1fr 1fr 1.2fr 28px; gap: 5px; margin-bottom: 6px; }
+.dp-char button { border: 0; background: transparent; cursor: pointer; color: var(--text-muted); }
+.dp-name-out { margin-top: 12px; font-size: .9rem; color: var(--primary); min-height: 1.4em; }
+.dp-goal-row { display: flex; gap: 18px; align-items: center; }
+.dp-goal-row .ll-ring { width: 84px; height: 84px; flex-basis: 84px; }
+.dp-goal-row > div:last-child { flex: 1; min-width: 0; }
+
+/* ---------- 斜杠命令 ---------- */
+.dp-slash {
+    position: fixed; z-index: 11700; padding: 6px; min-width: 160px;
+    background: var(--bg-card); border: 1px solid var(--border-color);
+    border-radius: 10px; box-shadow: var(--shadow-md);
+}
+.dp-slash button {
+    display: block; width: 100%; text-align: left; padding: 7px 10px;
+    border: 0; border-radius: 7px; cursor: pointer; background: transparent;
+    color: var(--text-main); font-size: .8rem;
+}
+.dp-slash button:hover { background: var(--bg-soft, rgba(127,127,127,.14)); }
+
+/* ---------- 章节列表增强 ---------- */
+.dp-vol-head {
+    padding: 8px 6px 4px; font-size: .72rem; font-weight: 700;
+    color: var(--primary); letter-spacing: .02em;
+}
+.chap-item { position: relative; }
+.chap-item.has-vol { padding-left: 20px; }
+.dp-wc { margin-left: auto; font-size: .68rem; color: var(--text-muted); padding-right: 4px; }
+
+/* ---------- 42 专注模式 ---------- */
+body.dp-focus .top-nav,
+body.dp-focus .write-side,
+body.dp-focus .write-toolbar,
+body.dp-focus .write-bookbar,
+body.dp-focus .write-hint,
+body.dp-focus .dp-format,
+body.dp-focus .dp-dock,
+body.dp-focus .dp-ring-btn,
+body.dp-focus .ll-feedback,
+body.dp-focus #footerPlaceholder { display: none !important; }
+body.dp-focus .write-shell { display: block; max-width: 860px; margin: 5vh auto; padding: 0 20px; }
+body.dp-focus .write-main { width: 100%; }
+body.dp-focus .write-paper { box-shadow: none; border: 0; padding: 0; }
+body.dp-focus .dp-drawer { display: flex; }
+
+@media (max-width: 768px) {
+    .dp-dock { right: 10px; bottom: 12px; }
+    .dp-drawer { width: 100%; }
+    .dp-char { grid-template-columns: 1fr 1fr 1fr 24px; }
+}
