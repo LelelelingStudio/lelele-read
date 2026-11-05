@@ -492,6 +492,24 @@
         });
     }
 
+    /* 第三方统计：与「了了了游」boot.js 同款做法（仅 data-domain 不同）。
+       必须 DOM 就绪后动态注入，不能写成 <head> 里的 defer 外链：
+       外部脚本一旦挂起，defer 会拖住 DOMContentLoaded 导致全站白屏。
+       game.leleleling.site → read.leleleling.site；失败静默，不影响任何功能。 */
+    function initAnalytics() {
+        win.setTimeout(function () {
+            try {
+                var s = doc.createElement('script');
+                s.src = 'https://analytics.leleleling.site/em.js';
+                s.defer = true;
+                s.async = true;
+                s.setAttribute('data-domain', 'read.leleleling.site');
+                s.onerror = function () { };
+                doc.head.appendChild(s);
+            } catch (e) { warn('analytics', e); }
+        }, 0);
+    }
+
     /* 初始化 */
     function init() {
         initSystemTheme();
@@ -500,6 +518,7 @@
         initFeedback();
         registerBuiltins();
         initKeys();
+        initAnalytics();
         Bus.emit('ready', { version: VERSION });
     }
     if (doc.readyState === 'loading') doc.addEventListener('DOMContentLoaded', init);
