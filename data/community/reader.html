@@ -5,10 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>正在加载 - 共创书库 | 了了了读</title>
     <link rel="stylesheet" href="../../common.css">
+    <link rel="stylesheet" href="../../common-ui.css">
     <link rel="stylesheet" href="../../window.css">
     <link rel="stylesheet" href="../../reader.css">
     <link rel="stylesheet" href="../../epub-bridge.css">
     <script src="../../common.js"></script>
+    <script src="../../common-ui.js"></script>
     <script src="../../window.js"></script>
     <script defer src="../../reader.js"></script>
     <script defer src="../../epub-bridge.js"></script>
@@ -100,8 +102,17 @@
             const title = lang === 'en' ? (book.title_en || book.title_zh) : book.title_zh;
             document.title = title + ' · 共创书库';
 
+            // 历史数据迁移：旧版 bookId 带 community_ 前缀，与主阅读器的笔记/进度键不互通
+            try {
+                const np = 'lelele_read_notes_', pp = 'lelele_read_progress_';
+                if (localStorage.getItem(np + book.id) === null && localStorage.getItem(np + 'community_' + book.id) !== null)
+                    localStorage.setItem(np + book.id, localStorage.getItem(np + 'community_' + book.id));
+                if (localStorage.getItem(pp + book.id) === null && localStorage.getItem(pp + 'community_' + book.id) !== null)
+                    localStorage.setItem(pp + book.id, localStorage.getItem(pp + 'community_' + book.id));
+            } catch (e) { }
+
             Reader.init({
-                bookId: 'community_' + book.id,
+                bookId: book.id,
                 bookTitle: book.title_zh,
                 dataUrl: book.dataUrl,
                 hasVerseNum: false,
