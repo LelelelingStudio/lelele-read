@@ -505,7 +505,7 @@
             if (e.key === '?' && !typing && !mod && !e.altKey) { e.preventDefault(); UI.openHelp(); return; }
             if (e.key === 'Escape') {
                 closeLayer(cmdLayer);
-                ['leleleHelp', 'leleleBackup'].forEach(function (id) { var n = el(id); if (n) n.hidden = true; });
+                ['leleleHelp', 'leleleBackup', 'leleleFeedbackModal'].forEach(function (id) { var n = el(id); if (n) n.hidden = true; });
             }
         });
     }

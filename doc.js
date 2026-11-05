@@ -6,10 +6,26 @@ const DocEngine = (function() {
     'use strict';
 
     let _toc = { contentId: null, tocContainerId: null };
+    let _inited = false;
+
+    function currentLang() {
+        return (window.getLang && window.getLang()) === 'en' ? 'en' : 'zh';
+    }
+
+    // 双语长文把两套标题都写在 DOM 里，目录与滚动高亮只取当前语言那一套
+    function visibleHeadings(content) {
+        const lang = currentLang();
+        return Array.from(content.querySelectorAll('h2, h3')).filter(function (h) {
+            const zhBlock = h.closest('.zh-text');
+            const enBlock = h.closest('.en-text');
+            if (zhBlock || enBlock) return lang === 'en' ? !!enBlock : !!zhBlock;
+            return true;
+        });
+    }
 
     // 取当前语言对应的标题文本（避免 zh/en 两个 span 被拼接）
     function headingText(heading) {
-        const lang = (window.getLang && window.getLang()) === 'en' ? 'en' : 'zh';
+        const lang = currentLang();
         const target = heading.querySelector('.' + lang + '-inline');
         if (target) return target.textContent.trim();
         // 没有分语言 span 时回退到纯文本
@@ -21,21 +37,21 @@ const DocEngine = (function() {
         const content = document.getElementById(contentId);
         const tocContainer = document.getElementById(tocContainerId);
         if (!content || !tocContainer) return;
-        _toc = { contentId, tocContainerId };
+        _toc = { contentId: contentId, tocContainerId: tocContainerId };
 
-        // 提取所有 h2 和 h3
-        const headings = content.querySelectorAll('h2, h3');
+        const headings = visibleHeadings(content);
         if (headings.length === 0) {
             if (tocContainer.parentElement) tocContainer.parentElement.style.display = 'none'; // 没标题就隐藏侧边栏
             return;
         }
+        if (tocContainer.parentElement) tocContainer.parentElement.style.display = '';
 
         const ul = document.createElement('ul');
         ul.className = 'doc-toc-list';
 
         headings.forEach((heading, index) => {
-            // 如果标题没有 id，自动生成一个（保证唯一）
-            if (!heading.id) heading.id = `doc-heading-${index}`;
+            // 两套语言各自生成 id，避免切换语言后锚点串位
+            if (!heading.id) heading.id = `doc-heading-${currentLang()}-${index}`;
 
             const li = document.createElement('li');
             li.className = 'doc-toc-item';
@@ -72,7 +88,7 @@ const DocEngine = (function() {
     function initScrollSpy() {
         const content = document.getElementById(_toc.contentId);
         if (!content) return;
-        const headings = content.querySelectorAll('h2, h3');
+        const headings = visibleHeadings(content);
         const links = Array.from(document.querySelectorAll('.doc-toc-link'));
         if (!headings.length) return;
 
@@ -100,7 +116,7 @@ const DocEngine = (function() {
         window.addEventListener('scroll', () => {
             const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
             const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-            const scrolled = (winScroll / height) * 100;
+            const scrolled = height > 0 ? (winScroll / height) * 100 : 0;
             bar.style.width = scrolled + '%';
         });
     }
@@ -114,16 +130,20 @@ const DocEngine = (function() {
         try {
             const res = await fetch(jsonUrl);
             if (!res.ok) throw new Error('加载日志失败');
-            const data = await res.json(); // 假设是 [{version, date, changes: []}, ...]
+            const data = await res.json();
 
             let html = '<div class="changelog-timeline">';
             data.forEach(item => {
+                const raw = Array.isArray(item.changes)
+                    ? item.changes
+                    : String(item['content_' + currentLang()] || item.content_zh || item.content_en || '').split('\n');
+                const changes = raw.map(c => String(c).trim()).filter(Boolean);
                 html += `
                     <div class="changelog-item">
                         <div class="changelog-version">${item.version}</div>
                         <div class="changelog-date">${item.date}</div>
                         <ul class="changelog-list">
-                            ${item.changes.map(c => `<li>${c}</li>`).join('')}
+                            ${changes.map(c => `<li>${c}</li>`).join('')}
                         </ul>
                     </div>
                 `;
@@ -139,6 +159,10 @@ const DocEngine = (function() {
 
     // ==================== 5. 初始化统一入口 ====================
     function init(options = {}) {
+        // 页面可能在 DOMContentLoaded 与 langChanged 里重复调用，只初始化一次
+        if (_inited) return;
+        _inited = true;
+
         initProgressBar();
 
         if (options.tocContentId && options.tocContainerId) {

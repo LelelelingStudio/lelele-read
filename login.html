@@ -51,8 +51,8 @@
                     <input type="password" id="authPassword" required minlength="6" placeholder="••••••">
                 </div>
                 <div class="read-field" id="otpField" style="display:none">
-                    <label><span class="zh-inline">邮箱验证码（8 位）</span><span class="en-inline">Email code (8 digits)</span></label>
-                    <input type="text" id="authCode" inputmode="numeric" autocomplete="one-time-code" placeholder="12345678" maxlength="8">
+                    <label><span class="zh-inline">邮箱验证码（6 或 8 位）</span><span class="en-inline">Email code (6 or 8 digits)</span></label>
+                    <input type="text" id="authCode" inputmode="numeric" autocomplete="one-time-code" placeholder="6 或 8 位数字" data-ph-zh="6 或 8 位数字" data-ph-en="6 or 8 digits" maxlength="8">
                 </div>
                 <button type="button" class="rd-btn" id="sendOtpBtn" style="width:100%;justify-content:center;display:none">
                     <span class="zh-inline">发送验证码</span><span class="en-inline">Send code</span>
@@ -160,7 +160,7 @@
             const r = await UserAPI.sendOtp(email, false);
             $('sendOtpBtn').disabled = false;
             if (r.error) return ReadUI.showMsg($('authMsg'), r.error.message, false);
-            ReadUI.showMsg($('authMsg'), ReadUI.t('验证码已发送到邮箱（8 位，60 分钟内有效）。', 'Code sent to your email (8 digits, valid 60 min).'), true);
+            ReadUI.showMsg($('authMsg'), ReadUI.t('验证码已发送到邮箱，请按邮件中的位数填写（60 分钟内有效）。', 'Code sent to your email. Enter it exactly as shown (valid 60 min).'), true);
         });
 
         $('authForm').addEventListener('submit', async e => {
@@ -170,7 +170,7 @@
 
             if (otpType === 'email') {
                 const code = $('authCode').value.trim();
-                if (!/^\d{4,8}$/.test(code)) { $('authSubmit').disabled = false; return ReadUI.showMsg($('authMsg'), ReadUI.t('请输入 4–8 位验证码', 'Enter a 4–8 digit code'), false); }
+                if (!/^\d{4,8}$/.test(code)) { $('authSubmit').disabled = false; return ReadUI.showMsg($('authMsg'), ReadUI.t('请输入邮件中的 6 或 8 位验证码', 'Enter the 6- or 8-digit code from your email'), false); }
                 const res = await UserAPI.verifyOtp(email, code, 'email');
                 $('authSubmit').disabled = false;
                 if (res.error) return ReadUI.showMsg($('authMsg'), friendlyError(res.error.message), false);
@@ -179,7 +179,7 @@
             }
             if (otpType === 'signup') {
                 const code = $('authCode').value.trim();
-                if (!/^\d{4,8}$/.test(code)) { $('authSubmit').disabled = false; return ReadUI.showMsg($('authMsg'), ReadUI.t('请输入 4–8 位验证码', 'Enter a 4–8 digit code'), false); }
+                if (!/^\d{4,8}$/.test(code)) { $('authSubmit').disabled = false; return ReadUI.showMsg($('authMsg'), ReadUI.t('请输入邮件中的 6 或 8 位验证码', 'Enter the 6- or 8-digit code from your email'), false); }
                 const res = await UserAPI.verifyOtp(email, code, 'signup');
                 $('authSubmit').disabled = false;
                 if (res.error) return ReadUI.showMsg($('authMsg'), friendlyError(res.error.message), false);
@@ -201,7 +201,7 @@
                 $('useOtpLink').style.display = 'none';
                 $('usePwdLink').style.display = 'none';
                 updateSubmit();
-                ReadUI.showMsg($('authMsg'), ReadUI.t('注册成功！请查收 8 位验证码邮件，输入后完成注册。', 'Signed up! Check your email for the 8-digit code to finish.'), true);
+                ReadUI.showMsg($('authMsg'), ReadUI.t('注册成功！请查收验证码邮件，输入后完成注册。', 'Signed up! Check your email for the code to finish.'), true);
                 return;
             }
             ReadUI.showMsg($('authMsg'), ReadUI.t('登录成功，正在跳转…', 'Signed in, redirecting…'), true);
