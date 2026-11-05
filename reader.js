@@ -240,6 +240,7 @@ const Reader = (function () {
                 html += `<button class="reader-action-btn" data-act="bookmark" data-idx="${idx}" title="${esc(t('书签', 'Bookmark'))}">${isBm ? '🔖' : '📑'}</button>`;
                 html += `<button class="reader-action-btn" data-act="note" data-idx="${idx}" title="${esc(t('批注', 'Note'))}">💬</button>`;
                 html += `<button class="reader-action-btn" data-act="quote" data-idx="${idx}" title="${esc(t('引用卡片', 'Quote card'))}">🖼️</button>`;
+                html += `<button class="reader-action-btn" data-act="copy" data-idx="${idx}" title="${esc(t('带出处复制', 'Copy with source'))}">📋</button>`;
                 html += `</span></div></div>`;
                 if (ann) html += `<div class="reader-para-note">${esc(ann.text)}</div>`;
             });
@@ -268,6 +269,9 @@ const Reader = (function () {
                 if (act === 'bookmark') return toggleBookmark(idx);
                 if (act === 'note') return openNoteModal(idx);
                 if (act === 'quote') return window.dispatchEvent(new CustomEvent('readerQuoteRequest', {
+                    detail: { idx: idx, text: (chap.content || [])[idx] || '' }
+                }));
+                if (act === 'copy') return window.dispatchEvent(new CustomEvent('readerCopyRequest', {
                     detail: { idx: idx, text: (chap.content || [])[idx] || '' }
                 }));
             });
@@ -314,6 +318,10 @@ const Reader = (function () {
     }
 
     function renderNotesPanel() {
+        if (window.NotesPlus && window.NotesPlus.render) {
+            try { window.NotesPlus.render(); return; }
+            catch (e) { console.warn('[Reader] NotesPlus render failed', e.message); }
+        }
         if (!els.notesList) return;
         const activeTab = (document.querySelector('.reader-notes-tab.active') || {}).dataset;
         const tab = activeTab ? activeTab.tab : 'bookmarks';
@@ -350,6 +358,14 @@ const Reader = (function () {
         if (window.innerWidth > 768 && els.notesPanel) els.notesPanel.classList.remove('open');
     }
 
+    function setBookmarkLabel(chap, para, label) {
+        const b = notes.bookmarks.find(x => x.chap === chap && x.para === para);
+        if (!b) return false;
+        if (label && String(label).trim()) b.label = String(label).trim();
+        else delete b.label;
+        saveNotes();
+        return true;
+    }
     function addDaily(patch) {
         if (!window.Lelele || !window.Lelele.Store) return;
         try { window.Lelele.Store.mergeDaily(window.Lelele.UI.dayKey(), patch); } catch (e) { }
@@ -765,6 +781,7 @@ const Reader = (function () {
         isFavorite, toggleFavorite, getFavorites, recordRecent,
         addDaily, ensureAll: ensureAllChapters,
         getNotes: () => notes,
+        setBookmarkLabel: setBookmarkLabel,
         saveNotesExternal: () => saveNotes(),
         toggleLayout: () => {
             layoutMode = !layoutMode;

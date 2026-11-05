@@ -165,6 +165,50 @@ html.rp-page-mode .reader-para { scroll-snap-align: start; }
     font-size: .8rem; line-height: 1.6; box-shadow: var(--shadow-md); cursor: pointer;
 }
 
+/* ---------- 笔记增强 ---------- */
+.np-toolbar {
+    display: flex; gap: 6px; flex-wrap: wrap; align-items: center;
+    padding: 8px 10px; border-bottom: 1px solid var(--read-border);
+}
+.np-toolbar input[type="search"] {
+    flex: 1 1 120px; min-width: 90px; padding: 6px 9px; font-size: .78rem;
+    border: 1px solid var(--read-border); border-radius: 8px; outline: none;
+    background: var(--read-bg-main); color: var(--read-text-primary);
+}
+.np-toolbar select {
+    max-width: 118px; padding: 5px; font-size: .74rem; border-radius: 8px;
+    border: 1px solid var(--read-border); background: var(--read-bg-main); color: var(--read-text-primary);
+}
+.np-actions { display: flex; gap: 4px; }
+.np-actions .rd-btn { padding: 3px 7px; font-size: .7rem; }
+.np-item {
+    padding: 10px 12px; border-bottom: 1px solid var(--read-border);
+    cursor: pointer; font-size: .82rem;
+}
+.np-item:hover { background: var(--read-verse-hover); }
+.np-item-head { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
+.np-where { flex: 1; font-weight: 600; color: var(--read-accent); font-size: .76rem; }
+.np-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+.np-tools { display: flex; gap: 2px; }
+.np-tools button {
+    border: 0; background: transparent; cursor: pointer;
+    color: var(--read-text-secondary); font-size: .85rem; padding: 1px 4px;
+}
+.np-tools button:hover { color: var(--read-accent); }
+.np-preview { color: var(--read-text-secondary); line-height: 1.55; font-size: .78rem; }
+.np-label { margin-top: 4px; color: var(--read-accent); font-size: .76rem; }
+.np-md { margin-top: 6px; color: var(--read-text-primary); line-height: 1.65; font-size: .8rem; }
+.np-md code { background: var(--read-verse-hover); padding: 1px 4px; border-radius: 4px; font-size: .9em; }
+.np-md a { color: var(--read-accent); }
+.np-md li { margin-left: 16px; }
+.np-resume {
+    position: fixed; left: 50%; top: 74px; transform: translateX(-50%);
+    z-index: 11200; padding: 8px 16px; border-radius: 999px; cursor: pointer;
+    border: 1px solid var(--border-color); background: var(--bg-card);
+    color: var(--primary); font-size: .8rem; font-weight: 600; box-shadow: var(--shadow-md);
+}
+.np-resume:hover { background: var(--primary); color: #fff; }
+
 /* ---------- 移动端 ---------- */
 @media (max-width: 768px) {
     .rp-dock { left: 12px; bottom: 14px; }

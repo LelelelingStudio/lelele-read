@@ -199,6 +199,59 @@ html[data-eye-theme="gray"] {
     --read-text-primary: #333; --read-text-secondary: #666; --read-border: #ccc;
 }
 
+/* ---------- 首页书架增强 ---------- */
+.sp-greet {
+    display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap;
+    margin: 4px 0 18px; color: var(--text-main);
+}
+.sp-greet b { font-size: 1.5rem; }
+.sp-greet span { color: var(--text-muted); font-size: .9rem; }
+.sp-chips { margin: 0 0 18px; }
+.sp-filters { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-top: 4px; }
+.sp-filters select {
+    padding: 5px 8px; border-radius: 8px; font-size: .8rem;
+    border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-main);
+}
+.sp-filters .rd-btn { padding: 5px 10px; font-size: .78rem; }
+.sp-stats { margin: 0 0 24px; }
+.sp-stats h5 { margin: 0 0 10px; font-size: .82rem; color: var(--text-muted); font-weight: 600; }
+.sp-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 22px; }
+.sp-badges { display: flex; gap: 10px; flex-wrap: wrap; }
+.sp-badge {
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    width: 82px; padding: 10px 4px; border-radius: 12px; text-align: center;
+    border: 1px solid var(--border-color); opacity: .38; filter: grayscale(1);
+}
+.sp-badge.got { opacity: 1; filter: none; border-color: var(--primary); background: var(--bg-card); }
+.sp-badge span { font-size: 1.4rem; }
+.sp-badge small { font-size: .68rem; color: var(--text-muted); }
+.sp-recommend { margin: 0 0 24px; }
+.sp-rec {
+    flex: 0 0 160px; display: flex; flex-direction: column; gap: 5px;
+    padding: 12px; border-radius: 12px; text-align: left; cursor: pointer;
+    border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-main);
+}
+.sp-rec:hover { border-color: var(--primary); transform: translateY(-2px); }
+.sp-rec span { font-size: 1.4rem; }
+.sp-rec b { font-size: .84rem; line-height: 1.35; }
+.sp-rec small { font-size: .7rem; color: var(--text-muted); line-height: 1.4; }
+.sp-status {
+    position: absolute; right: 10px; bottom: 10px; z-index: 2;
+    width: 28px; height: 28px; border-radius: 50%; cursor: pointer; font-size: .8rem;
+    border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-muted);
+}
+.sp-status:hover { border-color: var(--primary); color: var(--primary); }
+.book-card { position: relative; }
+.sp-new { position: absolute; top: 10px; right: 10px; }
+.sp-folder-btn {
+    position: absolute; right: 8px; bottom: 8px; z-index: 2;
+    border: 0; background: transparent; cursor: pointer; font-size: .8rem; opacity: .7;
+}
+.sp-folder-btn:hover { opacity: 1; }
+#readerHub .shelf-card { position: relative; padding-bottom: 24px; }
+.book-card .book-desc { max-height: 3.2em; overflow: hidden; transition: max-height .25s; }
+.book-card:hover .book-desc { max-height: 10em; }
+
 /* ---------- 响应式 ---------- */
 @media (max-width: 640px) {
     .ll-overlay { padding: 6vh 10px 16px; }

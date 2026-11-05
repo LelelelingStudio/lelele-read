@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="common-ui.css">
     <script src="common.js"></script>
     <script src="common-ui.js"></script>
+    <script src="shelf-plus.js"></script>
     <script src="supabase-js.min.js"></script>
     <script defer src="user-api.js"></script>
     <script defer src="user-auth.js"></script>
@@ -343,6 +344,9 @@
                 const desc = lang === 'en' ? (book.desc_en || '') : (book.desc_zh || '');
                 const card = document.createElement('div');
                 card.className = 'book-card';
+                card.dataset.bookId = book.id;
+                card.dataset.cat = book.cat || '';
+                card.dataset.author = authorName(book, lang) || '';
                 card.innerHTML = `
                     <div class="book-card-header">
                         <div class="book-icon">${window.escapeHtml(book.icon || '📖')}</div>
@@ -422,7 +426,7 @@
                 html += `<div class="shelf-title">📖 ${lang === 'en' ? 'Continue reading' : '继续阅读'}</div><div class="shelf-row">`;
                 recent.slice(0, 10).forEach(r => {
                     const pct = r.total ? Math.round((r.chapter + 1) / r.total * 100) : 0;
-                    html += `<div class="shelf-card" onclick="location.href='reader.html?book=${encodeURIComponent(r.id)}'">
+                    html += `<div class="shelf-card" data-kind="recent" data-book-id="${encodeURIComponent(r.id)}" onclick="location.href='reader.html?book=${encodeURIComponent(r.id)}'">
                         <div class="sc-title">${window.escapeHtml(r.title || r.id)}</div>
                         <div class="sc-meta">${lang === 'en' ? 'Chapter ' : '第 '}${(r.chapter || 0) + 1}${r.total ? ' / ' + r.total : ''} · ${pct}%</div>
                     </div>`;
@@ -432,7 +436,7 @@
             if (Array.isArray(favs) && favs.length) {
                 html += `<div class="shelf-title" style="margin-top:18px">★ ${lang === 'en' ? 'Favorites' : '我的收藏'}</div><div class="shelf-row">`;
                 favs.forEach(f => {
-                    html += `<div class="shelf-card" onclick="location.href='reader.html?book=${encodeURIComponent(f.id)}'">
+                    html += `<div class="shelf-card" data-kind="fav" data-book-id="${encodeURIComponent(f.id)}" onclick="location.href='reader.html?book=${encodeURIComponent(f.id)}'">
                         <div class="sc-title">${window.escapeHtml(f.title || f.id)}</div>
                         <div class="sc-meta">${lang === 'en' ? 'Open' : '打开'}</div>
                     </div>`;
