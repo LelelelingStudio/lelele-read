@@ -11,6 +11,7 @@
     <script src="supabase-js.min.js"></script>
     <script defer src="user-api.js"></script>
     <script defer src="user-auth.js"></script>
+    <script src="https://tally.so/widgets/embed.js" defer></script>
 </head>
 <body>
 
@@ -90,6 +91,7 @@
                 <p class="read-hint">${esc(t('身份：', 'Role: ') + (profile.is_author ? t('作者', 'Author') : t('读者（在「个人资料」一键升级）', 'Reader (upgrade in Profile)')) + (profile.author_id ? ' · ' + t('作者 ID：', 'Author ID: ') + profile.author_id : ''))}</p>
                 <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px">
                     <a class="rd-btn primary" href="reader.html">${esc(t('打开读书器', 'Open the reader'))}</a>
+                    <a class="rd-btn" href="#" onclick="if(window.Tally)Tally.openPopup('pedeGV');else location.href='https://tally.so/forms/pedeGV';return false;">${esc(t('意见反馈', 'Feedback'))}</a>
                 </div>
             </section>`;
         }
@@ -146,11 +148,13 @@
                 <div style="display:flex;gap:8px;align-items:center">
                     <span class="dash-badge ${esc(s.status || 'pending')}">${esc(s.status || 'pending')}</span>
                     <button class="rd-btn" data-del="${esc(s.id)}">${esc(t('删除', 'Delete'))}</button>
-                </div></div>`).join('') : `<div class="read-empty">${esc(t('还没有投稿。点击下方按钮提交你的作品。', 'No submissions yet. Tap the button below to submit your work.'))}</div>`;
+                </div></div>`).join('') : `<div class="read-empty">${esc(t('还没有投稿。用下面的表单提交你的作品。', 'No submissions yet. Use the form below to submit your work.'))}</div>`;
+            const frame = `<iframe data-tally-src="https://tally.so/embed/Kpepo7?alignLeft=1&hideTitle=1&transparentBackground=1&dynamicHeight=1" loading="lazy" width="100%" height="1400" frameborder="0" marginheight="0" marginwidth="0" title="${esc(t('了了了读 · 共创投稿', 'lelele Read · Submit Your Work'))}"></iframe>`;
             return `<section class="dash-panel">
                 <h2>${esc(t('共创投稿', 'Submissions'))}</h2>
-                <p class="desc">${esc(t('用下面的按钮提交作品，审核通过后就会出现在共创书库。', 'Submit your work with the button below; approved works appear in the community library.'))}</p>
-                <div style="margin-bottom:18px"><a class="rd-btn primary" href="https://tally.so/r/REPLACE_SUBMIT" target="_blank" rel="noopener">${esc(t('提交新投稿', 'New submission'))}</a></div>
+                <p class="desc">${esc(t('用下面的表单提交作品，审核通过后就会出现在共创书库。', 'Submit with the form below; approved works appear in the community library.'))}</p>
+                <div class="tally-embed">${frame}</div>
+                <h3 style="margin:22px 0 8px;color:var(--text-main)">${esc(t('我的投稿', 'My submissions'))}</h3>
                 <div class="dash-list">${items}</div>
             </section>`;
         }
@@ -229,6 +233,7 @@
             main.innerHTML = (map[panel] || renderOverview)();
             document.querySelectorAll('#dashSide button').forEach(b => b.classList.toggle('active', b.dataset.panel === panel));
             bindPanel();
+            if (window.Tally && Tally.loadEmbeds) { try { Tally.loadEmbeds(); } catch (e) {} }
         }
 
         document.querySelectorAll('#dashSide button').forEach(btn => {

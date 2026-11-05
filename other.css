@@ -112,4 +112,5 @@
     .dash-side button { white-space: nowrap; width: auto; flex-shrink: 0; }
     .dash-panel { padding: 20px 16px; }
     .auth-wrap { margin-top: 5vh; }
+    .tally-embed { margin: 6px 0 8px; border: 1px solid var(--border-color); border-radius: 14px; overflow: hidden; background: var(--bg-page); }
 }

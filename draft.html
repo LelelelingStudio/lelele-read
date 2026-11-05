@@ -23,8 +23,9 @@
         .chap-item .ttl { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .write-main { flex: 1; min-width: 0; }
         .write-bookbar { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 16px 18px; margin-bottom: 16px; display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; }
-        .write-bookbar .read-field { margin: 0; flex: 1; min-width: 160px; }
-        .write-bookbar .read-field.author { flex: 0 0 150px; }
+        .write-bookbar .read-field { margin: 0; flex: 1; min-width: 150px; }
+        .write-bookbar .read-field.author { flex: 0 0 140px; }
+        .write-bookbar .read-field.tpl { flex: 0 0 150px; }
         .write-toolbar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; align-items: center; }
         .write-stat { margin-left: auto; font-size: .8rem; color: var(--text-muted); white-space: nowrap; }
         .write-paper { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 18px; padding: 30px; box-shadow: var(--shadow-sm, 0 2px 10px rgba(0,0,0,.04)); }
@@ -34,6 +35,18 @@
         .write-area::placeholder { color: var(--text-muted); }
         .write-hint { font-size: .78rem; color: var(--text-muted); margin-top: 14px; line-height: 1.7; }
         .dash-side-link:hover { color: var(--primary) !important; background: var(--bg-card); }
+        .preview-area { display: none; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 18px; padding: 30px; min-height: 52vh; }
+        .pv-book { max-width: 720px; margin: 0 auto; }
+        .pv-title { font-size: 1.6rem; text-align: center; margin: 0 0 26px; color: var(--text-main); }
+        .pv-chap { margin-bottom: 28px; }
+        .pv-chap h3 { font-size: 1.15rem; color: var(--text-main); margin: 0 0 12px; font-weight: 700; }
+        .pv-book p { line-height: 1.9; margin: 0 0 14px; color: var(--text-main); }
+        .tpl-poetry .pv-verse { text-align: center; font-style: italic; letter-spacing: .02em; }
+        .tpl-poetry .pv-poem-title { text-align: center; font-style: normal; }
+        .tpl-academic .pv-quote { border-left: 3px solid var(--primary); padding-left: 14px; color: var(--text-muted); font-style: italic; margin: 0 0 14px; }
+        .tpl-script .pv-line { margin: 0 0 8px; }
+        .tpl-script .pv-role { font-weight: 700; color: var(--primary); margin-right: 8px; }
+        .tpl-essay .pv-book p { line-height: 2.1; }
         @media (max-width: 768px) {
             .write-shell { flex-direction: column; }
             .write-side { width: 100%; position: static; }
@@ -69,27 +82,33 @@
                 <div class="read-field"><label><span class="zh-inline">书名（中）</span><span class="en-inline">Title (ZH)</span></label><input id="bkZh" placeholder="中文书名"></div>
                 <div class="read-field"><label><span class="zh-inline">书名（英）</span><span class="en-inline">Title (EN)</span></label><input id="bkEn" placeholder="English title"></div>
                 <div class="read-field author"><label><span class="zh-inline">作者标识</span><span class="en-inline">Author ID</span></label><input id="bkAuthor" disabled></div>
+                <div class="read-field tpl"><label><span class="zh-inline">模板</span><span class="en-inline">Template</span></label><select id="tplSel"></select></div>
             </div>
 
             <div class="write-toolbar">
                 <button class="rd-btn" id="moveUp" title="上移">↑</button>
                 <button class="rd-btn" id="moveDown" title="下移">↓</button>
                 <button class="rd-btn" id="delChap"><span class="zh-inline">删除本章</span><span class="en-inline">Delete</span></button>
-                <button class="rd-btn primary" id="downloadBtn"><span class="zh-inline">下载 JSON</span><span class="en-inline">Download JSON</span></button>
+                <button class="rd-btn" id="tplSample"><span class="zh-inline">套用模板</span><span class="en-inline">Use template</span></button>
+                <button class="rd-btn" id="previewBtn"><span class="zh-inline">预览</span><span class="en-inline">Preview</span></button>
+                <button class="rd-btn primary" id="downloadBtn"><span class="zh-inline">下载 JSON</span><span class="en-inline">JSON</span></button>
+                <button class="rd-btn" id="txtBtn"><span class="zh-inline">下载 TXT</span><span class="en-inline">TXT</span></button>
                 <button class="rd-btn" id="importBtn"><span class="zh-inline">导入 JSON</span><span class="en-inline">Import</span></button>
                 <button class="rd-btn" id="clearBtn"><span class="zh-inline">清空</span><span class="en-inline">Clear</span></button>
                 <span class="write-stat" id="stat"></span>
                 <input type="file" id="importFile" accept=".json,application/json" style="display:none">
             </div>
 
-            <div class="write-paper">
+            <div class="write-paper" id="paper">
                 <input class="write-chap-title" id="chapTitle" placeholder="章节标题">
                 <textarea class="write-area" id="chapBody" placeholder="在这里写作…每段之间空一行。文字会自动保存在本机浏览器，关掉也不丢。"></textarea>
                 <div class="write-hint">
-                    <span class="zh-inline">草稿只存在本机浏览器（localStorage），不会上传。写好后可「下载 JSON」，再到作者面板的投稿入口提交；也可「导入 JSON」继续之前的稿子。</span>
-                    <span class="en-inline">Drafts are saved only in this browser (localStorage) and never uploaded. Download JSON to submit via your author panel, or import a JSON to continue an earlier draft.</span>
+                    <span class="zh-inline">草稿只存在本机浏览器（localStorage），不会上传。写好后可「下载 JSON」再到作者面板的投稿入口提交，或「下载 TXT」留底；「预览」可按所选模板看排版效果。</span>
+                    <span class="en-inline">Drafts are saved only in this browser (localStorage) and never uploaded. Download JSON to submit via your author panel, or TXT to keep a copy. Use Preview to see the layout for the chosen template.</span>
                 </div>
             </div>
+
+            <div class="preview-area" id="previewArea"></div>
         </main>
     </div>
 
@@ -103,9 +122,17 @@
         UserAuth.renderAuthSlot();
         $('btnLang').onclick = () => window.setLang(window.getLang() === 'zh' ? 'en' : 'zh');
 
+        const TEMPLATES = [
+            { id: 'novel', zh: '小说', en: 'Novel', cls: 'tpl-novel', sample: [{ title: '第一章', paragraphs: ['在这里写下你的故事……每一段之间空一行。'] }] },
+            { id: 'poetry', zh: '诗歌', en: 'Poetry', cls: 'tpl-poetry', sample: [{ title: '无题', paragraphs: ['轻轻地我走了，', '正如我轻轻地来；', '我挥一挥衣袖，', '不带走一片云彩。'] }] },
+            { id: 'essay', zh: '随笔', en: 'Essay', cls: 'tpl-essay', sample: [{ title: '随想', paragraphs: ['生活中总有些细微的触动，值得被悄悄记下。'] }] },
+            { id: 'academic', zh: '学术', en: 'Academic', cls: 'tpl-academic', sample: [{ title: '引言', paragraphs: ['本文探讨……', '"引用内容放在这里，会被渲染成引文样式。"'] }] },
+            { id: 'script', zh: '剧本', en: 'Script', cls: 'tpl-script', sample: [{ title: '第一幕', paragraphs: ['小明：你来了。', '小红：我刚到，外面下雨了。'] }] }
+        ];
         let authorId = '';
-        let draft = { title_zh: '', title_en: '', author: '', chapters: [{ title: '', paragraphs: [] }] };
+        let draft = { title_zh: '', title_en: '', author: '', template: 'novel', chapters: [{ title: '', paragraphs: [] }] };
         let cur = 0;
+        let mode = 'edit';
 
         function esc(s) { return window.escapeHtml ? window.escapeHtml(s) : String(s).replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m])); }
         function toast(msg) { if (window.showToast) window.showToast(msg); else console.log(msg); }
@@ -117,8 +144,9 @@
                 if (s) {
                     const d = JSON.parse(s);
                     if (d && Array.isArray(d.chapters) && d.chapters.length) {
-                        draft = Object.assign({ title_zh: '', title_en: '', author: authorId, chapters: [] }, d);
+                        draft = Object.assign({ title_zh: '', title_en: '', author: authorId, template: 'novel', chapters: [] }, d);
                         draft.author = authorId;
+                        if (!draft.template || !TEMPLATES.some(x => x.id === draft.template)) draft.template = 'novel';
                         cur = 0;
                     }
                 }
@@ -163,15 +191,64 @@
             $('chapBody').value = (c.paragraphs || []).join('\n\n');
             renderList();
         }
+        function renderPreview() {
+            const tpl = TEMPLATES.find(x => x.id === draft.template) || TEMPLATES[0];
+            let h = '<div class="pv-book ' + tpl.cls + '">';
+            const bk = draft.title_zh || draft.title_en;
+            if (bk) h += '<h1 class="pv-title">' + esc(bk) + '</h1>';
+            draft.chapters.forEach((c, i) => {
+                h += '<div class="pv-chap">';
+                if (tpl.id === 'script') {
+                    h += '<h3>' + esc(c.title || '') + '</h3>';
+                    (c.paragraphs || []).forEach(p => {
+                        const m = p.match(/^([^:：]+)[：:]\s*(.*)$/);
+                        if (m) h += '<p class="pv-line"><span class="pv-role">' + esc(m[1]) + '</span><span class="pv-said">' + esc(m[2]) + '</span></p>';
+                        else h += '<p class="pv-line">' + esc(p) + '</p>';
+                    });
+                } else if (tpl.id === 'poetry') {
+                    h += '<h3 class="pv-poem-title">' + esc(c.title || '') + '</h3>';
+                    (c.paragraphs || []).forEach(p => h += '<p class="pv-verse">' + esc(p) + '</p>');
+                } else if (tpl.id === 'academic') {
+                    h += '<h3>' + esc((i + 1) + '. ' + (c.title || '')) + '</h3>';
+                    (c.paragraphs || []).forEach(p => {
+                        if (/^[“"](.+)["”]$/.test(p)) h += '<blockquote class="pv-quote">' + esc(p) + '</blockquote>';
+                        else h += '<p>' + esc(p) + '</p>';
+                    });
+                } else {
+                    h += '<h3>' + esc(c.title || '') + '</h3>';
+                    (c.paragraphs || []).forEach(p => h += '<p>' + esc(p) + '</p>');
+                }
+                h += '</div>';
+            });
+            h += '</div>';
+            $('previewArea').innerHTML = h;
+        }
+        function togglePreview() {
+            syncCurFromUI();
+            if (mode === 'edit') {
+                renderPreview();
+                $('previewArea').style.display = 'block';
+                $('paper').style.display = 'none';
+                $('previewBtn').innerHTML = '<span class="zh-inline">返回编辑</span><span class="en-inline">Edit</span>';
+                mode = 'preview';
+            } else {
+                $('previewArea').style.display = 'none';
+                $('paper').style.display = '';
+                $('previewBtn').innerHTML = '<span class="zh-inline">预览</span><span class="en-inline">Preview</span>';
+                mode = 'edit';
+            }
+        }
         function render() {
             $('bkZh').value = draft.title_zh || '';
             $('bkEn').value = draft.title_en || '';
+            $('tplSel').value = draft.template || 'novel';
             renderEditor();
         }
 
         function bind() {
             $('bkZh').oninput = () => { draft.title_zh = $('bkZh').value; saveLocal(); };
             $('bkEn').oninput = () => { draft.title_en = $('bkEn').value; saveLocal(); };
+            $('tplSel').onchange = () => { draft.template = $('tplSel').value; saveLocal(); if (mode === 'preview') renderPreview(); };
             $('chapTitle').oninput = () => { if (draft.chapters[cur]) draft.chapters[cur].title = $('chapTitle').value; saveLocal(); renderList(); };
             $('chapBody').oninput = () => { if (draft.chapters[cur]) draft.chapters[cur].paragraphs = splitParas($('chapBody').value); saveLocal(); updateStat(); };
             $('addChap').onclick = () => { syncCurFromUI(); draft.chapters.splice(cur + 1, 0, { title: '', paragraphs: [] }); cur++; renderEditor(); saveLocal(); };
@@ -183,10 +260,18 @@
             };
             $('moveUp').onclick = () => { if (cur <= 0) return; const a = draft.chapters; [a[cur - 1], a[cur]] = [a[cur], a[cur - 1]]; cur--; renderEditor(); saveLocal(); };
             $('moveDown').onclick = () => { if (cur >= draft.chapters.length - 1) return; const a = draft.chapters; [a[cur + 1], a[cur]] = [a[cur], a[cur + 1]]; cur++; renderEditor(); saveLocal(); };
+            $('tplSample').onclick = () => {
+                ReadUI.confirm(t('用所选模板替换当前章节结构？这会清空现有章节。', 'Replace current chapters with the template structure?'), () => {
+                    const tpl = TEMPLATES.find(x => x.id === draft.template) || TEMPLATES[0];
+                    draft.chapters = JSON.parse(JSON.stringify(tpl.sample));
+                    cur = 0; render(); saveLocal();
+                });
+            };
+            $('previewBtn').onclick = togglePreview;
             $('downloadBtn').onclick = () => {
                 syncCurFromUI();
                 const out = {
-                    title_zh: draft.title_zh, title_en: draft.title_en, author: authorId,
+                    title_zh: draft.title_zh, title_en: draft.title_en, author: authorId, template: draft.template,
                     chapters: draft.chapters.map(c => ({ title: c.title, paragraphs: c.paragraphs }))
                 };
                 const blob = new Blob([JSON.stringify(out, null, 2)], { type: 'application/json' });
@@ -196,6 +281,21 @@
                 a.click();
                 URL.revokeObjectURL(a.href);
                 toast(t('已下载 JSON', 'Downloaded JSON'));
+            };
+            $('txtBtn').onclick = () => {
+                syncCurFromUI();
+                let txt = (draft.title_zh || draft.title_en || '') + '\n\n';
+                draft.chapters.forEach((c, i) => {
+                    txt += (c.title || (t('第 ', 'Ch. ') + (i + 1))) + '\n\n';
+                    txt += (c.paragraphs || []).join('\n\n') + '\n\n';
+                });
+                const blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = (draft.title_zh || 'draft') + '.txt';
+                a.click();
+                URL.revokeObjectURL(a.href);
+                toast(t('已下载 TXT', 'Downloaded TXT'));
             };
             $('importBtn').onclick = () => $('importFile').click();
             $('importFile').onchange = e => {
@@ -210,13 +310,14 @@
                         if (!chs.length) throw 0;
                         draft = {
                             title_zh: d.title_zh || d.title || '', title_en: d.title_en || '',
-                            author: authorId,
+                            author: authorId, template: d.template || 'novel',
                             chapters: chs.map(c => ({
                                 title: c.title || '',
                                 paragraphs: Array.isArray(c.paragraphs) ? c.paragraphs
                                     : (c.content ? splitParas(String(c.content)) : [])
                             }))
                         };
+                        if (!TEMPLATES.some(x => x.id === draft.template)) draft.template = 'novel';
                         cur = 0; render(); saveLocal(); toast(t('已导入', 'Imported'));
                     } catch (err) { toast(t('JSON 解析失败', 'Invalid JSON')); }
                 };
@@ -224,7 +325,7 @@
             };
             $('clearBtn').onclick = () => {
                 ReadUI.confirm(t('清空当前草稿？', 'Clear current draft?'), () => {
-                    draft = { title_zh: '', title_en: '', author: authorId, chapters: [{ title: '', paragraphs: [] }] };
+                    draft = { title_zh: '', title_en: '', author: authorId, template: 'novel', chapters: [{ title: '', paragraphs: [] }] };
                     cur = 0; render(); saveLocal();
                 });
             };
@@ -235,12 +336,13 @@
             const profile = (p && p.data) || {};
             authorId = profile.author_id || '';
             $('bkAuthor').value = authorId;
+            $('tplSel').innerHTML = TEMPLATES.map(x => '<option value="' + x.id + '">' + x.zh + ' ' + x.en + '</option>').join('');
             loadLocal();
             bind();
             render();
         }
 
-        window.addEventListener('langChanged', render);
+        window.addEventListener('langChanged', () => { syncCurFromUI(); render(); if (mode === 'preview') renderPreview(); });
         init();
     });
     </script>
