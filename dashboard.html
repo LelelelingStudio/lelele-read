@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>作者后台 · 了了了读</title>
+    <link rel="stylesheet" href="common.css">
+    <link rel="stylesheet" href="other.css">
+    <script src="common.js"></script>
+    <script src="other.js"></script>
+    <script src="supabase-js.min.js"></script>
+    <script defer src="user-api.js"></script>
+    <script defer src="user-auth.js"></script>
+</head>
+<body>
+
+    <nav class="top-nav" style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 5%;border-bottom:1px solid var(--border-color);background:var(--bg-card);position:sticky;top:0;z-index:100">
+        <a href="index.html" class="brand" style="display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--text-main);font-weight:700">
+            <img src="leleleread.svg" alt="Logo" style="width:30px;height:30px;border-radius:50%" onerror="this.style.display='none'">
+            <span><span class="zh-inline">了了了读 · 作者后台</span><span class="en-inline">lelele Read · Dashboard</span></span>
+        </a>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <a class="rd-btn" href="reader.html"><span class="zh-inline">读书器</span><span class="en-inline">Reader</span></a>
+            <a class="rd-btn" href="docs.html"><span class="zh-inline">文档</span><span class="en-inline">Docs</span></a>
+            <button class="rd-btn" onclick="toggleTheme()">🌙</button>
+            <button class="rd-btn" id="btnLang">EN</button>
+            <span id="authSlot" style="display:flex;gap:8px;align-items:center"></span>
+        </div>
+    </nav>
+
+    <div class="dash-shell">
+        <aside class="dash-side" id="dashSide">
+            <button class="active" data-panel="overview">📊 <span class="zh-inline">概览</span><span class="en-inline">Overview</span></button>
+            <button data-panel="profile">👤 <span class="zh-inline">个人资料</span><span class="en-inline">Profile</span></button>
+            <button data-panel="works">📚 <span class="zh-inline">我的作品</span><span class="en-inline">My Works</span></button>
+            <button data-panel="submissions">📝 <span class="zh-inline">共创投稿</span><span class="en-inline">Submissions</span></button>
+            <button data-panel="cert">🏅 <span class="zh-inline">作者认证</span><span class="en-inline">Certification</span></button>
+        </aside>
+        <main class="dash-main" id="dashMain"></main>
+    </div>
+
+    <div id="footerPlaceholder"></div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', async function () {
+        const $ = id => document.getElementById(id);
+        const main = $('dashMain');
+        let panel = 'overview';
+        let profile = {};
+        let submissions = [];
+        let allBooks = [];
+
+        function t(zh, en) { return window.getLang() === 'en' ? en : zh; }
+        function esc(s) { return window.escapeHtml(s); }
+
+        if (!UserAuth.requireLogin('dashboard.html')) return;
+        UserAuth.renderAuthSlot();
+        $('btnLang').onclick = () => window.setLang(window.getLang() === 'zh' ? 'en' : 'zh');
+
+        async function loadData() {
+            const p = await UserAPI.getProfile();
+            profile = (p && p.data) || {};
+            const s = await UserAPI.listMySubmissions();
+            submissions = (s && s.data) || [];
+            try {
+                const [books, community] = await Promise.all([
+                    window.readFetchJson('/data/books.json'),
+                    window.readFetchJson('/data/community/books.json')
+                ]);
+                allBooks = books.concat(community.map(b => Object.assign({ isCommunity: true }, b)));
+            } catch (e) { allBooks = []; }
+        }
+
+        function stat(num, zh, en) {
+            return `<div class="dash-stat"><b>${esc(num)}</b><span>${esc(t(zh, en))}</span></div>`;
+        }
+
+        function renderOverview() {
+            const mine = allBooks.filter(b => profile.author_id && String(b.author) === String(profile.author_id));
+            const approved = submissions.filter(s => s.status === 'approved' || s.status === 'published').length;
+            return `<section class="dash-panel">
+                <h2>${esc(t('概览', 'Overview'))}</h2>
+                <p class="desc">${esc(t('这里是你的创作概览。所有数据都来自本地书库 JSON 与你的浏览器存储。', 'A snapshot of your work, from local library JSON and browser storage.'))}</p>
+                <div class="dash-stat-row">
+                    ${stat(mine.length, '已上架作品', 'Published works')}
+                    ${stat(submissions.length, '投稿总数', 'Submissions')}
+                    ${stat(approved, '已通过', 'Approved')}
+                    ${stat(profile.level || 1, '认证等级', 'Level')}
+                </div>
+                <p class="read-hint">${esc(t('身份：', 'Role: ') + (profile.is_author ? t('作者', 'Author') : t('读者（在「个人资料」一键升级）', 'Reader (upgrade in Profile)')) + (profile.author_id ? ' · ' + t('作者 ID：', 'Author ID: ') + profile.author_id : ''))}</p>
+                <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px">
+                    <a class="rd-btn primary" href="reader.html">${esc(t('打开读书器', 'Open the reader'))}</a>
+                    <a class="rd-btn" href="docs/api/data-contract.md">${esc(t('查看数据格式', 'Data contract'))}</a>
+                </div>
+            </section>`;
+        }
+
+        function renderProfile() {
+            const isAuthor = profile.is_author === true || !!profile.author_id;
+            if (!isAuthor) {
+                return `<section class="dash-panel">
+                    <h2>${esc(t('成为作者', 'Become an author'))}</h2>
+                    <p class="desc">${esc(t('你当前是读者身份。填写作者标识即可一键升级为作者，无需重新注册、无需再输密码。', 'You are a reader now. Pick an Author ID to upgrade to author in one click—no new account, no extra password.'))}</p>
+                    <form id="becomeForm">
+                        <div class="read-field"><label>${esc(t('作者标识（唯一，创建后不可改）', 'Author ID (unique, permanent)'))}</label><input id="bAuthorId" required placeholder="luxun / 2"></div>
+                        <div class="read-field"><label>${esc(t('显示名称', 'Display name'))}</label><input id="bDisplayName" value="${esc(profile.display_name || '')}"></div>
+                        <div class="read-field"><label>${esc(t('中文简介', 'Bio (Chinese)'))}</label><textarea id="bBioZh">${esc(profile.bio_zh || '')}</textarea></div>
+                        <div class="read-field"><label>${esc(t('英文简介', 'Bio (English)'))}</label><textarea id="bBioEn">${esc(profile.bio_en || '')}</textarea></div>
+                        <button class="rd-btn primary" type="submit">${esc(t('一键成为作者', 'Become an author'))}</button>
+                        <div class="read-msg" id="becomeMsg"></div>
+                    </form>
+                </section>`;
+            }
+            return `<section class="dash-panel">
+                <h2>${esc(t('个人资料', 'Profile'))}</h2>
+                <p class="desc">${esc(t('你是作者（等级 ' + (profile.level || 1) + (profile.is_official ? ' · 官方认证' : '') + '）。作者标识创建后不可修改。', 'You are an author (level ' + (profile.level || 1) + (profile.is_official ? ' · official' : '') + '). Author ID is permanent.'))}</p>
+                <form id="profileForm">
+                    <div class="read-field"><label>${esc(t('作者标识', 'Author ID'))}</label><input id="fAuthorId" value="${esc(profile.author_id || '')}" disabled></div>
+                    <div class="read-field"><label>${esc(t('显示名称', 'Display name'))}</label><input id="fDisplayName" value="${esc(profile.display_name || '')}"></div>
+                    <div class="read-field"><label>${esc(t('中文简介', 'Bio (Chinese)'))}</label><textarea id="fBioZh">${esc(profile.bio_zh || '')}</textarea></div>
+                    <div class="read-field"><label>${esc(t('英文简介', 'Bio (English)'))}</label><textarea id="fBioEn">${esc(profile.bio_en || '')}</textarea></div>
+                    <div class="read-field"><label>${esc(t('个人网站', 'Website'))}</label><input id="fWebsite" value="${esc(profile.website || '')}"></div>
+                    <button class="rd-btn primary" type="submit">${esc(t('保存资料', 'Save profile'))}</button>
+                    <div class="read-msg" id="profileMsg"></div>
+                </form>
+            </section>`;
+        }
+
+        function renderWorks() {
+            const mine = allBooks.filter(b => profile.author_id && String(b.author) === String(profile.author_id));
+            const items = mine.length ? mine.map(b => {
+                const title = t(b.title_zh, b.title_en || b.title_zh);
+                const href = b.isCommunity ? '/data/community/reader.html?id=' + encodeURIComponent(b.id) : '/reader.html?book=' + encodeURIComponent(b.id);
+                return `<div class="dash-item"><div><div class="title">${esc(b.icon || '📖')} ${esc(title)}</div>
+                    <div class="meta">${esc(b.cat || '')} · ${esc(b.format || 'json')}</div></div>
+                    <a class="rd-btn" href="${href}">${esc(t('阅读', 'Read'))}</a></div>`;
+            }).join('') : `<div class="read-empty">${esc(t('还没有作品。绑定作者 ID 后，这里会列出书库中属于你的书。', 'No works yet. Link your Author ID to see your books here.'))}</div>`;
+            return `<section class="dash-panel"><h2>${esc(t('我的作品', 'My Works'))}</h2>
+                <p class="desc">${esc(t('作品来源于 data/books.json 与共创书库，按作者 ID 匹配。', 'Works come from data/books.json and the community library, matched by Author ID.'))}</p>
+                <div class="dash-list">${items}</div></section>`;
+        }
+
+        function renderSubmissions() {
+            const items = submissions.length ? submissions.map(s => `<div class="dash-item">
+                <div><div class="title">${esc(s.title_zh || s.title_en || '')}</div>
+                    <div class="meta">${esc(s.data_url || t('未填写内容地址', 'No data URL'))} · ${esc((s.created_at || '').slice(0, 10))}</div></div>
+                <div style="display:flex;gap:8px;align-items:center">
+                    <span class="dash-badge ${esc(s.status || 'pending')}">${esc(s.status || 'pending')}</span>
+                    <button class="rd-btn" data-del="${esc(s.id)}">${esc(t('删除', 'Delete'))}</button>
+                </div></div>`).join('') : `<div class="read-empty">${esc(t('还没有投稿。', 'No submissions yet.'))}</div>`;
+            return `<section class="dash-panel">
+                <h2>${esc(t('共创投稿', 'Submissions'))}</h2>
+                <p class="desc">${esc(t('填写符合 BookContent 契约的 JSON 地址即可投稿；审核通过后会进入共创书库。', 'Submit a JSON URL that follows the BookContent contract; approved works join the community library.'))}</p>
+                <div class="dash-list" style="margin-bottom:24px">${items}</div>
+                <form id="submitForm">
+                    <div class="read-field"><label>${esc(t('中文书名', 'Title (Chinese)'))}</label><input id="sTitleZh" required></div>
+                    <div class="read-field"><label>${esc(t('英文书名', 'Title (English)'))}</label><input id="sTitleEn"></div>
+                    <div class="read-field"><label>${esc(t('作者 / 作者 ID', 'Author / Author ID'))}</label><input id="sAuthor" value="${esc(profile.author_id || '')}"></div>
+                    <div class="read-field"><label>${esc(t('内容 JSON 地址', 'Content JSON URL'))}</label><input id="sDataUrl" placeholder="https://example.com/book.json"></div>
+                    <div class="read-field"><label>${esc(t('一句话简介', 'Short summary'))}</label><textarea id="sSummary"></textarea></div>
+                    <button class="rd-btn primary" type="submit">${esc(t('提交投稿', 'Submit'))}</button>
+                    <div class="read-msg" id="submitMsg"></div>
+                </form>
+            </section>`;
+        }
+
+        function renderCert() {
+            return `<section class="dash-panel"><h2>${esc(t('作者认证', 'Certification'))}</h2>
+                <p class="desc">${esc(t('认证等级与官方标识由工作室审核后设置，前端只读展示。当前为本地演示模式。', 'Levels and official badges are set by the studio after review; the frontend only displays them. Local demo mode.'))}</p>
+                <div class="dash-stat-row">
+                    ${stat(profile.level || 1, '当前等级', 'Current level')}
+                    ${stat(profile.is_official ? '✔' : '—', '官方认证', 'Official')}
+                </div>
+                <div style="display:flex;gap:10px;flex-wrap:wrap">
+                    <a class="rd-btn" href="author.html?id=${encodeURIComponent(profile.author_id || '')}">${esc(t('查看公开主页', 'View public page'))}</a>
+                    <a class="rd-btn" href="docs/handoff/backend-supabase.md">${esc(t('后端搭建指南', 'Backend guide'))}</a>
+                </div>
+            </section>`;
+        }
+
+        function bindPanel() {
+            const pf = $('profileForm');
+            if (pf) pf.addEventListener('submit', async e => {
+                e.preventDefault();
+                const res = await UserAPI.updateProfile(null, {
+                    display_name: $('fDisplayName').value.trim(),
+                    bio_zh: $('fBioZh').value.trim(),
+                    bio_en: $('fBioEn').value.trim(),
+                    website: $('fWebsite').value.trim()
+                });
+                profile = (res && res.data) || profile;
+                ReadUI.showMsg($('profileMsg'), res.error ? res.error.message : t('资料已保存', 'Profile saved'), !res.error);
+            });
+
+            const bf = $('becomeForm');
+            if (bf) bf.addEventListener('submit', async e => {
+                e.preventDefault();
+                const res = await UserAPI.becomeAuthor({
+                    authorId: $('bAuthorId').value.trim(),
+                    displayName: $('bDisplayName').value.trim(),
+                    bioZh: $('bBioZh').value.trim(),
+                    bioEn: $('bBioEn').value.trim()
+                });
+                if (res.error) return ReadUI.showMsg($('becomeMsg'), res.error.message, false);
+                await loadData();
+                render();
+                ReadUI.showMsg($('becomeMsg'), t('已升级为作者，继续完善资料吧！', 'Upgraded to author—finish your profile!'), true);
+            });
+
+            const sf = $('submitForm');
+            if (sf) sf.addEventListener('submit', async e => {
+                e.preventDefault();
+                const res = await UserAPI.createSubmission({
+                    title_zh: $('sTitleZh').value.trim(),
+                    title_en: $('sTitleEn').value.trim(),
+                    author: $('sAuthor').value.trim(),
+                    summary_zh: $('sSummary').value.trim(),
+                    data_url: $('sDataUrl').value.trim()
+                });
+                if (res.error) return ReadUI.showMsg($('submitMsg'), res.error.message, false);
+                const s = await UserAPI.listMySubmissions();
+                submissions = (s && s.data) || [];
+                render();
+                ReadUI.showMsg($('submitMsg'), t('投稿已提交', 'Submission created'), true);
+            });
+
+            main.querySelectorAll('[data-del]').forEach(btn => {
+                btn.addEventListener('click', () => ReadUI.confirm(t('确定删除这条投稿吗？', 'Delete this submission?'), async () => {
+                    await UserAPI.deleteSubmission(btn.dataset.del);
+                    const s = await UserAPI.listMySubmissions();
+                    submissions = (s && s.data) || [];
+                    render();
+                }));
+            });
+        }
+
+        function render() {
+            const map = { overview: renderOverview, profile: renderProfile, works: renderWorks, submissions: renderSubmissions, cert: renderCert };
+            main.innerHTML = (map[panel] || renderOverview)();
+            document.querySelectorAll('#dashSide button').forEach(b => b.classList.toggle('active', b.dataset.panel === panel));
+            bindPanel();
+        }
+
+        document.querySelectorAll('#dashSide button').forEach(btn => {
+            btn.addEventListener('click', () => { panel = btn.dataset.panel; render(); });
+        });
+        window.addEventListener('langChanged', render);
+
+        ReadUI.loading(main, t('正在加载后台数据…', 'Loading dashboard…'));
+        await loadData();
+        render();
+    });
+    </script>
+</body>
+</html>

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>登录验证码 / Login code</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #f4f7fc; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
+    <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #f4f7fc; padding: 40px 10px;">
+        <tr>
+            <td align="center">
+                <table width="100%" max-width="600" border="0" cellspacing="0" cellpadding="0" style="max-width: 600px; width: 100%; background-color: #ffffff; border-radius: 24px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05); overflow: hidden;">
+                    <tr><td style="height: 6px; background: linear-gradient(90deg, #4f46e5 0%, #7c3aed 100%);"></td></tr>
+                    <tr>
+                        <td align="center" style="padding: 40px 40px 20px 40px;">
+                            <img src="https://read.leleleling.site/leleleread.png" alt="了了了读" style="width: 140px; height: auto; display: block;">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0 40px 30px 40px; color: #334155; font-size: 15px; line-height: 1.6; text-align: center;">
+                            <h1 style="margin: 0 0 10px 0; color: #0f172a; font-size: 24px; font-weight: 800;">登录验证码</h1>
+                            <p style="margin: 0 0 24px 0; color: #64748b; font-size: 16px; font-weight: 500;">Login Verification Code</p>
+                            <p style="margin: 0 0 16px 0; text-align: left;">请使用下方的验证码登录了了了读，验证码在 60 分钟内有效。<br><span style="color:#94a3b8; font-size: 13px;">Please use the code below to sign in to lelele Read. This code is valid for 60 minutes.</span></p>
+                            <div style="background-color: #eff6ff; border: 2px dashed #93c5fd; border-radius: 16px; padding: 24px; margin: 24px 0;">
+                                <span style="font-family: 'Courier New', Courier, monospace; font-size: 36px; font-weight: 800; letter-spacing: 8px; color: #4f46e5; display: block; margin-left: 8px;">
+                                    {{ .Token }}
+                                </span>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="center" style="background-color: #f8fafc; padding: 24px 40px; border-top: 1px solid #f1f5f9;">
+                            <p style="margin: 0 0 12px 0; color: #64748b; font-size: 13px;">了了了岭工作室 · 了了了读 © 2026</p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

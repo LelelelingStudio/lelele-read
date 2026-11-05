@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>读书器 · 了了了读</title>
+    <link rel="stylesheet" href="common.css">
+    <link rel="stylesheet" href="window.css">
+    <link rel="stylesheet" href="reader.css">
+    <link rel="stylesheet" href="epub-bridge.css">
+    <script src="common.js"></script>
+    <script src="window.js"></script>
+    <script defer src="reader.js"></script>
+    <script defer src="epub-bridge.js"></script>
+</head>
+<body class="has-topbar">
+
+    <header class="reader-topbar">
+        <a href="index.html" class="brand">
+            <img src="leleleread.svg" alt="Logo" onerror="this.style.display='none'">
+            <span><span class="zh-inline">了了了读</span><span class="en-inline">lelele Read</span></span>
+        </a>
+        <div class="book-name" id="readerPageTitle">
+            <span class="zh-inline">上传一本书，或直接阅读站内书库</span>
+            <span class="en-inline">Upload a book, or read from the library</span>
+        </div>
+        <div class="top-actions">
+            <a class="rd-btn" href="data/community/index.html"><span class="zh-inline">共创书库</span><span class="en-inline">Community</span></a>
+            <button class="rd-btn" id="btnImportTop"><span class="zh-inline">📥 导入</span><span class="en-inline">📥 Import</span></button>
+            <div class="rd-export-wrap">
+                <button class="rd-btn" id="btnExportTop" disabled><span class="zh-inline">📤 导出</span><span class="en-inline">📤 Export</span></button>
+                <div class="rd-export-menu" id="exportMenu">
+                    <button data-fmt="epub">📚 EPUB <span class="zh-inline">（在线生成下载）</span><span class="en-inline">(generated in browser)</span></button>
+                    <button data-fmt="txt">📄 TXT</button>
+                    <button data-fmt="html">🌐 HTML</button>
+                    <button data-fmt="json">{ } JSON</button>
+                </div>
+            </div>
+            <button class="rd-btn" onclick="toggleTheme()">🌙</button>
+            <button class="rd-btn" id="btnLang">EN</button>
+        </div>
+    </header>
+    <div class="reader-progress-line"><i id="readerProgressFill"></i></div>
+
+    <!-- 上传导入区 -->
+    <section class="epub-import" id="epubImport">
+        <h1><span class="zh-inline">把书带进来，安静地读</span><span class="en-inline">Bring a book in. Read in peace.</span></h1>
+        <p class="lead">
+            <span class="zh-inline">上传 EPUB，浏览器会当场解析成 JSON 并打开阅读；站内任何一本书也都能一键导出成 EPUB。全程不上传服务器、不产生第二份副本。</span>
+            <span class="en-inline">Upload an EPUB and it is parsed into JSON right in your browser. Any book on this site can also be exported as EPUB. Nothing is uploaded to a server.</span>
+        </p>
+
+        <div class="epub-dropzone" id="epubDropzone" role="button" tabindex="0">
+            <div class="dz-icon">📚</div>
+            <div class="dz-title"><span class="zh-inline">拖入 EPUB / JSON，或点击选择文件</span><span class="en-inline">Drop an EPUB / JSON here, or click to choose</span></div>
+            <div class="dz-hint"><span class="zh-inline">支持非加密 EPUB 2/3，单文件不超过 20MB</span><span class="en-inline">DRM-free EPUB 2/3, up to 20MB</span></div>
+        </div>
+        <input type="file" id="epubFileInput" accept=".epub,.json,application/epub+zip,application/json" hidden>
+        <div class="epub-status" id="epubStatus"></div>
+
+        <div class="quick-links">
+            <a class="rd-btn" href="index.html"><span class="zh-inline">← 返回书库</span><span class="en-inline">← Library</span></a>
+            <a class="rd-btn" href="reader.html?book=bible"><span class="zh-inline">试读：圣经</span><span class="en-inline">Try: Bible</span></a>
+            <a class="rd-btn" href="reader.html?book=shijing"><span class="zh-inline">试读：诗经</span><span class="en-inline">Try: Book of Songs</span></a>
+        </div>
+
+        <div class="epub-features">
+            <div class="feat"><b><span class="zh-inline">一份数据</span><span class="en-inline">One source</span></b><span><span class="zh-inline">站内书全部是 JSON，EPUB 只在点击下载时实时生成。</span><span class="en-inline">All site books are JSON; EPUB is generated only when you download.</span></span></div>
+            <div class="feat"><b><span class="zh-inline">读完再走</span><span class="en-inline">Pick up where you left</span></b><span><span class="zh-inline">断点续读、书签、高亮、批注自动记忆在本机。</span><span class="en-inline">Progress, bookmarks, highlights and notes are saved locally.</span></span></div>
+            <div class="feat"><b><span class="zh-inline">纯净无扰</span><span class="en-inline">Clean & quiet</span></b><span><span class="zh-inline">无广告、无追踪式弹窗，字号字体与配色都由你决定。</span><span class="en-inline">No ads, no intrusive popups; typography and colors are yours.</span></span></div>
+        </div>
+    </section>
+
+    <!-- 阅读器主体（与共创单页同构） -->
+    <div class="reader-bg-layer" id="readerBgLayer"></div>
+    <div class="reader-bg-overlay" id="readerBgOverlay"></div>
+    <div class="reader-menu-toggle" id="readerMenuToggle">☰</div>
+
+    <div class="reader-app" id="readerApp" style="display:none">
+        <div class="reader-sidebar">
+            <div class="reader-sidebar-header">
+                <div class="reader-sidebar-title">
+                    <span class="zh-inline">目录</span><span class="en-inline">Contents</span>
+                </div>
+                <a href="index.html" style="text-decoration:none;font-size:.8rem;color:var(--read-text-secondary);">
+                    ← <span class="zh-inline">书库</span><span class="en-inline">Library</span>
+                </a>
+            </div>
+            <div class="reader-search-box">
+                <input type="text" id="readerSearchInput" class="reader-search-input" placeholder="搜索章节...">
+            </div>
+            <div class="reader-list" id="readerSidebarList"></div>
+        </div>
+        <div class="reader-main">
+            <div class="reader-content-container" id="readerContent"></div>
+        </div>
+    </div>
+
+    <div class="reader-notes-panel" id="readerNotesPanel">
+        <div class="reader-notes-header">
+            <span style="font-weight:700;"><span class="zh-inline">我的笔记</span><span class="en-inline">My Notes</span></span>
+            <button style="border:none;background:transparent;font-size:1.2rem;cursor:pointer;" onclick="document.getElementById('readerNotesPanel').classList.remove('open')">×</button>
+        </div>
+        <div class="reader-notes-tabs">
+            <div class="reader-notes-tab active" data-tab="bookmarks"><span class="zh-inline">书签</span><span class="en-inline">Bookmarks</span></div>
+            <div class="reader-notes-tab" data-tab="highlights"><span class="zh-inline">高亮</span><span class="en-inline">Highlights</span></div>
+            <div class="reader-notes-tab" data-tab="annotations"><span class="zh-inline">批注</span><span class="en-inline">Notes</span></div>
+        </div>
+        <div class="reader-notes-list" id="readerNotesList"></div>
+    </div>
+
+    <div class="reader-draggable" id="floatTheme" style="right:20px;bottom:80px;">
+        <button onclick="toggleTheme()">🌙</button>
+        <button onclick="document.getElementById('rdPopover').classList.toggle('open')">🎨</button>
+    </div>
+    <div class="reader-draggable" id="floatFont" style="right:20px;bottom:140px;">
+        <button onclick="Reader.setFontSize(parseInt(localStorage.getItem('lelele_read_fontSize')||17) - 1)">A−</button>
+        <button onclick="Reader.setFontSize(parseInt(localStorage.getItem('lelele_read_fontSize')||17) + 1)">A+</button>
+    </div>
+    <div class="reader-draggable" id="floatTools" style="right:20px;bottom:200px;">
+        <button onclick="document.getElementById('readerNotesPanel').classList.add('open')">📝</button>
+        <button onclick="Reader.toggleLayout()">🖐️</button>
+        <button onclick="Reader.importBook()">📥</button>
+        <button onclick="Reader.exportBook('epub')">📚</button>
+    </div>
+
+    <div class="rd-popover" id="rdPopover">
+        <div class="row"><span class="label"><span class="zh-inline">主题色</span><span class="en-inline">Theme color</span></span>
+            <button class="swatch" data-theme="paper" style="background:#FBF9F4;border-color:#3C6E71" title="Paper"></button>
+            <button class="swatch" data-theme="sepia" style="background:#E8DCC4" title="Sepia"></button>
+            <button class="swatch" data-theme="mint" style="background:#DCE9E4" title="Mint"></button>
+            <button class="swatch" data-theme="night" style="background:#14181B" title="Night"></button>
+        </div>
+        <div class="row"><span class="label"><span class="zh-inline">中文字体</span><span class="en-inline">Chinese font</span></span>
+            <button class="chip active" data-font="'Noto Serif SC', 'Songti SC', serif"><span class="zh-inline">宋体</span><span class="en-inline">Serif</span></button>
+            <button class="chip" data-font="'PingFang SC', 'Microsoft YaHei', sans-serif"><span class="zh-inline">黑体</span><span class="en-inline">Sans</span></button>
+        </div>
+        <div class="row"><span class="label"><span class="zh-inline">自定义背景</span><span class="en-inline">Custom background</span></span>
+            <input type="file" id="bgFileInput" accept="image/*" style="font-size:.78rem;max-width:100%">
+        </div>
+    </div>
+
+    <div id="footerPlaceholder"></div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const $ = id => document.getElementById(id);
+        const params = new URLSearchParams(location.search);
+        const bookId = params.get('book');
+        let currentBook = null;
+
+        function setStatus(msg) { $('epubStatus').textContent = msg || ''; }
+        function showImport() {
+            $('epubImport').style.display = '';
+            $('readerApp').style.display = 'none';
+        }
+        function showReader() {
+            $('epubImport').style.display = 'none';
+            $('readerApp').style.display = '';
+            $('btnExportTop').disabled = false;
+        }
+
+        async function fetchJson(url) {
+            const ctrl = new AbortController();
+            const timer = setTimeout(() => ctrl.abort(), 8000);
+            try {
+                const res = await fetch(url, { signal: ctrl.signal });
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                return await res.json();
+            } finally { clearTimeout(timer); }
+        }
+
+        async function handleFile(file) {
+            if (!file) return;
+            const lang = window.getLang();
+            setStatus(lang === 'en' ? 'Parsing…' : '正在解析…');
+            try {
+                let content;
+                if (/\.json$/i.test(file.name)) {
+                    content = JSON.parse(await file.text());
+                } else {
+                    content = await EpubBridge.parseEpubToBookContent(file, function (done, total) {
+                        setStatus((lang === 'en' ? 'Parsing chapters ' : '正在解析章节 ') + done + '/' + total);
+                    });
+                }
+                showReader();
+                await Reader.setBookContent(content, file.name.replace(/\.[^.]+$/, ''));
+                setStatus('');
+            } catch (e) {
+                console.warn('[reader.html] 导入失败', e.message);
+                setStatus((lang === 'en' ? 'Import failed: ' : '导入失败：') + e.message);
+            }
+        }
+
+        // 无 book 参数时也要初始化一次引擎，确保 DOM 引用与拖拽/偏好就绪
+        async function boot() {
+            if (bookId) {
+                try {
+                    const books = await fetchJson('/data/books.json');
+                    currentBook = books.find(b => b.id === bookId);
+                    if (!currentBook || (!currentBook.configUrl && !currentBook.dataUrl)) {
+                        throw new Error('未找到该书的配置');
+                    }
+                    showReader();
+                    const lang = window.getLang();
+                    const title = lang === 'en' ? (currentBook.title_en || currentBook.title_zh) : currentBook.title_zh;
+                    $('readerPageTitle').textContent = title;
+                    document.title = title + ' · 了了了读';
+                    Reader.init({
+                        bookId: currentBook.id,
+                        bookTitle: currentBook.title_zh,
+                        configUrl: currentBook.configUrl || '',
+                        dataUrl: currentBook.dataUrl || '',
+                        hasVerseNum: currentBook.id === 'bible',
+                        defaultFontSize: 18
+                    });
+                } catch (e) {
+                    $('readerPageTitle').textContent = '书籍加载失败：' + e.message;
+                    showImport();
+                }
+            } else {
+                Reader.init({
+                    bookId: 'empty',
+                    bookTitle: '',
+                    bookContent: { id: 'empty', title: '', chapters: [{ title: '', paragraphs: [] }] }
+                });
+                showImport();
+            }
+        }
+
+        // 上传交互
+        const dz = $('epubDropzone'), input = $('epubFileInput');
+        dz.addEventListener('click', () => input.click());
+        dz.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); input.click(); } });
+        ['dragenter', 'dragover'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.add('is-over'); }));
+        ['dragleave', 'drop'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.remove('is-over'); }));
+        dz.addEventListener('drop', e => handleFile(e.dataTransfer.files && e.dataTransfer.files[0]));
+        input.addEventListener('change', () => { handleFile(input.files && input.files[0]); input.value = ''; });
+        $('btnImportTop').addEventListener('click', () => Reader.importBook());
+
+        // 阅读器内部导入（隐藏 input）完成后同步 UI
+        window.addEventListener('readerBookLoaded', function (e) {
+            if (e.detail && e.detail.imported) {
+                showReader();
+                $('readerPageTitle').textContent = e.detail.title;
+                document.title = e.detail.title + ' · 了了了读';
+            }
+        });
+
+        // 导出菜单
+        const menu = $('exportMenu');
+        $('btnExportTop').addEventListener('click', e => { e.stopPropagation(); menu.classList.toggle('open'); });
+        menu.querySelectorAll('[data-fmt]').forEach(btn => {
+            btn.addEventListener('click', () => { menu.classList.remove('open'); Reader.exportBook(btn.dataset.fmt); });
+        });
+        document.addEventListener('click', e => {
+            if (!e.target.closest('.rd-export-wrap')) menu.classList.remove('open');
+        });
+
+        // 章节进度
+        window.addEventListener('readerChapterChanged', function (e) {
+            const total = Reader.getState().chapters || 1;
+            $('readerProgressFill').style.width = Math.round((e.detail.index + 1) / total * 100) + '%';
+        });
+
+        // 语言 / 主题色 / 字体 / 背景
+        $('btnLang').addEventListener('click', () => window.setLang(window.getLang() === 'zh' ? 'en' : 'zh'));
+        document.querySelectorAll('#rdPopover [data-theme]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                Reader.setColorTheme(btn.dataset.theme);
+                document.querySelectorAll('#rdPopover [data-theme]').forEach(x => x.classList.remove('active'));
+                btn.classList.add('active');
+            });
+        });
+        document.querySelectorAll('#rdPopover [data-font]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                Reader.setFontFamily(btn.dataset.font);
+                document.querySelectorAll('#rdPopover [data-font]').forEach(x => x.classList.remove('active'));
+                btn.classList.add('active');
+            });
+        });
+        $('bgFileInput').addEventListener('change', e => {
+            if (e.target.files && e.target.files[0]) Reader.handleBgUpload(e.target.files[0]);
+        });
+
+        boot();
+    });
+    </script>
+</body>
+</html>

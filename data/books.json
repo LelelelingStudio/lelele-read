@@ -1,0 +1,60 @@
+[
+  {
+    "id": "bible",
+    "title_zh": "圣经",
+    "title_en": "Holy Bible",
+    "author": 1,
+    "author_label_zh": "了了了岭工作室",
+    "author_label_en": "Leleleling Studio",
+    "cat": "religion",
+    "icon": "📖",
+    "desc_zh": "旧约与新约，共 66 卷，按卷按章阅读",
+    "desc_en": "Old and New Testament, 66 books",
+    "format": "json",
+    "configUrl": "/data/bible/config.json",
+    "downloadable": true,
+    "sort": 1
+  },
+  {
+    "id": "shijing",
+    "title_zh": "诗经",
+    "title_en": "Book of Songs",
+    "author": "佚名",
+    "cat": "classic",
+    "icon": "🌿",
+    "desc_zh": "三百零五篇，原文与译文对照",
+    "desc_en": "305 poems with original text and translation",
+    "format": "json",
+    "configUrl": "/data/shijing/config.json",
+    "downloadable": true,
+    "sort": 2
+  },
+  {
+    "id": "luxun",
+    "title_zh": "鲁迅作品集",
+    "title_en": "Lu Xun Works",
+    "author": "luxun",
+    "cat": "classic",
+    "icon": "🖋️",
+    "desc_zh": "坟、呐喊、彷徨、野草、朝花夕拾等八个分卷",
+    "desc_en": "Eight collections of Lu Xun works",
+    "format": "json",
+    "configUrl": "/data/tree_zhou/config.json",
+    "downloadable": true,
+    "sort": 3
+  },
+  {
+    "id": "community",
+    "title_zh": "共创书库",
+    "title_en": "Community Library",
+    "author": "书友们",
+    "cat": "community",
+    "icon": "👥",
+    "desc_zh": "书友投稿，上传 EPUB 即可在线阅读",
+    "desc_en": "Community submissions, upload an EPUB to read",
+    "format": "json",
+    "url": "/data/community/index.html",
+    "downloadable": false,
+    "sort": 9
+  }
+]

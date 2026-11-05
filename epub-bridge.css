@@ -1,0 +1,128 @@
+/* =========================================================
+   epub-bridge.css - 统一读书器：导入区、顶部工具条、导出面板
+   纸感极简：暖纸白底 + 墨青强调，细线代替阴影
+   ========================================================= */
+:root {
+    --paper-bg: #FBF9F4;
+    --paper-soft: #F3EFE7;
+    --ink: #1F2933;
+    --ink-soft: #5B6570;
+    --teal: #3C6E71;
+    --teal-dark: #2F5D62;
+    --teal-soft: #6E9A9B;
+    --line: rgba(31, 41, 51, 0.10);
+}
+html.dark-mode {
+    --paper-bg: #14181B;
+    --paper-soft: #1C2226;
+    --ink: #F5F1E8;
+    --ink-soft: #AEB7BC;
+    --teal: #6E9A9B;
+    --teal-dark: #8FB5B6;
+    --line: rgba(245, 241, 232, 0.12);
+}
+
+/* 顶部工具条 */
+.reader-topbar {
+    position: sticky; top: 0; z-index: 120;
+    display: flex; align-items: center; gap: 14px;
+    padding: 10px 20px;
+    background: var(--paper-bg);
+    border-bottom: 1px solid var(--line);
+    min-height: 56px;
+}
+.reader-topbar .brand {
+    display: flex; align-items: center; gap: 8px;
+    font-weight: 600; font-size: 1.05rem; color: var(--ink); text-decoration: none;
+    white-space: nowrap;
+}
+.reader-topbar .brand img { height: 28px; width: 28px; border-radius: 50%; }
+.reader-topbar .book-name {
+    flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    color: var(--ink-soft); font-size: .92rem;
+}
+.reader-topbar .top-actions { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.rd-btn {
+    border: 1px solid var(--line); background: transparent; color: var(--ink);
+    border-radius: 999px; padding: 7px 14px; font-size: .86rem; cursor: pointer;
+    transition: background .2s, border-color .2s, color .2s;
+    text-decoration: none; display: inline-flex; align-items: center; gap: 5px;
+}
+.rd-btn:hover { border-color: var(--teal); color: var(--teal); }
+.rd-btn.primary { background: var(--teal); border-color: var(--teal); color: #fff; }
+.rd-btn.primary:hover { background: var(--teal-dark); color: #fff; }
+.rd-btn:disabled { opacity: .45; cursor: not-allowed; }
+
+/* 导入区 */
+.epub-import {
+    max-width: 720px; margin: 8vh auto 0; padding: 0 20px 60px; text-align: center;
+}
+.epub-import h1 { font-size: 28px; font-weight: 600; color: var(--ink); letter-spacing: -.02em; }
+.epub-import .lead { margin-top: 12px; color: var(--ink-soft); font-size: 17px; line-height: 1.9; }
+.epub-dropzone {
+    margin: 32px 0 20px; padding: 48px 24px;
+    border: 1px dashed var(--teal-soft); border-radius: 18px;
+    background: var(--paper-soft); cursor: pointer;
+    transition: border-color .2s, background .2s, transform .2s;
+}
+.epub-dropzone:hover, .epub-dropzone.is-over { border-color: var(--teal); background: rgba(60, 110, 113, .06); transform: translateY(-2px); }
+.epub-dropzone .dz-icon { font-size: 2.6rem; opacity: .8; }
+.epub-dropzone .dz-title { margin-top: 14px; font-size: 18px; font-weight: 500; color: var(--ink); }
+.epub-dropzone .dz-hint { margin-top: 8px; font-size: .88rem; color: var(--ink-soft); }
+.epub-import .quick-links { margin-top: 24px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.epub-status { margin-top: 16px; color: var(--teal-dark); font-size: .92rem; min-height: 1.4em; }
+.epub-features {
+    margin-top: 40px; display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    text-align: left;
+}
+.epub-features .feat {
+    border: 1px solid var(--line); border-radius: 14px; padding: 16px; background: var(--paper-bg);
+}
+.epub-features .feat b { display: block; color: var(--ink); font-size: .95rem; margin-bottom: 6px; font-weight: 600; }
+.epub-features .feat span { color: var(--ink-soft); font-size: .84rem; line-height: 1.7; }
+
+/* 导出菜单 */
+.rd-export-wrap { position: relative; }
+.rd-export-menu {
+    position: absolute; right: 0; top: calc(100% + 8px); min-width: 190px;
+    background: var(--paper-bg); border: 1px solid var(--line); border-radius: 14px;
+    padding: 6px; box-shadow: 0 12px 32px rgba(0, 0, 0, .10); display: none;
+}
+.rd-export-menu.open { display: block; }
+.rd-export-menu button {
+    width: 100%; text-align: left; border: 0; background: transparent; color: var(--ink);
+    padding: 9px 12px; border-radius: 9px; font-size: .88rem; cursor: pointer;
+}
+.rd-export-menu button:hover { background: var(--paper-soft); color: var(--teal-dark); }
+
+/* 进度条 */
+.reader-progress-line { height: 2px; background: var(--line); }
+.reader-progress-line i { display: block; height: 100%; background: var(--teal); width: 0; transition: width .25s; }
+
+/* 主题色 / 字体 小面板 */
+.rd-popover {
+    position: fixed; z-index: 200; right: 20px; bottom: 84px;
+    background: var(--paper-bg); border: 1px solid var(--line); border-radius: 14px;
+    padding: 12px; box-shadow: 0 12px 32px rgba(0, 0, 0, .12); display: none; min-width: 210px;
+}
+.rd-popover.open { display: block; }
+.rd-popover .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 10px; }
+.rd-popover .row:last-child { margin-bottom: 0; }
+.rd-popover .label { font-size: .8rem; color: var(--ink-soft); width: 100%; }
+.rd-popover .chip {
+    border: 1px solid var(--line); background: transparent; border-radius: 999px;
+    padding: 5px 11px; font-size: .82rem; color: var(--ink); cursor: pointer;
+}
+.rd-popover .chip.active { border-color: var(--teal); color: var(--teal-dark); }
+.rd-popover .swatch {
+    width: 22px; height: 22px; border-radius: 50%; border: 2px solid transparent; cursor: pointer;
+}
+
+@media (max-width: 768px) {
+    .reader-topbar { padding: 8px 12px; gap: 8px; flex-wrap: wrap; }
+    .reader-topbar .brand span { display: none; }
+    .reader-topbar .book-name { order: 3; flex-basis: 100%; font-size: .82rem; }
+    .rd-btn { padding: 6px 10px; font-size: .8rem; }
+    .epub-import { margin-top: 5vh; }
+    .epub-dropzone { padding: 34px 16px; }
+}

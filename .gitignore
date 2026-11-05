@@ -1,0 +1,7 @@
+# 系统 / 工具产物
+.DS_Store
+Thumbs.db
+.playwright-cli/
+
+# 迁移归档：旧 JS 数据只保留在本地，不随静态站点发布（线上只允许 JSON）
+datas-old/

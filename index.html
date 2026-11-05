@@ -206,12 +206,25 @@
             color: #fff;
         }
 
+        .book-desc {
+            font-size: .86rem; color: var(--text-muted); line-height: 1.7;
+            margin: 0 0 18px; display: -webkit-box; -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical; overflow: hidden;
+        }
         .status-msg { text-align: center; color: var(--text-muted); padding: 40px 0; grid-column: 1 / -1; }
 
         @media (max-width: 768px) {
-            .top-bar { padding: 12px 16px; flex-wrap: wrap; }
-            .search-wrapper { order: 3; max-width: 100%; width: 100%; margin-top: 8px; }
+            .top-bar { padding: 10px 12px; flex-wrap: wrap; gap: 8px; }
+            .search-wrapper { order: 3; flex: 0 0 100%; max-width: 100%; width: 100%; margin-top: 0; }
             .site-title span { display: none; }
+            .right-actions { flex-wrap: nowrap; gap: 5px; }
+            .right-actions .action-btn { padding: 6px 10px; font-size: .8rem; white-space: nowrap; }
+            .right-actions a[href="data/community/index.html"],
+            .right-actions a[href="about.html"] { display: none; }
+            .categories { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; -webkit-overflow-scrolling: touch; }
+            .cat-btn { flex-shrink: 0; white-space: nowrap; padding: 8px 16px; }
+            .book-grid { grid-template-columns: 1fr; }
+            .main-content { margin-top: 14px; }
         }
     </style>
 </head>
@@ -229,6 +242,8 @@
         </div>
 
         <div class="right-actions">
+            <a href="reader.html" class="action-btn">📥 <span class="zh-inline">读书器</span><span class="en-inline">Reader</span></a>
+            <a href="data/community/index.html" class="action-btn"><span class="zh-inline">共创</span><span class="en-inline">Community</span></a>
             <button class="action-btn" onclick="toggleTheme()">🌙 <span class="zh-inline">主题</span><span class="en-inline">Theme</span></button>
             <button class="action-btn" onclick="toggleLang()">🌐 <span class="zh-inline">EN</span><span class="en-inline">中文</span></button>
             <a href="about.html" class="action-btn"><span class="zh-inline">关于</span><span class="en-inline">About</span></a>
@@ -255,93 +270,101 @@
     <div id="footerPlaceholder"></div>
 
     <script>
-        const MOCK_BOOKS = [
-            { id: 'bible', title_zh: '圣经', title_en: 'Holy Bible', author: '了了了岭工作室', cat: 'religion', icon: '📖', url: 'data/bible/bible_a.html' },
-            { id: 'luxun', title_zh: '鲁迅全集', title_en: 'Lu Xun Works', author: 'luxun', cat: 'classic', icon: '🖋️', url: 'data/tree_zhou/tree_zhou.html' },
-            { id: 'shijing', title_zh: '诗经', title_en: 'Book of Songs', author: '佚名', cat: 'classic', icon: '🌿', url: 'data/shijing/shijing.html' },
-            { id: 'community', title_zh: '共创书库', title_en: 'Community Library', author: '书友们', cat: 'community', icon: '👥', url: 'data/community/index.html' }
-        ];
-
+        let BOOKS = [];
         let currentCategory = 'all';
         let currentKeyword = '';
         const gridEl = document.getElementById('bookGrid');
 
-        function renderBooks() {
-            gridEl.innerHTML = '';
-            
-            const filtered = MOCK_BOOKS.filter(book => {
-                const matchCat = currentCategory === 'all' || book.cat === currentCategory;
-                
-                const titleZh = (book.title_zh || '').toLowerCase();
-                const titleEn = (book.title_en || '').toLowerCase();
-                let authorName = '';
-                
-                if (typeof book.author === 'number' || /^\d+$/.test(book.author)) {
-                    const apiAuthor = window.AUTHORS_DATA?.find(a => a.id === book.author);
-                    authorName = apiAuthor ? apiAuthor.name_zh : '';
-                } else if (window.AUTHORS_DATA) {
-                    const apiAuthor = window.AUTHORS_DATA.find(a => a.name_zh === book.author || a.name_en === book.author || a.id === book.author);
-                    authorName = apiAuthor ? apiAuthor.name_zh : book.author;
-                } else {
-                    authorName = book.author;
+        function authorName(book, lang) {
+            const a = book.author;
+            if (a === 'luxun') return lang === 'en' ? 'Lu Xun' : '鲁迅';
+            if (typeof a === 'number' || /^\d+$/.test(String(a))) {
+                const found = (window.AUTHORS_DATA || []).find(x => String(x.id) === String(a));
+                if (found) return lang === 'en' ? (found.name_en || found.name_zh) : (found.name_zh || found.name_en);
+                if (book.author_label_zh || book.author_label_en) {
+                    return lang === 'en' ? (book.author_label_en || book.author_label_zh) : (book.author_label_zh || book.author_label_en);
                 }
-                
-                const matchKeyword = titleZh.includes(currentKeyword) || titleEn.includes(currentKeyword) || (authorName || '').toLowerCase().includes(currentKeyword);
-                return matchCat && matchKeyword;
+                const list = window.AUTHORS_DATA || [];
+                return list.length ? (lang === 'en' ? 'Unknown' : '未知作者') : '…';
+            }
+            return String(a || '');
+        }
+
+        function bookLink(book, lang) {
+            const suffix = lang === 'en' ? (book.url && book.url.indexOf('?') !== -1 ? '&lang=en' : '?lang=en') : '';
+            if (book.url) return book.url + suffix;
+            return 'reader.html?book=' + encodeURIComponent(book.id) + suffix;
+        }
+
+        function renderBooks() {
+            const lang = window.getLang();
+            const filtered = BOOKS.filter(book => {
+                if (currentCategory !== 'all' && book.cat !== currentCategory) return false;
+                if (!currentKeyword) return true;
+                const hay = [
+                    book.title_zh, book.title_en, book.desc_zh, book.desc_en,
+                    authorName(book, 'zh'), authorName(book, 'en')
+                ].join(' ').toLowerCase();
+                return hay.indexOf(currentKeyword) !== -1;
             });
 
-            if (filtered.length === 0) {
-                gridEl.innerHTML = '<div class="status-msg">没有找到匹配的书籍</div>';
+            gridEl.innerHTML = '';
+            if (!BOOKS.length) {
+                gridEl.innerHTML = '<div class="status-msg">' + (lang === 'en' ? 'Loading books…' : '正在加载书目…') + '</div>';
+                return;
+            }
+            if (!filtered.length) {
+                gridEl.innerHTML = '<div class="status-msg">' + (lang === 'en' ? 'No matching books' : '没有找到匹配的书籍') + '</div>';
                 return;
             }
 
-            const lang = window.getLang();
-
-            filtered.forEach(book => {
+            filtered.sort((a, b) => (a.sort || 99) - (b.sort || 99)).forEach(book => {
                 const title = lang === 'en' ? (book.title_en || book.title_zh) : (book.title_zh || book.title_en);
-                
-                let displayAuthor = book.author;
-                if (book.author === 'luxun') {
-                    displayAuthor = lang === 'en' ? 'Lu Xun' : '鲁迅';
-                } else if (typeof book.author === 'number' || /^\d+$/.test(book.author)) {
-                    if (window.AUTHORS_DATA) {
-                        const a = window.AUTHORS_DATA.find(x => x.id === parseInt(book.author));
-                        displayAuthor = a ? (lang === 'en' ? a.name_en : a.name_zh) : '未知作者';
-                    } else {
-                        displayAuthor = '...';
-                    }
-                }
-
+                const desc = lang === 'en' ? (book.desc_en || '') : (book.desc_zh || '');
                 const card = document.createElement('div');
                 card.className = 'book-card';
                 card.innerHTML = `
                     <div class="book-card-header">
-                        <div class="book-icon">${book.icon}</div>
+                        <div class="book-icon">${window.escapeHtml(book.icon || '📖')}</div>
                         <div>
                             <div class="book-title">${window.escapeHtml(title)}</div>
-                            <div class="book-author">${window.escapeHtml(displayAuthor)}</div>
+                            <div class="book-author">${window.escapeHtml(authorName(book, lang))}</div>
                         </div>
                     </div>
+                    ${desc ? `<div class="book-desc">${window.escapeHtml(desc)}</div>` : ''}
                     <div class="book-btn">
-                        <span class="zh-inline">开始阅读</span>
-                        <span class="en-inline">Read Now</span>
+                        <span class="zh-inline">${book.id === 'community' ? '进入书库' : '开始阅读'}</span>
+                        <span class="en-inline">${book.id === 'community' ? 'Browse' : 'Read Now'}</span>
                     </div>
                 `;
                 card.onclick = () => {
-                    if (window.leleleTrack) window.leleleTrack('open-book_' + book.title_zh);
-                    window.location.href = book.url + (lang === 'en' ? '?lang=en' : '');
+                    if (window.leleleTrack) window.leleleTrack('read_open-book_' + book.title_zh);
+                    window.location.href = bookLink(book, lang);
                 };
                 gridEl.appendChild(card);
             });
         }
 
-        document.getElementById('searchInput').addEventListener('input', (e) => {
+        async function loadBooks() {
+            const ctrl = new AbortController();
+            const timer = setTimeout(() => ctrl.abort(), 8000);
+            try {
+                const res = await fetch('data/books.json', { signal: ctrl.signal });
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                BOOKS = await res.json();
+                renderBooks();
+            } catch (e) {
+                console.warn('[index] 书目加载失败', e.message);
+                gridEl.innerHTML = '<div class="status-msg">' + (window.getLang() === 'en' ? 'Failed to load books. Please refresh.' : '书目加载失败，请刷新重试') + '</div>';
+            } finally { clearTimeout(timer); }
+        }
+
+        document.getElementById('searchInput').addEventListener('input', e => {
             currentKeyword = e.target.value.trim().toLowerCase();
             renderBooks();
         });
-
         document.querySelectorAll('.cat-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
+            btn.addEventListener('click', e => {
                 document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
                 e.currentTarget.classList.add('active');
                 currentCategory = e.currentTarget.dataset.cat;
@@ -349,22 +372,18 @@
             });
         });
 
-        function toggleLang() {
-            const current = window.getLang();
-            window.setLang(current === 'zh' ? 'en' : 'zh');
-        }
+        function toggleLang() { window.setLang(window.getLang() === 'zh' ? 'en' : 'zh'); }
 
         window.addEventListener('langChanged', () => {
             renderBooks();
-            const lang = window.getLang();
-            document.getElementById('searchInput').placeholder = lang === 'en' ? 'Search books or authors...' : '搜索书名或作者...';
+            document.getElementById('searchInput').placeholder = window.getLang() === 'en' ? 'Search books or authors...' : '搜索书名或作者...';
         });
-        window.addEventListener('authorsLoaded', renderBooks);
+        window.addEventListener('authorsLoaded', () => { if (BOOKS.length) renderBooks(); });
 
         document.addEventListener('DOMContentLoaded', () => {
-            const lang = window.getLang();
-            document.getElementById('searchInput').placeholder = lang === 'en' ? 'Search books or authors...' : '搜索书名或作者...';
+            document.getElementById('searchInput').placeholder = window.getLang() === 'en' ? 'Search books or authors...' : '搜索书名或作者...';
             renderBooks();
+            loadBooks();
         });
     </script>
 </body>

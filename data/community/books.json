@@ -1,0 +1,30 @@
+[
+  {
+    "id": "guanju",
+    "title_zh": "关雎 · 诗经选读",
+    "title_en": "Guan Ju · Selected Poems",
+    "author": "佚名",
+    "cat": "poetry",
+    "icon": "🌿",
+    "desc_zh": "共创示例：由站内 JSON 渲染",
+    "desc_en": "Community demo: rendered from site JSON",
+    "format": "json",
+    "dataUrl": "chapters/guanju.json",
+    "downloadable": true,
+    "sort": 1
+  },
+  {
+    "id": "yecao",
+    "title_zh": "野草 · 题辞",
+    "title_en": "Wild Grass · Preface",
+    "author": "luxun",
+    "cat": "essay",
+    "icon": "🖋️",
+    "desc_zh": "共创示例：绝对地址（模拟外部资源）",
+    "desc_en": "Community demo: absolute URL (simulated external source)",
+    "format": "json",
+    "dataUrl": "/data/community/chapters/yecao.json",
+    "downloadable": true,
+    "sort": 2
+  }
+]

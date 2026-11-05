@@ -1,0 +1,115 @@
+/* =========================================================
+   other.css - 杂项公共样式：空态 / 加载态 / 确认对话框 / 后台与登录
+   配色沿用 common.css 的设计令牌（纸感极简由 common.css 统一定义）
+   ========================================================= */
+
+/* 通用状态 */
+.read-empty, .read-loading, .read-error {
+    padding: 32px 20px; text-align: center; color: var(--text-muted);
+    font-size: .92rem; line-height: 1.8;
+}
+.read-error { color: var(--danger, #C0453B); }
+.read-loading::before {
+    content: ''; display: inline-block; width: 12px; height: 12px; margin-right: 8px;
+    border: 2px solid var(--border-color); border-top-color: var(--primary);
+    border-radius: 50%; animation: read-spin .8s linear infinite; vertical-align: -2px;
+}
+@keyframes read-spin { to { transform: rotate(360deg); } }
+
+/* 确认对话框 */
+.read-modal-mask {
+    position: fixed; inset: 0; z-index: 900; display: none;
+    background: rgba(20, 24, 27, .42); backdrop-filter: blur(3px);
+    align-items: center; justify-content: center; padding: 20px;
+}
+.read-modal-mask.open { display: flex; }
+.read-modal {
+    background: var(--bg-card); border: 1px solid var(--border-color);
+    border-radius: 18px; padding: 26px; max-width: 420px; width: 100%;
+    box-shadow: 0 18px 48px rgba(0, 0, 0, .16);
+}
+.read-modal h3 { font-size: 1.1rem; color: var(--text-main); margin-bottom: 12px; font-weight: 600; }
+.read-modal p { color: var(--text-muted); line-height: 1.8; font-size: .92rem; margin-bottom: 22px; }
+.read-modal .actions { display: flex; gap: 10px; justify-content: flex-end; }
+
+/* 按钮 */
+.rd-btn {
+    border: 1px solid var(--border-color); background: transparent; color: var(--text-main);
+    border-radius: 999px; padding: 8px 16px; font-size: .88rem; cursor: pointer;
+    transition: border-color .2s, color .2s, background .2s;
+    text-decoration: none; display: inline-flex; align-items: center; gap: 6px;
+}
+.rd-btn:hover { border-color: var(--primary); color: var(--primary); }
+.rd-btn.primary { background: var(--primary); border-color: var(--primary); color: #fff; }
+.rd-btn.primary:hover { opacity: .88; color: #fff; }
+.rd-btn:disabled { opacity: .5; cursor: not-allowed; }
+.auth-email { font-size: .84rem; color: var(--text-muted); margin-right: 6px; }
+
+/* 表单 */
+.read-field { margin-bottom: 16px; }
+.read-field label { display: block; font-size: .86rem; color: var(--text-muted); margin-bottom: 6px; }
+.read-field input, .read-field textarea, .read-field select {
+    width: 100%; padding: 10px 14px; border-radius: 10px;
+    border: 1px solid var(--border-color); background: var(--bg-page);
+    color: var(--text-main); font-size: .95rem; font-family: inherit; outline: none;
+    transition: border-color .2s;
+}
+.read-field input:focus, .read-field textarea:focus, .read-field select:focus { border-color: var(--primary); }
+.read-field textarea { min-height: 88px; resize: vertical; }
+.read-hint { font-size: .8rem; color: var(--text-muted); margin-top: 6px; line-height: 1.6; }
+.read-msg { min-height: 1.4em; font-size: .86rem; margin-top: 10px; }
+.read-msg.ok { color: #2E7D5B; }
+.read-msg.err { color: var(--danger, #C0453B); }
+
+/* 登录页 */
+.auth-wrap { max-width: 420px; margin: 8vh auto; padding: 0 20px 60px; }
+.auth-card {
+    background: var(--bg-card); border: 1px solid var(--border-color);
+    border-radius: 20px; padding: 32px;
+}
+.auth-card h1 { font-size: 24px; font-weight: 600; color: var(--text-main); margin-bottom: 8px; }
+.auth-card .sub { color: var(--text-muted); font-size: .9rem; line-height: 1.7; margin-bottom: 26px; }
+.auth-tabs { display: flex; gap: 8px; margin-bottom: 22px; }
+.auth-tabs button {
+    flex: 1; border: 1px solid var(--border-color); background: transparent;
+    border-radius: 999px; padding: 8px; font-size: .88rem; color: var(--text-muted); cursor: pointer;
+}
+.auth-tabs button.active { border-color: var(--primary); color: var(--primary); }
+.auth-oauth { margin-top: 22px; border-top: 1px solid var(--border-color); padding-top: 18px; }
+.auth-oauth .rd-btn { width: 100%; justify-content: center; margin-top: 8px; }
+
+/* 后台 */
+.dash-shell { max-width: 1180px; margin: 28px auto 60px; padding: 0 20px; display: flex; gap: 24px; align-items: flex-start; }
+.dash-side { width: 210px; flex-shrink: 0; position: sticky; top: 84px; }
+.dash-side button {
+    display: block; width: 100%; text-align: left; border: 0; background: transparent;
+    padding: 10px 14px; border-radius: 10px; font-size: .9rem; color: var(--text-muted); cursor: pointer;
+}
+.dash-side button:hover { background: var(--bg-card); color: var(--text-main); }
+.dash-side button.active { background: var(--bg-card); color: var(--primary); font-weight: 600; }
+.dash-main { flex: 1; min-width: 0; }
+.dash-panel { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 18px; padding: 26px; }
+.dash-panel h2 { font-size: 1.15rem; font-weight: 600; color: var(--text-main); margin-bottom: 6px; }
+.dash-panel .desc { color: var(--text-muted); font-size: .88rem; line-height: 1.7; margin-bottom: 22px; }
+.dash-stat-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 14px; margin-bottom: 22px; }
+.dash-stat { border: 1px solid var(--border-color); border-radius: 14px; padding: 16px; }
+.dash-stat b { display: block; font-size: 1.6rem; color: var(--primary); font-weight: 600; }
+.dash-stat span { font-size: .8rem; color: var(--text-muted); }
+.dash-list { display: grid; gap: 10px; }
+.dash-item {
+    border: 1px solid var(--border-color); border-radius: 12px; padding: 14px 16px;
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+}
+.dash-item .title { font-size: .94rem; color: var(--text-main); font-weight: 500; }
+.dash-item .meta { font-size: .78rem; color: var(--text-muted); margin-top: 4px; }
+.dash-badge { font-size: .74rem; border-radius: 999px; padding: 3px 10px; border: 1px solid var(--border-color); color: var(--text-muted); }
+.dash-badge.pending { color: #C97A2B; border-color: rgba(201, 122, 43, .4); }
+.dash-badge.approved { color: #2E7D5B; border-color: rgba(46, 125, 91, .4); }
+
+@media (max-width: 768px) {
+    .dash-shell { flex-direction: column; gap: 14px; }
+    .dash-side { width: 100%; position: static; display: flex; overflow-x: auto; gap: 6px; }
+    .dash-side button { white-space: nowrap; width: auto; flex-shrink: 0; }
+    .dash-panel { padding: 20px 16px; }
+    .auth-wrap { margin-top: 5vh; }
+}

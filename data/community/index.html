@@ -152,75 +152,101 @@
     <div id="footerPlaceholder"></div>
 
     <script>
-        // 模拟投稿书籍数据
-        const MOCK_COMMUNITY_BOOKS = [
-            { id: 'andys_book', title_zh: '未来的诗篇', title_en: 'Poems of the Future', author: 2, icon: '✨' },
-            { id: 'kevin_novel', title_zh: '代码与咖啡', title_en: 'Code and Coffee', author: 3, icon: '☕' },
-            { id: 'jonathan_essay', title_zh: '山间随笔', title_en: 'Mountain Essays', author: 4, icon: '⛰️' },
-            { id: 'unknown_1', title_zh: '未命名文档', title_en: 'Untitled', author: '匿名', icon: '📄' }
-        ];
-
+        let COMMUNITY_BOOKS = [];
+        let loadFailed = false;
         let currentKeyword = '';
+
+        function resolveAuthor(book, lang) {
+            const a = book.author;
+            if (a === 'luxun') return lang === 'en' ? 'Lu Xun' : '鲁迅';
+            if (typeof a === 'number' || /^\d+$/.test(String(a))) {
+                const found = (window.AUTHORS_DATA || []).find(x => String(x.id) === String(a));
+                if (found) return lang === 'en' ? (found.name_en || found.name_zh) : (found.name_zh || found.name_en);
+                if (book.author_label_zh || book.author_label_en) {
+                    return lang === 'en' ? (book.author_label_en || book.author_label_zh) : (book.author_label_zh || book.author_label_en);
+                }
+                const list = window.AUTHORS_DATA || [];
+                return list.length ? (lang === 'en' ? 'Unknown' : '未知作者') : '…';
+            }
+            return String(a || '');
+        }
 
         function renderCommunityBooks() {
             const grid = document.getElementById('bookGrid');
-            grid.innerHTML = '';
             const lang = window.getLang();
+            grid.innerHTML = '';
 
-            // 筛选
-            const filtered = MOCK_COMMUNITY_BOOKS.filter(book => {
-                const title = lang === 'en' ? book.title_en : book.title_zh;
-                return title.toLowerCase().includes(currentKeyword);
+            if (loadFailed) {
+                grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--text-muted);">' +
+                    (lang === 'en' ? 'Failed to load the library. Please refresh.' : '书库加载失败，请刷新重试') + '</div>';
+                return;
+            }
+            if (!COMMUNITY_BOOKS.length) {
+                grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--text-muted);">' +
+                    (lang === 'en' ? 'Loading books…' : '正在加载共创书库…') + '</div>';
+                return;
+            }
+
+            const filtered = COMMUNITY_BOOKS.filter(book => {
+                const hay = [book.title_zh, book.title_en, book.desc_zh, book.desc_en,
+                    resolveAuthor(book, 'zh'), resolveAuthor(book, 'en')].join(' ').toLowerCase();
+                return hay.indexOf(currentKeyword) !== -1;
             });
 
-            if (filtered.length === 0) {
-                grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--text-muted);">没有找到匹配的书籍</div>';
+            if (!filtered.length) {
+                grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--text-muted);">' +
+                    (lang === 'en' ? 'No matching books' : '没有找到匹配的书籍') + '</div>';
                 return;
             }
 
             filtered.forEach(book => {
-                const title = lang === 'en' ? (book.title_en || book.title_zh) : book.title_zh;
-                
-                // 作者名匹配
-                let authorName = book.author;
-                if (typeof book.author === 'number' && window.AUTHORS_DATA) {
-                    const authorObj = window.AUTHORS_DATA.find(a => a.id === book.author);
-                    if (authorObj) authorName = lang === 'en' ? authorObj.name_en : authorObj.name_zh;
-                    else authorName = 'Unknown';
-                }
-
+                const title = lang === 'en' ? (book.title_en || book.title_zh) : (book.title_zh || book.title_en);
                 const card = document.createElement('div');
                 card.className = 'book-card';
                 card.innerHTML = `
-                    <div class="book-cover">${book.icon}</div>
+                    <div class="book-cover">${window.escapeHtml(book.icon || '📖')}</div>
                     <div class="book-title">${window.escapeHtml(title)}</div>
-                    <div class="book-author">${window.escapeHtml(authorName)}</div>
+                    <div class="book-author">${window.escapeHtml(resolveAuthor(book, lang))}</div>
                 `;
-                // 点击跳转到统一的 community 阅读器页面
                 card.onclick = () => {
-                    window.location.href = `reader.html?id=${book.id}${lang === 'en' ? '&lang=en' : ''}`;
+                    if (window.leleleTrack) window.leleleTrack('read_open-community_' + book.id);
+                    window.location.href = 'reader.html?id=' + encodeURIComponent(book.id) + (lang === 'en' ? '&lang=en' : '');
                 };
                 grid.appendChild(card);
             });
         }
 
-        document.getElementById('searchInput').addEventListener('input', (e) => {
+        async function loadCommunityBooks() {
+            const ctrl = new AbortController();
+            const timer = setTimeout(() => ctrl.abort(), 8000);
+            try {
+                const res = await fetch('./books.json', { signal: ctrl.signal });
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                COMMUNITY_BOOKS = await res.json();
+                loadFailed = false;
+            } catch (e) {
+                console.warn('[community] 书目加载失败', e.message);
+                loadFailed = true;
+            } finally {
+                clearTimeout(timer);
+                renderCommunityBooks();
+            }
+        }
+
+        document.getElementById('searchInput').addEventListener('input', e => {
             currentKeyword = e.target.value.trim().toLowerCase();
             renderCommunityBooks();
         });
-
         window.addEventListener('langChanged', () => {
             renderCommunityBooks();
-            const lang = window.getLang();
-            document.getElementById('searchInput').placeholder = lang === 'en' ? 'Search books...' : '搜索书名或作者...';
+            document.getElementById('searchInput').placeholder = window.getLang() === 'en' ? 'Search books...' : '搜索书名或作者...';
         });
-
-        window.addEventListener('authorsLoaded', renderCommunityBooks);
+        window.addEventListener('authorsLoaded', () => { if (COMMUNITY_BOOKS.length) renderCommunityBooks(); });
 
         document.addEventListener('DOMContentLoaded', () => {
-            const lang = window.getLang();
-            document.getElementById('searchInput').placeholder = lang === 'en' ? 'Search books...' : '搜索书名或作者...';
+            document.getElementById('searchInput').placeholder = window.getLang() === 'en' ? 'Search books...' : '搜索书名或作者...';
             renderCommunityBooks();
+            loadCommunityBooks();
         });
     </script>
 </body>

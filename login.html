@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录 · 了了了读</title>
+    <link rel="stylesheet" href="common.css">
+    <link rel="stylesheet" href="other.css">
+    <script src="common.js"></script>
+    <script src="other.js"></script>
+    <script src="supabase-js.min.js"></script>
+    <script defer src="user-api.js"></script>
+    <script defer src="user-auth.js"></script>
+</head>
+<body>
+
+    <nav class="top-nav" style="display:flex;justify-content:space-between;align-items:center;padding:14px 5%;border-bottom:1px solid var(--border-color);background:var(--bg-card)">
+        <a href="index.html" class="brand" style="display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--text-main);font-weight:700">
+            <img src="leleleread.svg" alt="Logo" style="width:30px;height:30px;border-radius:50%" onerror="this.style.display='none'">
+            <span><span class="zh-inline">了了了读</span><span class="en-inline">lelele Read</span></span>
+        </a>
+        <div style="display:flex;gap:8px;align-items:center">
+            <button class="rd-btn" onclick="toggleTheme()">🌙</button>
+            <button class="rd-btn" id="btnLang">EN</button>
+        </div>
+    </nav>
+
+    <main class="auth-wrap">
+        <div class="auth-card">
+            <h1><span class="zh-inline">欢迎回来</span><span class="en-inline">Welcome back</span></h1>
+            <p class="sub"><span class="zh-inline">登录后可管理资料、作品与共创投稿。账号由独立后端（Supabase）保管。</span><span class="en-inline">Sign in to manage your profile, works and submissions. Accounts are stored on the dedicated Supabase backend.</span></p>
+
+            <div class="auth-tabs">
+                <button class="active" data-mode="signin"><span class="zh-inline">登录</span><span class="en-inline">Sign in</span></button>
+                <button data-mode="signup"><span class="zh-inline">注册</span><span class="en-inline">Sign up</span></button>
+            </div>
+
+            <form id="authForm" autocomplete="on">
+                <div class="read-field" id="nameField" style="display:none">
+                    <label><span class="zh-inline">显示名称</span><span class="en-inline">Display name</span></label>
+                    <input type="text" id="authName" placeholder="Your name">
+                </div>
+                <div class="read-field">
+                    <label><span class="zh-inline">邮箱</span><span class="en-inline">Email</span></label>
+                    <input type="email" id="authEmail" required placeholder="you@example.com">
+                </div>
+                <div class="read-field">
+                    <label><span class="zh-inline">密码（至少 6 位）</span><span class="en-inline">Password (6+ characters)</span></label>
+                    <input type="password" id="authPassword" required minlength="6" placeholder="••••••">
+                </div>
+                <div class="read-field" id="otpField" style="display:none">
+                    <label><span class="zh-inline">邮箱验证码（8 位）</span><span class="en-inline">Email code (8 digits)</span></label>
+                    <input type="text" id="authCode" inputmode="numeric" autocomplete="one-time-code" placeholder="12345678" maxlength="8">
+                </div>
+                <button type="button" class="rd-btn" id="sendOtpBtn" style="width:100%;justify-content:center;display:none">
+                    <span class="zh-inline">发送验证码</span><span class="en-inline">Send code</span>
+                </button>
+                <button type="submit" class="rd-btn primary" id="authSubmit" style="width:100%;justify-content:center">
+                    <span class="zh-inline">登录</span><span class="en-inline">Sign in</span>
+                </button>
+                <div class="read-msg" id="authMsg"></div>
+            </form>
+
+            <p style="text-align:center;margin-top:10px">
+                <a href="#" id="useOtpLink" class="rd-btn"><span class="zh-inline">使用验证码登录</span><span class="en-inline">Sign in with code</span></a>
+                <a href="#" id="usePwdLink" class="rd-btn" style="display:none"><span class="zh-inline">使用密码登录</span><span class="en-inline">Use password</span></a>
+            </p>
+
+            <div class="auth-oauth">
+                <div class="read-hint"><span class="zh-inline">第三方登录将在独立后端就绪后开放。</span><span class="en-inline">Third-party sign-in opens once the independent backend is ready.</span></div>
+                <button class="rd-btn" id="btnGoogle" disabled>Google</button>
+                <button class="rd-btn" id="btnGithub" disabled>GitHub</button>
+            </div>
+        </div>
+        <p style="text-align:center;margin-top:18px">
+            <a class="rd-btn" href="index.html">← <span class="zh-inline">返回书库</span><span class="en-inline">Back to library</span></a>
+        </p>
+    </main>
+
+    <div id="footerPlaceholder"></div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const $ = id => document.getElementById(id);
+        let mode = 'signin';
+        let otpType = null; // null | 'email' | 'signup'
+        const redirect = new URLSearchParams(location.search).get('redirect') || 'dashboard.html';
+
+        if (UserAuth.isLoggedIn()) { location.replace(redirect); return; }
+
+        function setMode(m) {
+            mode = m;
+            otpType = null;
+            document.querySelectorAll('.auth-tabs button').forEach(b => b.classList.toggle('active', b.dataset.mode === m));
+            $('nameField').style.display = m === 'signup' ? '' : 'none';
+            $('authPassword').style.display = '';
+            $('sendOtpBtn').style.display = 'none';
+            $('otpField').style.display = 'none';
+            $('useOtpLink').style.display = '';
+            $('usePwdLink').style.display = 'none';
+            ReadUI.showMsg($('authMsg'), '');
+            updateSubmit();
+        }
+        function updateSubmit() {
+            let zh = '登录', en = 'Sign in';
+            if (otpType === 'email') { zh = '验证码登录'; en = 'Sign in with code'; }
+            else if (otpType === 'signup') { zh = '完成注册'; en = 'Finish sign-up'; }
+            else if (mode === 'signup') { zh = '创建账号'; en = 'Create account'; }
+            $('authSubmit').innerHTML = '<span class="zh-inline">' + zh + '</span><span class="en-inline">' + en + '</span>';
+        }
+
+        document.querySelectorAll('.auth-tabs button').forEach(btn => {
+            btn.addEventListener('click', () => setMode(btn.dataset.mode));
+        });
+
+        $('useOtpLink').addEventListener('click', e => {
+            e.preventDefault();
+            otpType = 'email';
+            $('authPassword').style.display = 'none';
+            $('nameField').style.display = 'none';
+            $('sendOtpBtn').style.display = '';
+            $('otpField').style.display = '';
+            $('useOtpLink').style.display = 'none';
+            $('usePwdLink').style.display = '';
+            updateSubmit();
+            ReadUI.showMsg($('authMsg'), ReadUI.t('请输入邮箱后点“发送验证码”。', 'Enter your email, then tap Send code.'), true);
+        });
+        $('usePwdLink').addEventListener('click', e => { e.preventDefault(); setMode('signin'); });
+
+        $('sendOtpBtn').addEventListener('click', async () => {
+            const email = $('authEmail').value.trim();
+            if (!email) return ReadUI.showMsg($('authMsg'), ReadUI.t('请先填写邮箱', 'Enter email first'), false);
+            $('sendOtpBtn').disabled = true;
+            const r = await UserAPI.sendOtp(email, false);
+            $('sendOtpBtn').disabled = false;
+            if (r.error) return ReadUI.showMsg($('authMsg'), r.error.message, false);
+            ReadUI.showMsg($('authMsg'), ReadUI.t('验证码已发送到邮箱（8 位，60 分钟内有效）。', 'Code sent to your email (8 digits, valid 60 min).'), true);
+        });
+
+        $('authForm').addEventListener('submit', async e => {
+            e.preventDefault();
+            const email = $('authEmail').value.trim();
+            $('authSubmit').disabled = true;
+
+            if (otpType === 'email') {
+                const code = $('authCode').value.trim();
+                if (!/^\d{4,8}$/.test(code)) { $('authSubmit').disabled = false; return ReadUI.showMsg($('authMsg'), ReadUI.t('请输入 4–8 位验证码', 'Enter a 4–8 digit code'), false); }
+                const res = await UserAPI.verifyOtp(email, code, 'email');
+                $('authSubmit').disabled = false;
+                if (res.error) return ReadUI.showMsg($('authMsg'), res.error.message, false);
+                ReadUI.showMsg($('authMsg'), ReadUI.t('登录成功，正在跳转…', 'Signed in, redirecting…'), true);
+                return setTimeout(() => location.replace(redirect), 400);
+            }
+            if (otpType === 'signup') {
+                const code = $('authCode').value.trim();
+                if (!/^\d{4,8}$/.test(code)) { $('authSubmit').disabled = false; return ReadUI.showMsg($('authMsg'), ReadUI.t('请输入 4–8 位验证码', 'Enter a 4–8 digit code'), false); }
+                const res = await UserAPI.verifyOtp(email, code, 'signup');
+                $('authSubmit').disabled = false;
+                if (res.error) return ReadUI.showMsg($('authMsg'), res.error.message, false);
+                ReadUI.showMsg($('authMsg'), ReadUI.t('注册成功，正在跳转…', 'Signed up, redirecting…'), true);
+                return setTimeout(() => location.replace(redirect), 400);
+            }
+
+            const password = $('authPassword').value;
+            const result = mode === 'signin'
+                ? await UserAPI.signIn(email, password)
+                : await UserAPI.signUp(email, password, { name: $('authName').value.trim() });
+            $('authSubmit').disabled = false;
+            if (result.error) return ReadUI.showMsg($('authMsg'), result.error.message, false);
+            if (result.data && result.data.needsConfirmation) {
+                otpType = 'signup';
+                $('authPassword').style.display = 'none';
+                $('nameField').style.display = 'none';
+                $('otpField').style.display = '';
+                $('useOtpLink').style.display = 'none';
+                $('usePwdLink').style.display = 'none';
+                updateSubmit();
+                ReadUI.showMsg($('authMsg'), ReadUI.t('注册成功！请查收 8 位验证码邮件，输入后完成注册。', 'Signed up! Check your email for the 8-digit code to finish.'), true);
+                return;
+            }
+            ReadUI.showMsg($('authMsg'), ReadUI.t('登录成功，正在跳转…', 'Signed in, redirecting…'), true);
+            setTimeout(() => location.replace(redirect), 400);
+        });
+
+        $('btnLang').onclick = () => window.setLang(window.getLang() === 'zh' ? 'en' : 'zh');
+        UserAuth.handleCallback();
+    });
+    </script>
+</body>
+</html>

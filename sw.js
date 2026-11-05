@@ -1,68 +1,88 @@
-// =========================================
-// sw.js - Service Worker (离线缓存)
-// =========================================
-const CACHE_NAME = 'lelele-read-v1';
+/* =========================================================
+   lelele-read Service Worker
+   v2 (4.x 数据 JSON 化 / EPUB 双向转换之后)
+   静态资源：stale-while-revalidate（命中即秒开，后台更新）
+   数据 JSON：network-first + 1.5s 超时快速回退缓存
+   外部域一律直通（作者总表、统计、Supabase 等）
+   ========================================================= */
+const CACHE_NAME = 'lelele-read-v2';
 
-// 需要预缓存的核心资源
 const PRECACHE_ASSETS = [
-    '/',
-    '/index.html',
-    '/common.css',
-    '/common.js',
-    '/reader.css',
-    '/reader.js',
-    '/window.css',
-    '/window.js',
-    '/manifest-zh.json',
-    '/manifest-en.json',
-    '/icon-192.png',
-    '/icon-512.png'
+    '/', '/index.html', '/reader.html', '/dashboard.html', '/login.html', '/docs.html',
+    '/author.html', '/about.html', '/rules.html', '/privacy.html', '/copyright.html', '/404.html',
+    '/common.css', '/common.js', '/reader.css', '/reader.js',
+    '/window.css', '/window.js', '/doc.css', '/doc.js',
+    '/other.css', '/other.js', '/epub-bridge.css', '/epub-bridge.js',
+    '/user-api.js', '/user-auth.js', '/jszip.min.js',
+    '/activity.css', '/activity.js', '/activity.json',
+    '/manifest-zh.json', '/manifest-en.json',
+    '/leleleread.svg', '/favicon.ico', '/icon-192.png', '/icon-512.png',
+    '/data/books.json', '/data/community/books.json',
+    '/data/bible/config.json', '/data/shijing/config.json', '/data/tree_zhou/config.json'
 ];
 
-// 1. 安装阶段：缓存核心文件
+const DATA_PATH_RE = /(?:\/|^)(books\.json|config\.json|activity\.json|manifest-(?:zh|en)\.json|chapters\/[^/]+\.json)$/;
+
 self.addEventListener('install', event => {
     event.waitUntil(
-        caches.open(CACHE_NAME)
-            .then(cache => {
-                return cache.addAll(PRECACHE_ASSETS);
-            })
-            .then(() => self.skipWaiting())
+        caches.open(CACHE_NAME).then(cache =>
+            Promise.allSettled(PRECACHE_ASSETS.map(u => cache.add(u).catch(() => {})))
+        ).then(() => self.skipWaiting())
     );
 });
 
-// 2. 激活阶段：清理旧缓存
 self.addEventListener('activate', event => {
     event.waitUntil(
-        caches.keys().then(keys => {
-            return Promise.all(
-                keys.filter(key => key !== CACHE_NAME)
-                    .map(key => caches.delete(key))
-            );
-        }).then(() => self.clients.claim())
+        caches.keys().then(keys => Promise.all(
+            keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))
+        )).then(() => self.clients.claim())
     );
 });
 
-// 3. 拦截请求：网络优先，失败则回退到缓存
-self.addEventListener('fetch', event => {
-    // 只拦截同源请求 (避免干扰外部 API)
-    const url = new URL(event.request.url);
-    if (url.origin !== location.origin) return;
+function isBasicOk(res) { return res && res.status === 200 && res.type === 'basic'; }
 
-    event.respondWith(
-        fetch(event.request)
-            .then(response => {
-                // 如果是成功响应，克隆一份存入缓存（动态更新）
-                if (response.ok && event.request.method === 'GET') {
-                    const clone = response.clone();
-                    caches.open(CACHE_NAME).then(cache => {
-                        cache.put(event.request, clone);
-                    });
-                }
-                return response;
-            })
-            .catch(() => {
-                // 网络请求失败，从缓存中找
-                return caches.match(event.request);
-            })
-    );
+async function staleWhileRevalidate(event) {
+    const req = event.request;
+    const cache = await caches.open(CACHE_NAME);
+    const cached = await cache.match(req);
+    const network = fetch(req).then(res => {
+        if (isBasicOk(res)) cache.put(req, res.clone()).catch(() => {});
+        return res;
+    }).catch(() => null);
+    if (cached) { event.waitUntil(network); return cached; }
+    const fresh = await network;
+    if (fresh) return fresh;
+    if (req.mode === 'navigate') return (await cache.match('/index.html')) || Response.error();
+    return Response.error();
+}
+
+async function networkFirstWithTimeout(req, ms) {
+    const cache = await caches.open(CACHE_NAME);
+    const ctrl = new AbortController();
+    let timer;
+    try {
+        const timed = new Promise((_, reject) => {
+            timer = setTimeout(() => { ctrl.abort(); reject(new Error('sw timeout')); }, ms);
+        });
+        const res = await Promise.race([fetch(req, { signal: ctrl.signal }), timed]);
+        clearTimeout(timer);
+        if (isBasicOk(res)) cache.put(req, res.clone()).catch(() => {});
+        return res;
+    } catch (e) {
+        clearTimeout(timer);
+        return (await cache.match(req)) || Response.error();
+    }
+}
+
+self.addEventListener('fetch', event => {
+    const req = event.request;
+    if (req.method !== 'GET') return;
+    let url;
+    try { url = new URL(req.url); } catch (e) { return; }
+    if (url.origin !== self.location.origin) return;
+    if (DATA_PATH_RE.test(url.pathname)) {
+        event.respondWith(networkFirstWithTimeout(req, 1500));
+    } else {
+        event.respondWith(staleWhileRevalidate(event));
+    }
 });

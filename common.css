@@ -3,27 +3,40 @@
    ========================================= */
 
 /* 1. 全局变量与深浅色模式 */
+/* 纸感极简设计令牌：暖纸白 + 墨青，细线代替重阴影 */
 :root {
-    --bg-page: #f8fafc;
-    --bg-card: #ffffff;
-    --text-main: #1e293b;
-    --text-muted: #64748b;
-    --border-color: #e2e8f0;
-    --primary: #4f46e5;
-    --primary-hover: #4338ca;
-    --danger: #ef4444;
-    --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
-    --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+    --bg-page: #FBF9F4;
+    --bg-card: #FFFFFF;
+    --bg-soft: #F3EFE7;
+    --text-main: #1F2933;
+    --text-muted: #5B6570;
+    --border-color: rgba(31, 41, 51, 0.10);
+    --primary: #3C6E71;
+    --primary-hover: #2F5D62;
+    --accent: #6E9A9B;
+    --danger: #C0453B;
+    --success: #2E7D5B;
+    --warning: #C97A2B;
+    --shadow-sm: 0 1px 2px rgba(31, 41, 51, 0.04);
+    --shadow-md: 0 8px 24px rgba(31, 41, 51, 0.07);
+    --radius-md: 14px;
+    --radius-lg: 20px;
+    --radius-pill: 999px;
+    --font-serif: 'Noto Serif SC', 'Songti SC', 'PingFang SC', serif;
 }
 
 html.dark-mode {
-    --bg-page: #0f172a;
-    --bg-card: #1e293b;
-    --text-main: #f1f5f9;
-    --text-muted: #94a3b8;
-    --border-color: #334155;
-    --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
-    --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.5);
+    --bg-page: #14181B;
+    --bg-card: #1C2226;
+    --bg-soft: #20272B;
+    --text-main: #F5F1E8;
+    --text-muted: #AEB7BC;
+    --border-color: rgba(245, 241, 232, 0.12);
+    --primary: #6E9A9B;
+    --primary-hover: #8FB5B6;
+    --accent: #3C6E71;
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.35);
 }
 
 /* 2. 基础重置 */

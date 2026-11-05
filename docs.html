@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>站点文档 · 了了了读</title>
+    <link rel="stylesheet" href="common.css">
+    <link rel="stylesheet" href="doc.css">
+    <link rel="stylesheet" href="other.css">
+    <script src="common.js"></script>
+    <script defer src="doc.js"></script>
+</head>
+<body>
+
+    <div class="doc-progress-container"><div class="doc-progress-bar"></div></div>
+
+    <nav style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:14px 5%;border-bottom:1px solid var(--border-color);background:var(--bg-card)">
+        <a href="index.html" style="display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--text-main);font-weight:700">
+            <img src="leleleread.svg" alt="Logo" style="width:30px;height:30px;border-radius:50%" onerror="this.style.display='none'">
+            <span><span class="zh-inline">了了了读 · 文档中心</span><span class="en-inline">lelele Read · Docs</span></span>
+        </a>
+        <div style="display:flex;gap:8px">
+            <a class="rd-btn" href="reader.html"><span class="zh-inline">读书器</span><span class="en-inline">Reader</span></a>
+            <a class="rd-btn" href="dashboard.html"><span class="zh-inline">作者后台</span><span class="en-inline">Dashboard</span></a>
+            <button class="rd-btn" onclick="toggleTheme()">🌙</button>
+            <button class="rd-btn" id="btnLang">EN</button>
+        </div>
+    </nav>
+
+    <div class="doc-layout">
+        <aside class="doc-sidebar">
+            <div class="doc-toc-title"><span class="zh-inline">目录</span><span class="en-inline">Contents</span></div>
+            <div id="docToc"></div>
+        </aside>
+
+        <article class="doc-content" id="docContent">
+            <h1 style="font-size:1.8rem;font-weight:600;margin-bottom:10px">
+                <span class="zh-inline">了了了读 · 使用与开发文档</span><span class="en-inline">lelele Read · Documentation</span>
+            </h1>
+            <p style="color:var(--text-muted);line-height:1.9;margin-bottom:32px">
+                <span class="zh-inline">一个纯净、无广告、零框架的在线阅读器。这里汇总了书库、阅读器、投稿与数据格式的说明。</span>
+                <span class="en-inline">A clean, ad-free, framework-free online reader. This page covers the library, reader, submissions and data formats.</span>
+            </p>
+
+            <h2><span class="zh-inline">1. 书库与阅读</span><span class="en-inline">1. Library & reading</span></h2>
+            <p>
+                <span class="zh-inline">首页以胶囊分类和卡片网格组织书目，点开书进入统一读书器。内置书全部是 JSON 数据，按章按需加载；共创书库里的书统一走单页阅读入口，由 <code>books.json</code> 里的 <code>dataUrl</code> 指向内容。</span>
+                <span class="en-inline">The homepage organizes books with capsule categories and a card grid; all books open in the unified reader. Built-in books are JSON loaded chapter by chapter; community books share one entry page whose <code>books.json</code> points to a <code>dataUrl</code>.</span>
+            </p>
+            <p>
+                <a class="rd-btn" href="index.html"><span class="zh-inline">书库首页</span><span class="en-inline">Library</span></a>
+                <a class="rd-btn" href="reader.html"><span class="zh-inline">打开读书器</span><span class="en-inline">Open reader</span></a>
+                <a class="rd-btn" href="data/community/index.html"><span class="zh-inline">共创书库</span><span class="en-inline">Community library</span></a>
+            </p>
+
+            <h2><span class="zh-inline">2. EPUB 导入与下载</span><span class="en-inline">2. EPUB import & download</span></h2>
+            <p>
+                <span class="zh-inline">在读书器里上传 EPUB，浏览器会当场解压并解析成统一 JSON，然后直接开始阅读；站内任何一本书都能现场打包成 EPUB 下载，也可以导出 TXT / HTML / JSON。仓库里不预生成 EPUB 文件，只有一份 JSON 数据源。</span>
+                <span class="en-inline">Upload an EPUB in the reader and it is unzipped and parsed into unified JSON right in the browser. Any site book can be packaged into an EPUB on the fly, or exported as TXT / HTML / JSON. No pre-generated EPUB files exist in the repository.</span>
+            </p>
+            <p>
+                <a class="rd-btn" href="docs/api/epub-conversion.md"><span class="zh-inline">EPUB 对齐说明</span><span class="en-inline">EPUB conversion notes</span></a>
+            </p>
+
+            <h2><span class="zh-inline">3. 书签、批注与阅读状态</span><span class="en-inline">3. Bookmarks, notes & progress</span></h2>
+            <p>
+                <span class="zh-inline">每一段右侧都有高亮、书签、批注按钮；字号、中文字体、主题色、自定义背景、悬浮工具位置以及断点续读进度都会记在本机 <code>localStorage</code>，键名统一以 <code>lelele_read_</code> 开头。悬浮工具可在布局模式下拖拽并自动避让。</span>
+                <span class="en-inline">Each paragraph has highlight, bookmark and note actions. Font size, Chinese font, theme color, custom background, floating tool positions and reading progress are stored locally under the <code>lelele_read_</code> prefix. Floating tools can be dragged in layout mode and avoid overlapping.</span>
+            </p>
+
+            <h2><span class="zh-inline">4. 共创投稿规范</span><span class="en-inline">4. Submission guidelines</span></h2>
+            <p>
+                <span class="zh-inline">投稿需提供书名、作者（数字 ID 或拼音）、一句简介，以及一个符合 <code>BookContent</code> 契约的 JSON 地址。内容必须是本人有权公开的作品，不含恶意脚本、广告或侵权内容；远程地址需允许跨域访问。</span>
+                <span class="en-inline">A submission needs a title, an author (numeric ID or pinyin), a short summary, and a JSON URL following the <code>BookContent</code> contract. Content must be yours to publish, free of scripts and ads; remote URLs must allow CORS.</span>
+            </p>
+            <p>
+                <a class="rd-btn" href="dashboard.html"><span class="zh-inline">去投稿</span><span class="en-inline">Submit a book</span></a>
+                <a class="rd-btn" href="docs/api/data-contract.md"><span class="zh-inline">数据契约</span><span class="en-inline">Data contract</span></a>
+            </p>
+
+            <h2><span class="zh-inline">5. 作者与后端</span><span class="en-inline">5. Authors & backend</span></h2>
+            <p>
+                <span class="zh-inline">公开作者总表来自跨域只读接口；数字作者 ID 会自动匹配名称，拼音作者（如 <code>luxun</code>）直达作者主页。登录、可编辑资料与云端批注使用「了了了读」<strong>独立</strong>的 Supabase 实例，与兄弟站「了了了游」完全不共用。</span>
+                <span class="en-inline">The public author index comes from a cross-origin read-only API; numeric IDs resolve to names, pinyin IDs (e.g. <code>luxun</code>) link straight to author pages. Sign-in, editable profiles and cloud annotations use an <strong>independent</strong> Supabase instance, never shared with the sibling site.</span>
+            </p>
+            <p>
+                <a class="rd-btn" href="author.html?id=luxun"><span class="zh-inline">作者主页示例</span><span class="en-inline">Sample author page</span></a>
+                <a class="rd-btn" href="docs/handoff/backend-supabase.md"><span class="zh-inline">后端搭建指南</span><span class="en-inline">Backend setup guide</span></a>
+            </p>
+
+            <h2><span class="zh-inline">6. 合规与联系</span><span class="en-inline">6. Legal & contact</span></h2>
+            <p>
+                <a class="rd-btn" href="rules.html"><span class="zh-inline">阅读器守则</span><span class="en-inline">Rules</span></a>
+                <a class="rd-btn" href="privacy.html"><span class="zh-inline">隐私政策</span><span class="en-inline">Privacy</span></a>
+                <a class="rd-btn" href="copyright.html"><span class="zh-inline">版权投诉</span><span class="en-inline">Copyright</span></a>
+                <a class="rd-btn" href="about.html"><span class="zh-inline">关于我们</span><span class="en-inline">About</span></a>
+            </p>
+        </article>
+    </div>
+
+    <div id="footerPlaceholder"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.getElementById('btnLang').onclick = () => window.setLang(window.getLang() === 'zh' ? 'en' : 'zh');
+            DocEngine.init({ tocContentId: 'docContent', tocContainerId: 'docToc' });
+        });
+    </script>
+</body>
+</html>

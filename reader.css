@@ -326,3 +326,117 @@ html.dark-mode .reader-para.is-highlighted { color: #000; }
         box-shadow: var(--read-shadow);
     }
 }
+
+/* =========================================================
+   8. 纸感极简补强（EPUB / JSON 统一阅读器）
+   放在末尾以覆盖上面的旧值，颜色全部走变量
+   ========================================================= */
+:root {
+    --read-bg-page: #FBF9F4;
+    --read-bg-sidebar: rgba(243, 239, 231, 0.92);
+    --read-bg-main: #FFFFFF;
+    --read-text-primary: #1F2933;
+    --read-text-secondary: #5B6570;
+    --read-border: rgba(31, 41, 51, 0.10);
+    --read-accent: #3C6E71;
+    --read-accent-hover: #2F5D62;
+    --read-verse-hover: rgba(60, 110, 113, 0.06);
+    --read-highlight: #F2E2A8;
+    --read-note-bg: #F3EFE7;
+    --read-font-family: 'Noto Serif SC', 'Songti SC', 'PingFang SC', serif;
+    --reader-font-size: 17px;
+    --reader-font-family: 'Noto Serif SC', 'Songti SC', 'PingFang SC', serif;
+}
+html.dark-mode {
+    --read-bg-page: #14181B;
+    --read-bg-sidebar: rgba(28, 34, 38, 0.94);
+    --read-bg-main: #1C2226;
+    --read-text-primary: #F5F1E8;
+    --read-text-secondary: #AEB7BC;
+    --read-border: rgba(245, 241, 232, 0.12);
+    --read-accent: #6E9A9B;
+    --read-verse-hover: rgba(110, 154, 155, 0.10);
+    --read-highlight: #4A4227;
+    --read-note-bg: #20272B;
+}
+body[data-color-theme="paper"] { --read-bg-page: #FBF9F4; --read-bg-main: #FFFFFF; --read-text-primary: #1F2933; }
+body[data-color-theme="sepia"] { --read-bg-page: #E8DCC4; --read-bg-main: #F2E9D8; --read-text-primary: #3A3226; --read-text-secondary: #6B5F4C; }
+body[data-color-theme="mint"]  { --read-bg-page: #DCE9E4; --read-bg-main: #EAF3EF; --read-text-primary: #1E3A34; }
+body[data-color-theme="night"] { --read-bg-page: #14181B; --read-bg-main: #1C2226; --read-text-primary: #F5F1E8; --read-text-secondary: #AEB7BC; }
+
+body.has-topbar .reader-app { height: calc(100vh - 92px); min-height: 60vh; }
+
+.reader-content-container { font-family: var(--reader-font-family, var(--read-font-family)); }
+.reader-para-text, .reader-para-html {
+    font-family: var(--reader-font-family, var(--read-font-family));
+    font-size: var(--reader-font-size, 17px);
+    line-height: 2.05;
+    letter-spacing: .01em;
+}
+.reader-para-html p, .reader-para-html h1, .reader-para-html h2, .reader-para-html h3 {
+    margin: 0 0 1em; line-height: 2;
+}
+.reader-para-html img { max-width: 100%; height: auto; border-radius: 8px; }
+.reader-book-title { letter-spacing: -.02em; }
+
+.reader-empty, .reader-list-empty, .reader-notes-empty {
+    padding: 42px 20px; text-align: center; color: var(--read-text-secondary); font-size: .92rem; line-height: 1.9;
+}
+.reader-chapter-nav {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    margin: 46px 0 24px; padding-top: 20px; border-top: 1px solid var(--read-border);
+    color: var(--read-text-secondary); font-size: .85rem;
+}
+.reader-chapter-nav button {
+    border: 1px solid var(--read-border); background: transparent; color: var(--read-accent);
+    border-radius: 999px; padding: 8px 16px; font-size: .86rem; cursor: pointer;
+    transition: background .2s, border-color .2s;
+}
+.reader-chapter-nav button:hover:not(:disabled) { border-color: var(--read-accent); background: var(--read-verse-hover); }
+.reader-chapter-nav button:disabled { opacity: .4; cursor: not-allowed; }
+
+@media (max-width: 768px) {
+    .reader-para-text, .reader-para-html { line-height: 1.95; }
+    .reader-para-actions { opacity: 1; }
+    .reader-chapter-nav { margin: 32px 0 16px; }
+    .reader-chapter-nav button { padding: 8px 12px; font-size: .8rem; }
+    .reader-draggable { transform: scale(.9); transform-origin: right bottom; }
+    .reader-notes-panel { z-index: 60; }
+    .reader-menu-toggle { top: auto; bottom: 18px; left: 16px; }
+}
+
+/* 9. 移动端：三组悬浮工具收成底部单行工具条，不再遮挡正文 */
+@media (max-width: 768px) {
+    .reader-draggable {
+        position: fixed !important;
+        top: auto !important; bottom: 0 !important;
+        left: auto !important; right: auto !important;
+        height: 54px; width: auto;
+        display: flex !important; align-items: center; justify-content: center; gap: 4px;
+        padding: 0 6px; transform: none !important;
+        background: var(--read-bg-sidebar); border-top: 1px solid var(--read-border);
+        backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+        z-index: 55; box-shadow: 0 -4px 18px rgba(31, 41, 51, .05);
+    }
+    #floatTheme { left: 0 !important; width: 24%; }
+    #floatFont  { left: 24% !important; width: 22%; }
+    #floatTools { left: 46% !important; width: 54%; }
+    .reader-draggable button { font-size: .74rem; padding: 6px 7px; white-space: nowrap; }
+    .reader-main, .reader-content-container { padding-bottom: 74px; }
+    .reader-menu-toggle { bottom: 66px; left: 12px; }
+    .reader-chapter-nav { padding-bottom: 8px; }
+}
+
+/* 10. 移动端精修：弱化段落操作、隐藏全站悬浮按钮、工具条不裁切 */
+@media (max-width: 768px) {
+    .reader-para-actions { opacity: .28; margin-left: 6px; gap: 3px; }
+    .reader-para:active .reader-para-actions, .reader-para:focus-within .reader-para-actions { opacity: 1; }
+    .reader-action-btn { font-size: .68rem; padding: 1px 2px; }
+    body.has-topbar .common-float-tools,
+    body.reader-page .common-float-tools { display: none; }
+    #floatTheme { left: 0 !important; width: 22%; }
+    #floatFont  { left: 22% !important; width: 20%; }
+    #floatTools { left: 42% !important; width: 58%; }
+    .reader-draggable button { font-size: .7rem; padding: 5px 5px; }
+    .reader-menu-toggle { bottom: 62px; }
+}

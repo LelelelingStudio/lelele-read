@@ -124,16 +124,41 @@
     }
 
     // ==================== 4. 外部数据拉取 ====================
+    // 跨域作者总表：5s 超时 + 状态校验 + 失败降级，任何情况下都派发 authorsLoaded，
+    // 避免页面一直停在「…」或因为外部域挂起而白屏（借鉴「游」站白屏事故教训，不复用其代码）。
     function fetchAuthors() {
-        window.AUTHORS_DATA = []; 
-        fetch(CONFIG.AUTHOR_API + '?t=' + Date.now())
-            .then(res => res.json())
-            .then(data => {
-                window.AUTHORS_DATA = data;
-                window.dispatchEvent(new Event('authorsLoaded'));
+        window.AUTHORS_DATA = [];
+        const ctrl = new AbortController();
+        const timer = setTimeout(() => ctrl.abort(), 5000);
+        fetch(CONFIG.AUTHOR_API + '?t=' + Date.now(), { signal: ctrl.signal })
+            .then(res => {
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                return res.json();
             })
-            .catch(err => console.warn('获取外部作者列表失败:', err));
+            .then(data => {
+                window.AUTHORS_DATA = Array.isArray(data) ? data : (data && Array.isArray(data.authors) ? data.authors : []);
+            })
+            .catch(err => {
+                console.warn('[read] 作者总表不可用，已降级:', err.message);
+                window.AUTHORS_DATA = [];
+            })
+            .then(() => {
+                clearTimeout(timer);
+                window.dispatchEvent(new Event('authorsLoaded'));
+            });
     }
+
+    // 统一的 JSON 读取工具：超时 + 状态校验，失败抛错交给调用方降级
+    window.readFetchJson = function (url, timeout) {
+        const ctrl = new AbortController();
+        const timer = setTimeout(() => ctrl.abort(), timeout || 8000);
+        return fetch(url, { signal: ctrl.signal })
+            .then(res => {
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                return res.json();
+            })
+            .finally(() => clearTimeout(timer));
+    };
 
     // ==================== 5. UI 动态注入 ====================
     function injectFooter() {
