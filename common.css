@@ -92,6 +92,55 @@ html.dark-mode ::-webkit-scrollbar-thumb { background: #475569; }
 }
 .common-footer a:hover { color: var(--primary); }
 
+/* 5.5 通用按钮：原仅 other.css 定义，未引入该文件的页面会退化成裸链接 */
+.rd-btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    padding: 8px 16px; border: 1px solid var(--border-color); border-radius: 999px;
+    background: transparent; color: var(--text-main);
+    font-family: inherit; font-size: .86rem; font-weight: 600;
+    text-decoration: none; cursor: pointer; white-space: nowrap;
+    transition: color .2s, border-color .2s, background .2s, transform .2s;
+}
+.rd-btn:hover { color: var(--primary); border-color: var(--primary); background: var(--bg-card); }
+.rd-btn.primary { background: var(--primary); border-color: var(--primary); color: #fff; }
+.rd-btn.primary:hover { color: #fff; opacity: .9; }
+.rd-btn:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+.ll-reduced-motion .rd-btn { transition: none; }
+
+/* 5.6 登录态顶栏：头像 + 按钮化的作者入口，邮箱收进菜单 */
+.auth-user { position: relative; display: inline-flex; align-items: center; gap: 8px; }
+.auth-avatar {
+    width: 34px; height: 34px; flex: 0 0 34px; border-radius: 50%;
+    border: 1px solid var(--border-color); background: var(--bg-card);
+    color: var(--text-main); font-size: 1.05rem; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: var(--shadow-sm);
+}
+.auth-avatar:hover { border-color: var(--primary); }
+.auth-avatar:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+.auth-dash { padding: 6px 13px; font-size: .78rem; }
+.auth-menu {
+    position: absolute; top: calc(100% + 10px); right: 0; width: 230px; z-index: 13000;
+    padding: 12px; border-radius: 14px;
+    background: var(--bg-card); border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-md);
+}
+.auth-menu[hidden] { display: none !important; }
+.auth-menu-head { display: flex; align-items: center; gap: 9px; padding: 2px 2px 12px; border-bottom: 1px solid var(--border-color); margin-bottom: 10px; }
+.auth-initial {
+    width: 30px; height: 30px; flex: 0 0 30px; border-radius: 50%;
+    background: var(--primary); color: #fff; font-weight: 700; font-size: .85rem;
+    display: flex; align-items: center; justify-content: center;
+}
+.auth-mail { font-size: .78rem; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.auth-menu .rd-btn { width: 100%; font-size: .8rem; }
+
+@media (max-width: 768px) {
+    .auth-avatar { width: 30px; height: 30px; flex-basis: 30px; font-size: .95rem; }
+    .auth-dash { padding: 5px 8px; font-size: .72rem; }
+    .auth-menu { right: -8px; width: min(230px, calc(100vw - 24px)); }
+}
+
 /* 6. 悬浮工具 (回顶部、反馈) */
 .common-float-tools {
     position: fixed;

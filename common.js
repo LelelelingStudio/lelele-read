@@ -9,7 +9,7 @@
     const CONFIG = {
         SITE_URL: 'https://read.leleleling.site',
         AUTHOR_API: 'https://authors.surge.sh/lelelereadauthor.json',
-        FEEDBACK_URL: 'https://tally.so/forms/pedeGV',
+        FEEDBACK_URL: 'https://tally.so/r/pedeGV',
         DEFAULT_LANG: 'zh'
     };
 
@@ -211,11 +211,9 @@
         
         btnTop.onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
         btnFeedback.onclick = () => {
-            if (window.Tally && typeof window.Tally.openPopup === 'function') {
-                window.Tally.openPopup('pedeGV');
-            } else {
-                window.open(CONFIG.FEEDBACK_URL, '_blank', 'noopener');
-            }
+            if (window.leleleOpenFeedback) return window.leleleOpenFeedback();
+            if (window.Tally && typeof window.Tally.openPopup === 'function') return window.Tally.openPopup('pedeGV');
+            window.open(CONFIG.FEEDBACK_URL, '_blank', 'noopener');
         };
 
         updateFloatToolsLang();
@@ -227,6 +225,9 @@
         const topBtn = document.getElementById('commonBtnTop');
         if (fbBtn) fbBtn.setAttribute('data-tooltip', lang === 'en' ? 'Feedback' : '意见反馈');
         if (topBtn) topBtn.setAttribute('data-tooltip', lang === 'en' ? 'Back to Top' : '回到顶部');
+        document.querySelectorAll('[data-ph-zh]').forEach(input => {
+            input.setAttribute('placeholder', lang === 'en' ? (input.dataset.phEn || input.dataset.phZh) : input.dataset.phZh);
+        });
     }
 
     // ==================== 6. 滑动提示浮窗 ====================

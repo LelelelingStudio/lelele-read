@@ -95,7 +95,7 @@
                 <p class="read-hint">${esc(t('身份：', 'Role: ') + (profile.is_author ? t('作者', 'Author') : t('读者（在「个人资料」一键升级）', 'Reader (upgrade in Profile)')) + (profile.author_id ? ' · ' + t('作者 ID：', 'Author ID: ') + profile.author_id : ''))}</p>
                 <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px">
                     <a class="rd-btn primary" href="reader.html">${esc(t('打开读书器', 'Open the reader'))}</a>
-                    <a class="rd-btn" href="#" onclick="if(window.Tally)Tally.openPopup('pedeGV');else location.href='https://tally.so/forms/pedeGV';return false;">${esc(t('意见反馈', 'Feedback'))}</a>
+                    <a class="rd-btn" href="#" onclick="if(window.leleleOpenFeedback){leleleOpenFeedback();}else{window.open('https://tally.so/r/pedeGV','_blank','noopener');}return false;">${esc(t('意见反馈', 'Feedback'))}</a>
                 </div>
             </section>`;
         }

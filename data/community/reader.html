@@ -36,7 +36,8 @@
                 </a>
             </div>
             <div class="reader-search-box">
-                <input type="text" id="readerSearchInput" class="reader-search-input" placeholder="搜索章节...">
+                <input type="text" id="readerSearchInput" class="reader-search-input" placeholder="搜索章节..." data-ph-zh="搜索章节..." data-ph-en="Search chapters...">
+                <div class="reader-lang-note"><span class="zh-inline">界面语言与书籍正文语言相互独立；站内书正文为中文原文。</span><span class="en-inline">Interface language is separate from the book text: site books are in the Chinese original.</span></div>
             </div>
             <div class="reader-list" id="readerSidebarList"></div>
         </div>
@@ -64,19 +65,19 @@
     </div>
 
     <div class="reader-draggable" id="floatTheme" style="right:20px;bottom:80px;">
-        <button onclick="toggleTheme()">🌙</button>
-        <button onclick="Reader.setColorTheme('sepia')">🎨</button>
+        <button onclick="toggleTheme()" title="明暗主题 / Dark mode" aria-label="明暗主题 / Dark mode">🌙</button>
+        <button onclick="Reader.setColorTheme('sepia')" title="主题配色 / Theme color" aria-label="主题配色 / Theme color">🎨</button>
     </div>
     <div class="reader-draggable" id="floatFont" style="right:20px;bottom:140px;">
-        <button onclick="Reader.setFontSize(parseInt(localStorage.getItem('lelele_read_fontSize')||17) - 1)">A−</button>
-        <button onclick="Reader.setFontSize(parseInt(localStorage.getItem('lelele_read_fontSize')||17) + 1)">A+</button>
+        <button onclick="Reader.setFontSize(parseInt(localStorage.getItem('lelele_read_fontSize')||17) - 1)" title="缩小字号 / Smaller text" aria-label="缩小字号 / Smaller text">A−</button>
+        <button onclick="Reader.setFontSize(parseInt(localStorage.getItem('lelele_read_fontSize')||17) + 1)" title="放大字号 / Larger text" aria-label="放大字号 / Larger text">A+</button>
     </div>
     <div class="reader-draggable" id="floatTools" style="right:20px;bottom:200px;">
-        <button onclick="document.getElementById('readerNotesPanel').classList.add('open')">📝</button>
-        <button onclick="Reader.toggleLayout()">🖐️</button>
-        <button onclick="Reader.importBook()">📥</button>
-        <button onclick="Reader.exportBook('epub')" title="EPUB">📚</button>
-        <button onclick="Reader.exportBook('txt')" title="TXT">📤</button>
+        <button onclick="document.getElementById('readerNotesPanel').classList.add('open')" title="我的笔记 / My notes" aria-label="我的笔记 / My notes">📝</button>
+        <button onclick="Reader.toggleLayout()" title="调整布局 / Adjust layout" aria-label="调整布局 / Adjust layout">🖐️</button>
+        <button onclick="Reader.importBook()" title="导入 EPUB / Import EPUB" aria-label="导入 EPUB / Import EPUB">📥</button>
+        <button onclick="Reader.exportBook('epub')" title="导出 EPUB / Export EPUB" aria-label="导出 EPUB / Export EPUB">📚</button>
+        <button onclick="Reader.exportBook('txt')" title="导出 TXT / Export TXT" aria-label="导出 TXT / Export TXT">📤</button>
     </div>
 
     <script>

@@ -1,0 +1,29 @@
+[
+  {
+    "id": "20261105-read-90-features",
+    "title_zh": "📚 阅读体验全面升级：90 项新功能上线",
+    "title_en": "📚 A Better Reading Experience: 90 New Features",
+    "content_zh": "这次一口气补齐了阅读、笔记、书架、写作台与社区的一批能力：\n\n🔍 阅读器支持书内全文搜索、多色划线、朗读听书、护眼主题与引用卡片。\n📊 首页新增阅读热度榜、日历热力图与成就勋章。\n✍️ 写作台升级为多草稿、分卷章节树、版本快照与回收站。\n⌨️ 按 Ctrl/⌘+K 可打开命令面板，按 ? 查看全部快捷键。\n\n所有数据仍只保存在你自己的浏览器里，可在「关于」页导出备份。",
+    "content_en": "A large batch of improvements is here for reading, notes, bookshelf, writing desk and community pages:\n\n🔍 In-book search, multi-color highlights, read-aloud, eye-care themes and quote cards.\n📊 A reading leaderboard, calendar heatmap and achievement badges on the homepage.\n✍️ Writing desk now supports multiple drafts, volume trees, version snapshots and a recycle bin.\n⌨️ Press Ctrl/⌘+K for the command palette and ? for all shortcuts.\n\nAll data still stays in your own browser; export a backup from the About page.",
+    "publishDate": "2026-11-05",
+    "expireDate": "2026-12-31"
+  },
+  {
+    "id": "20261105-winter-theme",
+    "title_zh": "❄️ 冬季限定飘雪主题已开启",
+    "title_en": "❄️ Winter Snow Theme Is Live",
+    "content_zh": "初雪落下了。全站加入轻柔的飘雪效果，首页还有雪景背景与角落里的小雪人、圣诞树。\n\n如果你更习惯安静的页面，可以点左下角的 ❄️ 按钮随时关闭；开启「减少动态效果」的系统设置时，飘雪也会自动停用。",
+    "content_en": "The first snow has arrived. Gentle snowfall now drifts across the site, with a snowy backdrop and little snowman / tree decorations on the homepage.\n\nPrefer a quieter page? Use the ❄️ button at the bottom left to turn it off any time; snowfall is also disabled automatically when your system asks for reduced motion.",
+    "publishDate": "2026-11-04",
+    "expireDate": "2026-12-31"
+  },
+  {
+    "id": "20261105-announcement-system",
+    "title_zh": "📢 公告系统上线",
+    "title_en": "📢 Announcements Are Here",
+    "content_zh": "最新公告每天只会在你第一次访问时弹出一次，不会反复打扰。\n\n想回看时，首页顶栏的「查看公告」按钮会打开完整公告列表，中英双语随时切换。",
+    "content_en": "The newest announcement appears only once per day, on your first visit — no repeated interruptions.\n\nTo revisit them, use the \"Announcements\" button in the homepage header to open the full bilingual list.",
+    "publishDate": "2026-11-03",
+    "expireDate": "2026-12-31"
+  }
+]

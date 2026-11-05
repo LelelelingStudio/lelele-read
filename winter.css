@@ -1,0 +1,73 @@
+/* ============================================================
+   winter.css — 了了了读冬季限定（图片资源复制自「了了了游」并改名）
+   全站飘雪；雪景背景与角落装饰只在首页加载，避免拖慢其它页面。
+   ============================================================ */
+.ll-winter-layer {
+    position: fixed; inset: 0; z-index: 9997;
+    pointer-events: none; overflow: hidden;
+}
+.ll-snowflake {
+    position: absolute; top: -6vh; line-height: 1;
+    color: #fff; text-shadow: 0 0 7px rgba(255, 255, 255, .9);
+    user-select: none; will-change: transform;
+    animation: llSnowFall linear infinite;
+}
+@keyframes llSnowFall {
+    0%   { transform: translate3d(0, -8vh, 0) rotate(0deg); opacity: 0; }
+    10%  { opacity: .85; }
+    90%  { opacity: .55; }
+    100% { transform: translate3d(var(--drift, 36px), 112vh, 0) rotate(360deg); opacity: 0; }
+}
+
+/* 雪景背景：只在首页，低透明度保证正文可读 */
+.ll-winter-bg {
+    position: fixed; inset: 0; z-index: -1; pointer-events: none;
+    background: url('winter-bg-read.png') center top / cover no-repeat;
+    opacity: .13;
+}
+html.dark-mode .ll-winter-bg { opacity: .09; }
+
+/* 左右下角雪人与圣诞树（纯装饰，不拦截点击） */
+.ll-winter-corner {
+    position: fixed; bottom: -4px; z-index: 1; pointer-events: none;
+    width: min(132px, 15vw); height: min(150px, 17vw);
+    background-repeat: no-repeat; background-position: bottom center; background-size: contain;
+    opacity: .72;
+}
+.ll-winter-corner.left  { left: 6px;  background-image: url('winter-snowman-read.png'); }
+.ll-winter-corner.right { right: 6px; background-image: url('winter-tree-read.png'); }
+
+/* 冬季横幅图用作弹窗/卡片底纹，不额外占用首屏高度 */
+.ll-winter-banner-bg {
+    background-image: linear-gradient(180deg, rgba(255, 255, 255, .06), rgba(255, 255, 255, .02)),
+                      url('winter-banner-read.png');
+    background-size: cover; background-position: center;
+}
+html.dark-mode .ll-winter-banner-bg {
+    background-image: linear-gradient(180deg, rgba(15, 23, 42, .72), rgba(15, 23, 42, .88)),
+                      url('winter-banner-read.png');
+}
+/* 冬季 Logo 资源（winter-logo-read.png）留作主题换标备用 */
+.ll-winter-logo { background: url('winter-logo-read.png') center / contain no-repeat; }
+
+/* 开关按钮 */
+.ll-winter-toggle {
+    position: fixed; left: 14px; bottom: 14px; z-index: 9001;
+    width: 34px; height: 34px; border-radius: 50%;
+    border: 1px solid var(--border-color); background: var(--bg-card);
+    color: var(--text-main); cursor: pointer; font-size: .95rem;
+    box-shadow: var(--shadow-sm); opacity: .55;
+}
+.ll-winter-toggle:hover { opacity: 1; }
+
+/* 减少动画：完全停用飘雪 */
+.ll-reduced-motion .ll-snowflake,
+html[data-winter="off"] .ll-winter-layer,
+html[data-winter="off"] .ll-winter-bg,
+html[data-winter="off"] .ll-winter-corner { display: none !important; }
+
+@media (max-width: 768px) {
+    .ll-winter-corner { display: none; }
+    .ll-winter-toggle { bottom: 10px; left: 10px; width: 30px; height: 30px; }
+    .ll-snowflake { font-size: .7em !important; }
+}

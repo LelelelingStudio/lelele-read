@@ -1,0 +1,108 @@
+/* ============================================================
+   notice.css — 公告系统 + 了了了游同款双栏「更新日志 / 公告列表」
+   ============================================================ */
+.nt-btn {
+    border: 1px solid var(--border-color); background: transparent;
+    color: var(--text-muted); border-radius: 999px;
+    padding: 7px 13px; font-size: .82rem; font-weight: 600;
+    font-family: inherit; cursor: pointer; white-space: nowrap;
+    transition: color .2s, border-color .2s, background .2s;
+}
+.nt-btn:hover { color: var(--primary); border-color: var(--primary); background: var(--bg-card); }
+.nt-btn:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+.nt-btn .nt-dot {
+    display: inline-block; width: 7px; height: 7px; margin-left: 5px;
+    border-radius: 50%; background: #e05252; vertical-align: middle;
+}
+
+/* 每日一次的最新公告弹窗 */
+.nt-daily[hidden], .nt-list[hidden] { display: none !important; }
+.nt-daily .ll-panel, .nt-list .ll-panel { border: 1px solid var(--border-color); }
+.nt-daily .ll-panel { max-width: 520px; }
+.nt-hero {
+    border-radius: 14px; padding: 18px 20px; margin-bottom: 14px;
+    color: var(--text-main);
+}
+.nt-hero h3 { margin: 0 0 6px; font-size: 1.05rem; line-height: 1.5; }
+.nt-hero time { font-size: .75rem; color: var(--text-muted); }
+.nt-body {
+    font-size: .87rem; line-height: 1.85; color: var(--text-main);
+    white-space: normal; word-break: break-word;
+    max-height: 46vh; overflow-y: auto;
+}
+.nt-foot { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; margin-top: 16px; }
+
+/* 公告列表：左列表 + 右详情（与了了了游「查看更多」一致） */
+.changelog-box, .nt-box {
+    display: flex; height: 400px; overflow: hidden;
+    border: 1px solid var(--border-color); border-radius: 16px;
+    background: var(--bg-card);
+}
+.changelog-sidebar, .nt-sidebar {
+    width: 220px; flex: 0 0 220px; overflow-y: auto;
+    background: rgba(148, 163, 184, .06);
+    border-right: 1px solid var(--border-color);
+}
+.changelog-item, .nt-item {
+    padding: 14px 16px; cursor: pointer;
+    border-left: 3px solid transparent; border-bottom: 1px solid var(--border-color);
+    display: flex; flex-direction: column; gap: 4px;
+    transition: background .2s;
+}
+.changelog-item:hover, .nt-item:hover { background: rgba(148, 163, 184, .12); }
+.changelog-item.active, .nt-item.active {
+    background: var(--bg-card); border-left-color: var(--primary);
+}
+.version-tag, .nt-item-title {
+    font-weight: 700; color: var(--text-main); font-size: .85rem; line-height: 1.5;
+}
+.changelog-item.active .version-tag, .nt-item.active .nt-item-title { color: var(--primary); }
+.version-date, .nt-item-date { font-size: .72rem; color: var(--text-muted); }
+.changelog-content, .nt-content {
+    flex: 1; min-width: 0; padding: 24px; overflow-y: auto;
+}
+.changelog-content h4, .nt-content h4 {
+    margin: 0 0 14px; font-size: 1.12rem; color: var(--text-main);
+}
+.changelog-content h4 span.date, .nt-content h4 span.date {
+    font-size: .8rem; color: var(--text-muted); font-weight: 500; margin-left: 8px;
+}
+.changelog-text, .nt-text {
+    font-size: .88rem; line-height: 1.9; color: var(--text-main); white-space: pre-wrap;
+}
+.changelog-loading, .nt-loading {
+    padding: 30px 16px; text-align: center; color: var(--text-muted); font-size: .84rem;
+}
+
+/* 通用弹窗头部/底部按钮 */
+.nt-panel-head, .nt-panel-foot {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+}
+.nt-panel-head h3 { margin: 0; font-size: 1rem; }
+.nt-x {
+    border: 0; background: transparent; color: var(--text-muted);
+    font-size: 1.4rem; line-height: 1; cursor: pointer; padding: 0 4px;
+}
+.nt-x:hover { color: var(--primary); }
+
+/* 反馈内嵌弹窗（全站共用） */
+.ll-feedback-modal[hidden] { display: none !important; }
+.ll-feedback-panel { max-width: 680px; width: min(680px, 100%); }
+.ll-feedback-panel .ll-panel-body { padding: 0; }
+.ll-feedback-panel iframe { display: block; width: 100%; height: min(68vh, 620px); border: 0; background: var(--bg-card); }
+.ll-feedback-panel .ll-row { justify-content: flex-end; padding: 10px 16px 14px; }
+
+@media (max-width: 768px) {
+    .changelog-box, .nt-box { flex-direction: column; height: 460px; }
+    .changelog-sidebar, .nt-sidebar {
+        width: 100%; flex: 0 0 108px; height: 108px;
+        border-right: 0; border-bottom: 1px solid var(--border-color);
+        display: flex; overflow-x: auto; overflow-y: hidden;
+    }
+    .changelog-item, .nt-item {
+        flex: 0 0 170px; border-left: 0; border-bottom: 3px solid transparent;
+        border-right: 1px solid var(--border-color);
+    }
+    .changelog-item.active, .nt-item.active { border-left-color: transparent; border-bottom-color: var(--primary); }
+    .changelog-content, .nt-content { padding: 16px; }
+}

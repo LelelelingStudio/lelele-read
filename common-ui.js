@@ -434,19 +434,40 @@
         } catch (e) { warn('lazy', e); }
     }
 
-    /* 顶栏统一反馈入口（阅读器已有自己的悬浮工具，跳过） */
+    /* 反馈：统一内嵌弹窗（不依赖 Tally SDK），另附正确地址的新页面入口 */
+    var FEEDBACK_PAGE = 'https://tally.so/r/pedeGV';
+    function openFeedback() {
+        var lay = el('leleleFeedbackModal');
+        if (!lay) {
+            lay = make('div', 'll-overlay ll-feedback-modal');
+            lay.id = 'leleleFeedbackModal';
+            lay.innerHTML = '<div class="ll-panel ll-feedback-panel">' +
+                '<div class="ll-panel-head"><h3>' + t('意见反馈 · Feedback', 'Feedback') + '</h3>' +
+                '<button type="button" class="ll-x" data-fb-close aria-label="Close">×</button></div>' +
+                '<div class="ll-panel-body">' +
+                '<iframe src="https://tally.so/embed/pedeGV?transparentBackground=1&dynamicHeight=1" ' +
+                'title="Feedback" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>' +
+                '<div class="ll-row"><a class="rd-btn" href="' + FEEDBACK_PAGE + '" target="_blank" rel="noopener">' +
+                t('在新页面打开', 'Open in a new tab') + '</a></div></div></div>';
+            doc.body.appendChild(lay);
+            lay.addEventListener('click', function (e) {
+                if (e.target === lay || (e.target.closest && e.target.closest('[data-fb-close]'))) lay.hidden = true;
+            });
+        }
+        lay.hidden = false;
+    }
+    win.leleleOpenFeedback = openFeedback;
+
+    /* 全站只保留一个反馈入口：common.js 的 💬 优先，其余页面才补一个 */
     function initFeedback() {
-        if (el('readerApp')) return;
+        if (el('commonBtnFeedback') || el('readerApp')) return;
         if (Store.get('hide_feedback', false) === true) return;
         var b = make('button', 'll-feedback');
         b.type = 'button';
         b.title = t('意见反馈', 'Feedback');
         b.setAttribute('aria-label', t('意见反馈', 'Feedback'));
         b.innerHTML = '<span class="zh-inline">反馈</span><span class="en-inline">Feedback</span>';
-        b.addEventListener('click', function () {
-            if (win.Tally && win.Tally.openPopup) win.Tally.openPopup('pedeGV');
-            else win.open('https://tally.so/forms/pedeGV', '_blank', 'noopener');
-        });
+        b.addEventListener('click', openFeedback);
         doc.body.appendChild(b);
     }
 
@@ -468,10 +489,7 @@
             { id: 'community', zh: '共创书库', en: 'Community library', icon: '❖', keywords: 'community', run: function () { location.href = (isSubPage ? './' : 'data/community/') + 'index.html'; } },
             { id: 'dashboard', zh: '作者面板', en: 'Author dashboard', icon: '◈', keywords: 'author dashboard', run: function () { location.href = BASE + 'dashboard.html'; } },
             { id: 'about', zh: '关于与更新日志', en: 'About & changelog', icon: 'ⓘ', keywords: 'version changelog', run: function () { location.href = BASE + 'about.html'; } },
-            { id: 'feedback', zh: '意见反馈', en: 'Send feedback', icon: '✉', keywords: 'tally feedback', run: function () {
-                if (win.Tally && win.Tally.openPopup) win.Tally.openPopup('pedeGV');
-                else win.open('https://tally.so/forms/pedeGV', '_blank', 'noopener');
-            } }
+            { id: 'feedback', zh: '意见反馈', en: 'Send feedback', icon: '✉', keywords: 'tally feedback', run: function () { openFeedback(); } }
         ].forEach(UI.registerCommand);
     }
 
@@ -510,6 +528,28 @@
         }, 0);
     }
 
+    /* 冬季特效与公告：统一在这里注入，避免 14 个页面逐个加标签；
+       data/community/ 子页需要回到站点根目录。加载失败静默，不影响主流程。 */
+    function injectSiteAssets() {
+        var base = /\/data\/community\//.test(location.pathname) ? '../../' : '';
+        ['winter.css', 'notice.css'].forEach(function (f) {
+            if (doc.querySelector('link[href$="' + f + '"]')) return;   /* 页面已静态引入则跳过 */
+            var link = doc.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = base + f;
+            doc.head.appendChild(link);
+        });
+        ['winter.js', 'notice.js'].forEach(function (f) {
+            if (doc.querySelector('script[src$="' + f + '"]')) return;
+            var s = doc.createElement('script');
+            s.src = base + f;
+            s.async = false;
+            s.onerror = function () { };
+            doc.head.appendChild(s);
+        });
+        win.Lelele.assets = { base: base };
+    }
+
     /* 初始化 */
     function init() {
         initSystemTheme();
@@ -519,6 +559,7 @@
         registerBuiltins();
         initKeys();
         initAnalytics();
+        injectSiteAssets();
         Bus.emit('ready', { version: VERSION });
     }
     if (doc.readyState === 'loading') doc.addEventListener('DOMContentLoaded', init);

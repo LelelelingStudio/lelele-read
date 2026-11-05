@@ -169,6 +169,7 @@
         function resolveAuthor(book, lang) {
             const a = book.author;
             if (a === 'luxun') return lang === 'en' ? 'Lu Xun' : '鲁迅';
+            if (a === '佚名' || a === 'Anonymous') return lang === 'en' ? 'Anonymous' : '佚名';
             if (typeof a === 'number' || /^\d+$/.test(String(a))) {
                 const found = (window.AUTHORS_DATA || []).find(x => String(x.id) === String(a));
                 if (found) return lang === 'en' ? (found.name_en || found.name_zh) : (found.name_zh || found.name_en);

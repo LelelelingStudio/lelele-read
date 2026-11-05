@@ -1,0 +1,83 @@
+/* ============================================================
+   home-nav.css — 首页目录导航 + 紧凑排行榜 + 通用视觉补齐
+   ============================================================ */
+.hn-btn {
+    border: 1px solid var(--border-color); background: transparent;
+    color: var(--text-muted); border-radius: 999px;
+    padding: 7px 13px; font-size: .82rem; font-weight: 600;
+    font-family: inherit; cursor: pointer; white-space: nowrap;
+    transition: color .2s, border-color .2s, background .2s;
+}
+.hn-btn:hover, .hn-btn.active { color: var(--primary); border-color: var(--primary); background: var(--bg-card); }
+.hn-btn:focus-visible, .hn-item:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+.hn-panel {
+    position: fixed; top: 64px; right: 18px; width: 252px; z-index: 12500;
+    padding: 12px; border-radius: 16px;
+    background: var(--bg-card); border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-md);
+}
+.hn-panel[hidden] { display: none !important; }
+.hn-title { font-size: .72rem; font-weight: 700; color: var(--text-muted); letter-spacing: .08em; padding: 4px 8px 8px; }
+.hn-item {
+    display: flex; align-items: center; gap: 10px; width: 100%;
+    padding: 9px 10px; border: 0; border-radius: 10px;
+    background: transparent; color: var(--text-main);
+    font-family: inherit; font-size: .84rem; text-align: left; cursor: pointer;
+}
+.hn-item:hover, .hn-item.active { background: var(--bg-page); color: var(--primary); }
+.hn-item .hn-ico { font-size: 1rem; width: 20px; text-align: center; }
+.hn-item .hn-sub { margin-left: auto; font-size: .68rem; color: var(--text-muted); }
+.hn-reset {
+    width: 100%; margin-top: 8px; padding: 8px; border-radius: 10px;
+    border: 1px dashed var(--border-color); background: transparent;
+    color: var(--text-muted); font-family: inherit; font-size: .76rem; cursor: pointer;
+}
+.hn-reset:hover { color: var(--primary); border-color: var(--primary); }
+.hn-section[hidden] { display: none !important; }
+.hn-flash { animation: hnFlash 1.2s ease; }
+@keyframes hnFlash { 0%, 100% { box-shadow: var(--shadow-sm); } 50% { box-shadow: 0 0 0 2px var(--primary); } }
+.ll-reduced-motion .hn-flash { animation: none; }
+
+/* ---------- 紧凑排行榜：只占首屏一小条 ---------- */
+.rank-showcase { margin: 0 0 16px; padding: 13px 16px 11px; border-radius: 16px; }
+.rank-header { margin-bottom: 9px; }
+.rank-header h3 { font-size: .96rem; }
+.rank-subtitle { font-size: .72rem; }
+.rank-more-btn { padding: 6px 13px; font-size: .78rem; }
+.rank-grid { gap: 9px; flex-wrap: nowrap; }
+.rank-card {
+    flex-direction: row; align-items: center; gap: 9px;
+    padding: 9px 11px; border-radius: 12px; min-height: 0;
+}
+.rank-card.rank-1, .rank-card.rank-2, .rank-card.rank-3 { min-height: 0; }
+.rank-card-header { flex: 0 0 auto; }
+.rank-medal { font-size: 1.15rem; }
+.rank-card.rank-1 .rank-medal { font-size: 1.3rem; }
+.rank-tag { display: none; }
+.rank-main { flex: 1 1 auto; min-width: 0; margin: 0; gap: 8px; }
+.rank-icon { width: 32px; height: 32px; flex: 0 0 32px; border-radius: 9px; font-size: 1.1rem; }
+.rank-name { font-size: .84rem; -webkit-line-clamp: 1; }
+.rank-card.rank-1 .rank-name { font-size: .88rem; }
+.rank-meta { flex: 0 0 auto; gap: 6px; }
+.rank-count { font-size: .78rem; }
+.rank-count small { font-size: .68rem; }
+.rank-link { display: none; }
+.rank-source { margin-top: 7px; font-size: .68rem; }
+
+@media (max-width: 900px) {
+    .rank-grid { flex-wrap: wrap; }
+    .rank-card { flex: 1 1 210px; }
+}
+@media (max-width: 768px) {
+    .hn-btn span { display: none; }
+    .hn-btn { padding: 7px 10px; }
+    .hn-panel {
+        top: auto; bottom: 0; left: 0; right: 0; width: 100%;
+        border-radius: 18px 18px 0 0; padding: 14px 14px 22px;
+        max-height: 70vh; overflow-y: auto;
+    }
+    .rank-grid { flex-direction: column; gap: 6px; }
+    .rank-card { padding: 7px 10px; }
+    .rank-icon { width: 28px; height: 28px; flex-basis: 28px; }
+}

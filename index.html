@@ -8,10 +8,12 @@
     <link rel="stylesheet" href="common.css">
     <link rel="stylesheet" href="common-ui.css">
     <link rel="stylesheet" href="rank-plus.css">
+    <link rel="stylesheet" href="home-nav.css">
     <script src="common.js"></script>
     <script src="common-ui.js"></script>
     <script src="shelf-plus.js"></script>
     <script src="rank-plus.js"></script>
+    <script src="home-nav.js"></script>
     <script src="supabase-js.min.js"></script>
     <script defer src="user-api.js"></script>
     <script defer src="user-auth.js"></script>
@@ -238,8 +240,10 @@
             .top-bar { padding: 10px 12px; flex-wrap: wrap; gap: 8px; }
             .search-wrapper { order: 3; flex: 0 0 100%; max-width: 100%; width: 100%; margin-top: 0; }
             .site-title span { display: none; }
-            .right-actions { flex-wrap: nowrap; gap: 5px; }
-            .right-actions .action-btn { padding: 6px 10px; font-size: .8rem; white-space: nowrap; }
+            .right-actions { flex-wrap: wrap; gap: 5px; min-width: 0; max-width: 100%; justify-content: flex-end; }
+            .right-actions .action-btn { padding: 6px 8px; font-size: .74rem; white-space: nowrap; }
+            .nt-btn, .hn-btn { padding: 5px 9px; font-size: .72rem; }
+            .nt-btn .zh-inline, .nt-btn .en-inline, .hn-btn .zh-inline, .hn-btn .en-inline { display: none !important; }
             .right-actions a[href="data/community/index.html"],
             .right-actions a[href="about.html"] { display: none; }
             .categories { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; -webkit-overflow-scrolling: touch; }

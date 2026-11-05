@@ -29,8 +29,8 @@
 
     <main class="auth-wrap">
         <div class="auth-card">
-            <h1><span class="zh-inline">欢迎回来</span><span class="en-inline">Welcome back</span></h1>
-            <p class="sub"><span class="zh-inline">登录后可管理资料、作品与共创投稿。账号由独立后端（Supabase）保管。</span><span class="en-inline">Sign in to manage your profile, works and submissions. Accounts are stored on the dedicated Supabase backend.</span></p>
+            <h1 id="authTitle"><span class="zh-inline">欢迎回来</span><span class="en-inline">Welcome back</span></h1>
+            <p class="sub" id="authIntro"><span class="zh-inline">登录后可管理资料、作品与共创投稿。账号由独立后端（Supabase）保管。</span><span class="en-inline">Sign in to manage your profile, works and submissions. Accounts are stored on the dedicated Supabase backend.</span></p>
 
             <div class="auth-tabs">
                 <button class="active" data-mode="signin"><span class="zh-inline">登录</span><span class="en-inline">Sign in</span></button>
@@ -111,6 +111,12 @@
         function setMode(m) {
             mode = m;
             otpType = null;
+            $('authTitle').innerHTML = m === 'signup'
+                ? '<span class="zh-inline">创建账号</span><span class="en-inline">Create your account</span>'
+                : '<span class="zh-inline">欢迎回来</span><span class="en-inline">Welcome back</span>';
+            $('authIntro').innerHTML = m === 'signup'
+                ? '<span class="zh-inline">创建账号后即可管理资料、作品与共创投稿。账号由独立后端（Supabase）保管。</span><span class="en-inline">Create an account to manage your profile, works and community submissions. Accounts are stored on the dedicated Supabase backend.</span>'
+                : '<span class="zh-inline">登录后可管理资料、作品与共创投稿。账号由独立后端（Supabase）保管。</span><span class="en-inline">Sign in to manage your profile, works and submissions. Accounts are stored on the dedicated Supabase backend.</span>';
             document.querySelectorAll('.auth-tabs button').forEach(b => b.classList.toggle('active', b.dataset.mode === m));
             $('nameField').style.display = m === 'signup' ? '' : 'none';
             $('authPassword').style.display = '';

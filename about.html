@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="common-ui.css">
     <link rel="stylesheet" href="other.css">
     <link rel="stylesheet" href="pages-plus.css">
+    <link rel="stylesheet" href="notice.css">
     <link rel="stylesheet" href="doc.css">
     
     <!-- 尽早引入公共脚本以应用主题和语言 -->
@@ -162,7 +163,12 @@
             </p>
             
             <!-- 更新日志容器（由 doc.js 渲染） -->
-            <div id="changelogContainer"></div>
+            <div class="changelog-box" id="changelogContainer">
+                <div class="changelog-sidebar" id="changelogList">
+                    <div class="changelog-loading">Loading...</div>
+                </div>
+                <div class="changelog-content" id="changelogDetail"></div>
+            </div>
 
             <h2>
                 <span class="zh-inline">联系我们</span>
@@ -185,7 +191,7 @@
     <!-- 页面专属脚本 -->
     <script>
         // 更新日志：中英双写，语言切换时重渲染（不使用 doc.js 里的默认 json）
-        const CHANGELOG_DATA = [
+        let CHANGELOG_DATA = [
             {
                 version: "v3.0.0",
                 date: "2026-11-05",
@@ -238,26 +244,56 @@
             }
         ];
 
+        // 与了了了游一致：左侧版本列表 + 右侧详情，选中项高亮
+        let activeVersionIndex = 0;
         function renderChangelog() {
-            const container = document.getElementById('changelogContainer');
-            if (!container) return;
+            const listBox = document.getElementById('changelogList');
+            const detail = document.getElementById('changelogDetail');
+            if (!listBox || !detail) return;
             const lang = window.getLang();
 
-            let html = '<div class="changelog-timeline">';
-            CHANGELOG_DATA.forEach(item => {
-                const list = lang === 'en' ? (item.changes_en || []) : (item.changes_zh || []);
-                html += `
-                    <div class="changelog-item">
-                        <div class="changelog-version">${window.escapeHtml(item.version)}</div>
-                        <div class="changelog-date">${window.escapeHtml(item.date)}</div>
-                        <ul class="changelog-list">
-                            ${list.map(c => `<li>${window.escapeHtml(c)}</li>`).join('')}
-                        </ul>
-                    </div>
-                `;
+            if (!CHANGELOG_DATA.length) {
+                listBox.innerHTML = '<div class="changelog-loading">暂无日志 / No entries</div>';
+                detail.innerHTML = '';
+                return;
+            }
+            if (activeVersionIndex >= CHANGELOG_DATA.length) activeVersionIndex = 0;
+            listBox.innerHTML = CHANGELOG_DATA.map((item, i) => `
+                <div class="changelog-item ${i === activeVersionIndex ? 'active' : ''}" data-version="${i}" role="button" tabindex="0">
+                    <span class="version-tag">${window.escapeHtml(item.version || '')}</span>
+                    <span class="version-date">${window.escapeHtml(item.date || '')}</span>
+                </div>`).join('');
+
+            const it = CHANGELOG_DATA[activeVersionIndex];
+            const raw = lang === 'en'
+                ? (it.content_en || (it.changes_en || []).join('\n'))
+                : (it.content_zh || (it.changes_zh || []).join('\n'));
+            detail.innerHTML = `
+                <h4>${window.escapeHtml(it.version || '')} <span class="date">${window.escapeHtml(it.date || '')}</span></h4>
+                <div class="changelog-text">${window.escapeHtml(raw || '暂无详细说明 / No details')}</div>`;
+
+            Array.prototype.forEach.call(listBox.querySelectorAll('[data-version]'), n => {
+                const pick = () => { activeVersionIndex = Number(n.dataset.version) || 0; renderChangelog(); };
+                n.onclick = pick;
+                n.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(); } };
             });
-            html += '</div>';
-            container.innerHTML = html;
+        }
+
+        // changelog.json 是权威数据；请求失败时保留内联双语数据兜底
+        function loadChangelogJson() {
+            const ctrl = typeof AbortController === 'function' ? new AbortController() : null;
+            const timer = setTimeout(() => { if (ctrl) ctrl.abort(); }, 6000);
+            fetch('changelog.json', { signal: ctrl ? ctrl.signal : undefined })
+                .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+                .then(data => {
+                    clearTimeout(timer);
+                    if (Array.isArray(data) && data.length) {
+                        CHANGELOG_DATA = data;
+                        activeVersionIndex = 0;
+                        renderChangelog();
+                    }
+                })
+                .catch(() => { clearTimeout(timer); });
         }
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -267,8 +303,9 @@
                 tocContainerId: 'tocContainer'
             });
 
-            // 渲染更新日志
+            // 渲染更新日志：内联数据先出内容，随后用 changelog.json 覆盖
             renderChangelog();
+            loadChangelogJson();
 
             // 监听语言切换，刷新日志和多语言显隐
             window.addEventListener('langChanged', () => {

@@ -119,10 +119,27 @@ html.dark-mode {
 }
 
 @media (max-width: 768px) {
-    .reader-topbar { padding: 8px 12px; gap: 8px; flex-wrap: wrap; }
+    .reader-topbar { padding: 6px 12px; gap: 8px; flex-wrap: wrap; min-height: 0; }
     .reader-topbar .brand span { display: none; }
-    .reader-topbar .book-name { order: 3; flex-basis: 100%; font-size: .82rem; }
+    .reader-topbar .book-name { order: 2; flex: 1; flex-basis: auto; font-size: .8rem; }
+    .reader-topbar .top-actions {
+        order: 3; flex: 0 0 100%; flex-wrap: nowrap; flex-basis: 100%;
+        overflow-x: auto; overflow-y: hidden; scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+    }
+    .reader-topbar .top-actions::-webkit-scrollbar { display: none; }
+    .reader-topbar .top-actions > * { flex: 0 0 auto; }
+    .reader-topbar .rd-btn { padding: 5px 9px; font-size: .76rem; white-space: nowrap; }
     .rd-btn { padding: 6px 10px; font-size: .8rem; }
     .epub-import { margin-top: 5vh; }
     .epub-dropzone { padding: 34px 16px; }
 }
+
+.reader-lang-note {
+    padding: 6px 8px 2px;
+    font-size: .72rem;
+    line-height: 1.45;
+    color: var(--read-text-secondary, #888);
+    opacity: .85;
+}
+html[data-lang="zh"] .reader-lang-note { display: none; }

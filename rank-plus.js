@@ -1,8 +1,7 @@
 /* ============================================================
    rank-plus.js — 了了了读 · 阅读热度排行榜
-   结构对齐 lelele-game/rank-loader.js（Top3 卡片 + 完整榜弹窗 + 双语 + 定时刷新），
-   域名与数据改为阅读站：优先 analytics 的 readcheck，失败回退本机阅读数据，
-   再兜底书库精选。全异步、不阻塞首屏，任何一步失败都静默降级。
+   结构对齐 lelele-game/rank-loader.js（Top3 卡片 + 完整榜弹窗 + 双语 + 定时刷新）。
+   数据支持远端全站榜 / 阅读记录 / 书库精选三级降级；全异步，失败静默。
    依赖：common.js → common-ui.js（window.Lelele）
    ============================================================ */
 (function () {
@@ -31,19 +30,42 @@
     var books = [], communityBooks = [], byId = {};
     var items = [], remoteItems = null, source = 'featured', remoteTried = false;
 
-    /* ---------------- 数据适配（与了了了游同构） ---------------- */
+    /* ---------------- ID 归一化与数据清洗 ---------------- */
+    function normId(id) {
+        id = String(id === null || id === undefined ? '' : id).trim();
+        if (id.indexOf('community_') === 0) id = id.slice(10);
+        return id;
+    }
+    function badId(id) { return !id || /^(empty|undefined|null|none|test|loading|0)$/i.test(id); }
+    function clean(list) {
+        var seen = {}, out = [], known = Object.keys(byId).length > 0;
+        (list || []).forEach(function (orig) {
+            var it = Object.assign({}, orig);          /* 不改动缓存数组，避免重复刷新时分数翻倍 */
+            var id = normId(it.id);
+            if (badId(id)) return;
+            if (known && !byId[id] && !(it.name_zh || it.name_en)) return;  /* 丢弃无书名的脏键 */
+            it.id = id;
+            var b = byId[id] || {};
+            if (!it.icon || it.icon === '📖') it.icon = b.icon || it.icon || '📖';
+            if (seen[id]) { seen[id].score += it.score; return; }            /* 同一本书合并 */
+            seen[id] = it;
+            out.push(it);
+        });
+        return out;
+    }
+
+    /* ---------------- 数据适配 ---------------- */
     function normalizePayload(p) {
         if (Array.isArray(p)) return p;
         if (!p || typeof p !== 'object') return [];
         var keys = ['data', 'result', 'list', 'books', 'items', 'records', 'rows', 'ranking', 'top', 'rankings'];
         for (var i = 0; i < keys.length; i++) if (Array.isArray(p[keys[i]])) return p[keys[i]];
-        var first = Object.keys(p).map(function (k) { return p[k]; }).filter(function (v) { return Array.isArray(v); })[0];
-        return first || [];
+        return Object.keys(p).map(function (k) { return p[k]; }).filter(function (v) { return Array.isArray(v); })[0] || [];
     }
     function pickName(it, lg) {
         var zh = it.title_zh || it.name_zh || it.book_zh || it.name || it.title || it.label || '';
         var en = it.title_en || it.name_en || it.book_en || it.title || it.name || it.label || zh;
-        return (lg === 'en' ? (en || zh) : (zh || en)) || it.id || '';
+        return (lg === 'en' ? (en || zh) : (zh || en)) || '';
     }
     function pickScore(it) {
         return num(it.score != null ? it.score : (it.value != null ? it.value :
@@ -60,7 +82,7 @@
     }
     function unify(raw) {
         return (raw || []).map(function (it) {
-            var id = pickId(it) || pickName(it, 'zh') || pickName(it, 'en');
+            var id = normId(pickId(it) || pickName(it, 'zh') || pickName(it, 'en'));
             var b = byId[id] || {};
             return {
                 id: id,
@@ -68,30 +90,30 @@
                 name_en: b.title_en || it.title_en || it.name_en || it.book_en || it.name || '',
                 name: pickName(it, 'zh') || pickName(it, 'en') || id,
                 score: pickScore(it),
-                icon: pickIcon(it) === '📖' ? (b.icon || '📖') : pickIcon(it),
+                icon: b.icon || (pickIcon(it) === '📖' ? '📖' : pickIcon(it)),
                 url: it.url || it.link || it.href || ''
             };
-        }).filter(function (x) { return x.id || x.name_zh || x.name_en || x.name; });
+        }).filter(function (x) { return !badId(x.id); });
     }
     function nameOf(it) {
-        /* 书目是异步加载的，渲染时再查一次，避免远端只给 id 时书名留空 */
         var lg = lang(), b = byId[it.id] || {};
         return (lg === 'en'
                 ? (b.title_en || it.name_en || b.title_zh || it.name_zh)
                 : (b.title_zh || it.name_zh || b.title_en || it.name_en))
             || it.name || it.id || '';
     }
+    function iconOf(it) { return (byId[it.id] && byId[it.id].icon) || it.icon || '📖'; }
     function hrefOf(it) { return it.url || bookHref(it.id); }
     function sortItems(list) {
-        return list.slice().sort(function (a, b) { return b.score - a.score || a.name.localeCompare(b.name); });
+        return list.slice().sort(function (a, b) { return b.score - a.score || String(a.name).localeCompare(String(b.name)); });
     }
 
-    /* ---------------- 本机阅读热度 ---------------- */
+    /* ---------------- 阅读热度聚合 ---------------- */
     function localRank() {
         var map = {};
         function touch(id) {
-            if (!id) return null;
-            id = String(id);
+            id = normId(id);
+            if (badId(id)) return null;
             if (!map[id]) map[id] = { id: id, score: 0, name: '' };
             return map[id];
         }
@@ -99,13 +121,13 @@
             var e = touch(r && r.id);
             if (!e) return;
             e.score += Math.max(1, 8 - i);
-            if (r && r.title) e.name = r.title;
+            if (r && r.title && !e.name) e.name = r.title;
         });
         arr('favorites').forEach(function (f) {
             var e = touch(f && f.id);
             if (!e) return;
             e.score += 10;
-            if (f && f.title) e.name = f.title;
+            if (f && f.title && !e.name) e.name = f.title;
         });
         try {
             Store.keys().forEach(function (k) {
@@ -132,16 +154,15 @@
             .filter(function (x) { return x.score > 0; });
     }
     function featured() {
-        var all = books.concat(communityBooks.map(function (b) { return Object.assign({ isCommunity: true }, b); }));
+        var all = books.concat(communityBooks).filter(function (b) { return b && b.id !== 'community'; });
         return all.slice().sort(function (a, b) { return (a.sort || 99) - (b.sort || 99); })
-            .slice(0, 12).map(function (b, i) {
-                return { id: b.id, score: 0, name: '', rank: i, icon: b.icon || '📖',
-                    url: b.isCommunity ? 'data/community/reader.html?id=' + encodeURIComponent(b.id) : bookHref(b.id) };
+            .slice(0, 12).map(function (b) {
+                return { id: b.id, score: 0, name: '', icon: b.icon || '📖', url: bookHref(b.id) };
             });
     }
     function localItems() {
         var raw = localRank();
-        if (raw.length) { source = 'local'; return unify(raw); }
+        if (raw.length) { source = 'ranked'; return unify(raw); }
         source = 'featured';
         return featured().map(function (x) {
             var b = byId[x.id] || {};
@@ -166,8 +187,6 @@
                 .catch(function (e) { clearTimeout(timer); reject(e); });
         });
     }
-    /* 全站榜默认关闭：analytics 未部署 readcheck 时，请求只会产生 404 与控制台报错。
-       部署端点后用 window.RANK_ENDPOINT，或命令面板「启用全站热度」打开即可。 */
     function remoteBase() {
         if (win.RANK_ENDPOINT) return String(win.RANK_ENDPOINT);
         return Store.get('rank_remote', false) === true ? REMOTE_BASE : '';
@@ -190,9 +209,7 @@
 
     /* ---------------- 渲染 ---------------- */
     function sourceLabel() {
-        if (source === 'global') return t('数据来源：全站阅读热度', 'Source: site-wide reading activity');
-        if (source === 'local') return t('数据来源：本机阅读记录（不会上传）', 'Source: your reading on this device (never uploaded)');
-        return t('暂无阅读记录，先为你推荐书库精选', 'No reading yet — here are library picks');
+        return t('按阅读热度排序 · 自动更新', 'Sorted by reading popularity · auto-updated');
     }
     function renderTop() {
         if (!topRoot) return;
@@ -204,11 +221,11 @@
         topRoot.innerHTML = top.map(function (it, i) {
             var rank = i + 1;
             var medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : '🥉';
-            var hot = source === 'featured' ? t('精选', 'Pick') : t('热度', 'hot');
+            var hot = source === 'featured' ? t('推荐', 'Pick') : t('热度', 'hot');
             return '<a class="rank-card rank-' + rank + '" href="' + es(hrefOf(it)) + '" aria-label="' + es(nameOf(it)) + '">' +
                 '<div class="rank-card-header"><div class="rank-medal">' + medal + '</div>' +
                 '<span class="rank-tag">' + (lg === 'en' ? 'Rank ' + rank : '第 ' + rank + ' 名') + '</span></div>' +
-                '<div class="rank-main"><div class="rank-icon">' + es(it.icon) + '</div>' +
+                '<div class="rank-main"><div class="rank-icon">' + es(iconOf(it)) + '</div>' +
                 '<div class="rank-name">' + es(nameOf(it)) + '</div></div>' +
                 '<div class="rank-meta"><div class="rank-count">' +
                 (source === 'featured' ? '—' : es(it.score.toLocaleString())) + ' <small>' + es(hot) + '</small></div>' +
@@ -217,7 +234,7 @@
     }
     function renderModal() {
         if (!modalList) return;
-        var lg = lang(), list = items.slice(0, 25);
+        var list = items.slice(0, 25);
         if (!list.length) {
             modalList.innerHTML = '<li class="rank-empty">' + es(t('暂无数据', 'No data yet')) + '</li>';
             return;
@@ -225,7 +242,7 @@
         modalList.innerHTML = list.map(function (it, i) {
             return '<li class="rank-modal-row">' +
                 '<span class="rank-modal-index">' + (i + 1) + '</span>' +
-                '<span class="rank-modal-name">' + es(it.icon) + ' ' + es(nameOf(it)) + '</span>' +
+                '<span class="rank-modal-name">' + es(iconOf(it)) + ' ' + es(nameOf(it)) + '</span>' +
                 '<span class="rank-modal-count">' + (source === 'featured' ? '—' : es(it.score.toLocaleString())) + '</span>' +
                 '<a class="rank-modal-link" href="' + es(hrefOf(it)) + '">' + es(t('阅读', 'Open')) + '</a></li>';
         }).join('');
@@ -254,19 +271,18 @@
             });
     }
     function refresh() {
-        /* localItems 会设定 local / featured；远端结果优先，且跨刷新保持 */
-        var local = sortItems(localItems());
+        var local = sortItems(clean(localItems()));
         var useRemote = !!(remoteItems && remoteItems.length);
-        items = useRemote ? sortItems(remoteItems) : local;
+        items = useRemote ? sortItems(clean(remoteItems)) : local;
         if (useRemote) source = 'global';
         render();
         fetchRemote().then(function (raw) {
             if (!raw) return;
-            var remote = unify(raw);
+            var remote = clean(unify(raw));
             if (!remote.length) return;
             remoteItems = remote;
             source = 'global';
-            items = sortItems(remote);
+            items = sortItems(clean(remoteItems));
             render();
         });
     }
@@ -292,8 +308,9 @@
                 var on = Store.get('rank_remote', false) !== true;
                 Store.set('rank_remote', on);
                 remoteTried = false;
+                if (!on) remoteItems = null;
                 refresh();
-                UI.toast(on ? t('已启用全站榜单', 'Site-wide ranking enabled') : t('已使用本机榜单', 'Using on-device ranking'));
+                UI.toast(on ? t('已启用全站榜单', 'Site-wide ranking enabled') : t('已切回默认榜单', 'Using default ranking'));
             }
         });
     }
@@ -328,8 +345,8 @@
     function init() {
         if (!build()) return;
         bind();
-        refresh();                       /* 先用本机数据即时出榜 */
-        loadBooks().then(refresh);        /* 书目到达后补齐书名与封面 */
+        refresh();
+        loadBooks().then(refresh);
         win.setInterval(refresh, 5 * 60 * 1000);
     }
     if (doc.readyState === 'loading') doc.addEventListener('DOMContentLoaded', init);

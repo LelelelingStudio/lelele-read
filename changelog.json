@@ -1,0 +1,32 @@
+[
+  {
+    "version": "3.1.0",
+    "date": "2026-11-05",
+    "content_zh": "冬季限定主题、公告系统与首页目录导航。① 复制「了了了游」的冬季图片并按本站改名，新增全站飘雪、首页雪景背景与角落装饰，支持一键关闭、系统减少动画自动停用及移动端降级。② 新增公告系统：只展示有效期内最新一条，每天首次访问弹一次，首页顶栏提供「查看公告」入口与完整公告列表。③ 更新日志改为左侧版本列表 + 右侧详情的双栏样式，数据抽到 changelog.json，双语切换即时重绘。④ 首页重排：排行榜压缩为顶部紧凑卡片，继续阅读、阅读统计、勋章与推荐收进顶栏「目录」，切换分类时书库变化立即可见。⑤ 登录态顶栏不再铺邮箱，改为 👤 头像按钮与按钮化的作者后台入口。⑥ 修复排行榜重复条目、原始 ID 外露与图标错误，并统一热度文案。",
+    "content_en": "Winter theme, announcements and a homepage section menu. (1) Copied the winter artwork from lelele Game under read-site names: site-wide snowfall, a snowy homepage backdrop and corner decorations, with a one-tap toggle, automatic reduced-motion support and mobile downgrades. (2) Announcements: only the newest active item is shown, once per day on first visit; the homepage header gets an \"Announcements\" button opening the full list. (3) Changelog now uses a two-column version list + detail panel, backed by changelog.json with instant bilingual re-rendering. (4) Homepage re-layout: the leaderboard is a compact strip at the top, while continue-reading, stats, badges and recommendations move into a header \"Sections\" menu so category switches are immediately visible. (5) The signed-in header no longer shows a raw email: a 👤 avatar button plus a proper Dashboard button. (6) Fixed duplicate leaderboard rows, raw IDs leaking into titles and wrong icons, and unified the ranking copy."
+  },
+  {
+    "version": "3.0.1",
+    "date": "2026-11-05",
+    "content_zh": "接入 analytics 统计与首页阅读热度榜。统计脚本沿用「了了了游」的动态注入方式（避免外部 defer 脚本挂起导致白屏），data-domain 改为 read.leleleling.site。排行榜采用 Top3 卡片 + 完整榜弹窗结构，支持全站热度、阅读记录与书库精选三级降级，中英双语、暗色与窄屏适配。",
+    "content_en": "Added analytics and a reading leaderboard. The tracker is injected dynamically (the same pattern used on lelele Game) so a stalled external defer script cannot block DOMContentLoaded; data-domain is read.leleleling.site. The leaderboard has Top 3 cards plus a full-list modal, with three data fallbacks, bilingual copy and dark/mobile support."
+  },
+  {
+    "version": "3.0.0",
+    "date": "2026-11-05",
+    "content_zh": "一次性补齐 90 项前端功能：阅读体验（进度、全文搜索、朗读听书、护眼主题、引用卡片、X-Ray）、笔记与记忆（多色划线、命名书签、Markdown 批注、导出与续读浮标）、首页书架（分类、拖拽排序、热力图、时长柱状图、成就勋章、收藏夹）、写作台（多草稿、分卷、版本快照、回收站、目标环、专注模式、Markdown 导入）、社区与作者（多维筛选、渐变封面、作者聚合页、本地状态标记）以及全局能力（命令面板、备份迁移、跨标签同步、无障碍）。全部为纯本地实现，未改动后端。",
+    "content_en": "Shipped 90 front-end features at once: reading (progress, full-book search, read-aloud, eye-care themes, quote cards, X-Ray), notes & memory (multi-color highlights, named bookmarks, Markdown notes, export, resume), bookshelf (filters, drag sorting, heatmap, reading bars, badges, folders), writing desk (multiple drafts, volumes, snapshots, trash, goal ring, focus mode, Markdown import), community & authors (filters, generated covers, aggregated author page, local flags) and global tools (command palette, backup & migration, cross-tab sync, accessibility). Entirely local; no backend changes."
+  },
+  {
+    "version": "2.0.0",
+    "date": "2026-10-25",
+    "content_zh": "全站双语、深色模式与自定义背景上线；发布万能阅读器，支持拖拽布局、字体与主题设置、书签批注；新增共创书库板块。",
+    "content_en": "Site-wide bilingual UI, dark mode and custom backgrounds; released the universal reader with draggable layout, typography controls, bookmarks and notes; added the Community Library."
+  },
+  {
+    "version": "1.0.0",
+    "date": "2026-10-18",
+    "content_zh": "了了了读正式上线：纯静态、无构建，提供经典书籍在线阅读与本地阅读记录。",
+    "content_en": "lelele Read is live: a pure static, build-free site for reading classics with local reading history."
+  }
+]
