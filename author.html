@@ -7,8 +7,11 @@
     
     <link rel="stylesheet" href="common.css">
     <link rel="stylesheet" href="common-ui.css">
+    <link rel="stylesheet" href="other.css">
+    <link rel="stylesheet" href="pages-plus.css">
     <script src="common.js"></script>
     <script src="common-ui.js"></script>
+    <script defer src="pages-plus.js"></script>
     <script src="supabase-js.min.js"></script>
     <script defer src="user-api.js"></script>
     
@@ -277,6 +280,9 @@
                 const title = lang === 'en' ? (book.title_en || book.title_zh) : (book.title_zh || book.title_en);
                 const card = document.createElement('div');
                 card.className = 'book-card';
+                card.dataset.bookId = book.id;
+                card.dataset.cat = book.cat || '';
+                card.dataset.kind = book.isCommunity ? 'community' : 'library';
                 card.innerHTML = `
                     <div class="book-icon">${window.escapeHtml(book.icon || '📖')}</div>
                     <div class="book-info">

@@ -1,0 +1,256 @@
+/* ============================================================
+   pages-plus.css — 社区书库 / 作者面板 / 作者主页 / 关于 / 文档
+   沿用 common.css 的 CSS 变量与 common-ui.css 的 .ll-* 组件
+   ============================================================ */
+
+/* 筛选条 */
+.pp-filters {
+    margin: 14px 0 22px;
+    padding: 14px 16px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    box-shadow: var(--shadow-sm);
+}
+.pp-filters-row {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+.pp-filters-row label {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: .8rem;
+    color: var(--text-muted);
+    font-weight: 600;
+}
+.pp-filters-row select,
+.pp-flag {
+    padding: 7px 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 9px;
+    background: var(--bg-page);
+    color: var(--text-main);
+    font-size: .82rem;
+    font-family: inherit;
+    outline: none;
+    cursor: pointer;
+}
+.pp-filters-row select:focus-visible,
+.pp-flag:focus-visible { border-color: var(--primary); }
+.pp-check { cursor: pointer; user-select: none; }
+.pp-check input { accent-color: var(--primary); }
+.pp-count { margin-left: auto; font-size: .78rem; color: var(--text-muted); }
+.pp-chip-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+.pp-empty {
+    margin: 18px 0;
+    padding: 26px;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: .88rem;
+    background: var(--bg-card);
+    border: 1px dashed var(--border-color);
+    border-radius: 12px;
+}
+/* 隐藏态：覆盖各页 .book-card 的 display 定义 */
+.book-card[hidden], .dash-item[hidden] { display: none !important; }
+
+/* 共创书库卡片 */
+.pp-cover {
+    position: relative;
+    height: 112px;
+    margin-bottom: 14px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    color: #26332f;
+}
+.pp-cover-icon { font-size: 2.5rem; line-height: 1; filter: drop-shadow(0 2px 3px rgba(0, 0, 0, .12)); }
+.pp-cover-initial {
+    position: absolute;
+    right: 6px;
+    bottom: -14px;
+    font-size: 4.4rem;
+    font-weight: 800;
+    line-height: 1;
+    opacity: .2;
+    pointer-events: none;
+}
+.pp-card-extra { text-align: left; margin-top: 10px; }
+.pp-card-desc {
+    font-size: .78rem;
+    line-height: 1.6;
+    color: var(--text-muted);
+    max-height: 3.2em;
+    overflow: hidden;
+}
+.book-card:hover .pp-card-desc { max-height: 8em; }
+.pp-card-meta { display: flex; gap: 6px; flex-wrap: wrap; margin: 8px 0; }
+.pp-card-actions { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+.pp-mini {
+    padding: 5px 9px;
+    font-size: .74rem;
+    font-family: inherit;
+    border: 1px solid var(--border-color);
+    border-radius: 999px;
+    background: var(--bg-page);
+    color: var(--text-muted);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: color .18s, border-color .18s, background .18s;
+}
+.pp-mini:hover { color: var(--primary); border-color: var(--primary); }
+.pp-mini.on { color: var(--primary); border-color: var(--primary); background: var(--bg-card); font-weight: 600; }
+
+/* 通用卡片（关于 / 文档 / 作者面板 / 作者主页） */
+.pp-card {
+    margin: 18px 0 24px;
+    padding: 20px 22px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    box-shadow: var(--shadow-sm);
+}
+.pp-card h4 { margin: 20px 0 10px; font-size: .96rem; color: var(--text-main); }
+.pp-card h4:first-of-type { margin-top: 6px; }
+.pp-inline-bar {
+    display: flex;
+    gap: 9px;
+    flex-wrap: wrap;
+    align-items: center;
+    margin: 14px 0;
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: var(--bg-page);
+    border: 1px solid var(--border-color);
+    font-size: .82rem;
+}
+.pp-inline-bar .rd-btn { padding: 5px 10px; font-size: .78rem; }
+
+/* 作者成长进度 */
+.pp-steps { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0; }
+.pp-step {
+    padding: 5px 10px;
+    border-radius: 999px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-page);
+    font-size: .76rem;
+    color: var(--text-muted);
+}
+.pp-step.ok { color: var(--primary); border-color: var(--primary); font-weight: 600; }
+.pp-kv {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 6px 16px;
+    margin: 14px 0;
+    font-size: .82rem;
+    color: var(--text-muted);
+}
+.pp-kv b { color: var(--text-main); text-align: right; }
+.pp-item-actions { display: flex; gap: 6px; margin-left: 10px; align-items: center; }
+.dash-item { flex-wrap: wrap; }
+
+/* 作者主页 */
+.pp-stat-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+.pp-stat {
+    flex: 1 1 110px;
+    padding: 12px;
+    text-align: center;
+    border-radius: 12px;
+    background: var(--bg-page);
+    border: 1px solid var(--border-color);
+}
+.pp-stat b { display: block; font-size: 1.5rem; color: var(--text-main); }
+.pp-stat span { font-size: .74rem; color: var(--text-muted); }
+.pp-icon {
+    width: 56px;
+    height: 56px;
+    flex: 0 0 56px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #26332f;
+}
+.pp-fav-corner {
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    padding: 2px 8px;
+    font-size: .9rem;
+}
+.book-card { position: relative; }
+.book-info { position: relative; }
+
+/* 关于页 */
+.pp-version-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 14px; }
+.pp-feature-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 12px;
+}
+.pp-feature {
+    padding: 14px;
+    border-radius: 12px;
+    background: var(--bg-page);
+    border: 1px solid var(--border-color);
+}
+.pp-feature h4 { margin: 0 0 8px; font-size: .88rem; color: var(--text-main); }
+.pp-feature ul { margin: 0; padding-left: 18px; }
+.pp-feature li { font-size: .76rem; line-height: 1.8; color: var(--text-muted); }
+
+/* 文档页键表 */
+.pp-key-table { overflow-x: auto; }
+.pp-key-table .ll-table { min-width: 620px; font-size: .8rem; }
+.pp-key-table th {
+    text-align: left;
+    padding: 8px 6px;
+    color: var(--text-main);
+    border-bottom: 1px solid var(--border-color);
+}
+.pp-key-table code {
+    font-size: .74rem;
+    color: var(--primary);
+    word-break: break-all;
+}
+
+/* 焦点可见 / 减少动画 */
+.pp-mini:focus-visible, .pp-chip-row .ll-chip:focus-visible,
+.pp-filters-row select:focus-visible, .pp-flag:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+}
+.ll-reduced-motion .pp-cover,
+.ll-reduced-motion .pp-mini { transition: none !important; }
+
+@media (max-width: 768px) {
+    .pp-filters { padding: 12px; }
+    .pp-filters-row { gap: 10px; }
+    .pp-count { margin-left: 0; }
+    .pp-card { padding: 16px; }
+    .pp-feature-grid { grid-template-columns: 1fr; }
+    .pp-cover { height: 92px; }
+    .pp-item-actions { margin-left: 0; margin-top: 8px; }
+}
+
+/* doc.css 在窄屏把 .doc-layout 改为 column，但保留了 align-items:flex-start；
+   新增的可横向滚动键表会把 .doc-content 撑出视口，这里把正文拉回容器宽度。 */
+@media (max-width: 900px) {
+    .doc-layout > .doc-content {
+        align-self: stretch;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+    .pp-key-table { max-width: 100%; }
+}
+
+/* doc.css 的 .doc-content a 优先级高于 .rd-btn，这里让长文里的按钮保持按钮外观 */
+.doc-content a.rd-btn { color: var(--text-main); text-decoration: none; }
+.doc-content a.rd-btn:hover { color: var(--primary); text-decoration: none; }
+.doc-content a.rd-btn.primary,
+.doc-content a.rd-btn.primary:hover { color: #fff; }

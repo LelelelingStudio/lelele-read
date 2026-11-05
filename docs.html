@@ -6,10 +6,12 @@
     <title>站点文档 · 了了了读</title>
     <link rel="stylesheet" href="common.css">
     <link rel="stylesheet" href="common-ui.css">
+    <link rel="stylesheet" href="pages-plus.css">
     <link rel="stylesheet" href="doc.css">
     <link rel="stylesheet" href="other.css">
     <script src="common.js"></script>
     <script src="common-ui.js"></script>
+    <script defer src="pages-plus.js"></script>
     <script defer src="doc.js"></script>
 </head>
 <body>
@@ -70,6 +72,11 @@
                 <span class="en-inline">Each paragraph has highlight, bookmark and note actions. Font size, Chinese font, theme color, custom background, floating tool positions and reading progress are stored locally under the <code>lelele_read_</code> prefix. Floating tools can be dragged in layout mode and avoid overlapping.</span>
             </p>
 
+            <p>
+                <span class="zh-inline">本次更新后，新增了按天聚合的统计（<code>daily</code>）、阅读器与笔记偏好（<code>reader_prefs</code> / <code>notes_prefs</code>）、书架状态与排序（<code>shelf_status</code> / <code>shelf_order</code> / <code>shelf_folders</code>）、写作台草稿与版本快照（<code>dp_*</code>），以及仅在本机生效的推荐与投稿标记。除此之外还有备份导出的 JSON 文件。这些键同样只以 <code>lelele_read_</code> 开头，数据只存本机、不会上传服务器；换设备时请使用页面下方的「数据备份与迁移」导出再导入。</span>
+                <span class="en-inline">This release adds daily aggregates (<code>daily</code>), reader and note preferences (<code>reader_prefs</code> / <code>notes_prefs</code>), bookshelf state and ordering (<code>shelf_status</code> / <code>shelf_order</code> / <code>shelf_folders</code>), writing-desk drafts and snapshots (<code>dp_*</code>), plus local-only feature and submission flags, and exported backup JSON files. All of them share the <code>lelele_read_</code> prefix, stay on this device and are never uploaded. To move devices, export a backup with the tool below and import it there.</span>
+            </p>
+
             <h2><span class="zh-inline">4. 共创投稿规范</span><span class="en-inline">4. Submission guidelines</span></h2>
             <p>
                 <span class="zh-inline">投稿需提供书名、作者（数字 ID 或拼音）、一句简介，以及一个符合 <code>BookContent</code> 契约的 JSON 地址。内容必须是本人有权公开的作品，不含恶意脚本、广告或侵权内容；远程地址需允许跨域访问。</span>
@@ -97,6 +104,13 @@
                 <a class="rd-btn" href="copyright.html"><span class="zh-inline">版权投诉</span><span class="en-inline">Copyright</span></a>
                 <a class="rd-btn" href="about.html"><span class="zh-inline">关于我们</span><span class="en-inline">About</span></a>
             </p>
+
+            <h2><span class="zh-inline">7. 本地数据与备份</span><span class="en-inline">7. Local data & backup</span></h2>
+            <p>
+                <span class="zh-inline">站点不保存你的阅读内容：进度、批注、草稿、偏好与统计全部写在本机 <code>localStorage</code>，并以 <code>lelele_read_</code> 作为统一键名前缀。清理浏览器数据会一并清除，因此建议定期导出备份。备份文件是普通 JSON，可在另一台设备上选择「合并」或「替换」导入；登录会话不会被导出。</span>
+                <span class="en-inline">Your reading content is never stored on our servers: progress, notes, drafts, preferences and stats all live in this browser's <code>localStorage</code> under the shared <code>lelele_read_</code> prefix. Clearing browser data removes them, so export a backup regularly. A backup is plain JSON and can be imported on another device with merge or replace; sign-in sessions are excluded.</span>
+            </p>
+            <div id="docsDataBox"></div>
         </article>
     </div>
 

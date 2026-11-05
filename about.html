@@ -8,11 +8,14 @@
     <!-- 引入全局基础与长文档样式 -->
     <link rel="stylesheet" href="common.css">
     <link rel="stylesheet" href="common-ui.css">
+    <link rel="stylesheet" href="other.css">
+    <link rel="stylesheet" href="pages-plus.css">
     <link rel="stylesheet" href="doc.css">
     
     <!-- 尽早引入公共脚本以应用主题和语言 -->
     <script src="common.js"></script>
     <script src="common-ui.js"></script>
+    <script defer src="pages-plus.js"></script>
     <script defer src="doc.js"></script>
     
     <style>
@@ -140,6 +143,16 @@
             </div>
 
             <h2>
+                <span class="zh-inline">版本与本地数据</span>
+                <span class="en-inline">Version & local data</span>
+            </h2>
+            <p>
+                <span class="zh-inline">下面是当前版本号、本机数据占用与本次功能总览。所有阅读记录、笔记与草稿都只保存在你自己的浏览器中，可以随时导出备份或迁移到另一台设备。</span>
+                <span class="en-inline">Below are the current version, local storage usage and an overview of this release. Reading history, notes and drafts live only in your own browser and can be exported or moved to another device at any time.</span>
+            </p>
+            <div id="aboutVersionBox"></div>
+
+            <h2>
                 <span class="zh-inline">更新日志</span>
                 <span class="en-inline">Changelog</span>
             </h2>
@@ -171,30 +184,60 @@
 
     <!-- 页面专属脚本 -->
     <script>
-        // 内置测试用的更新日志数据（以后可以改成 fetch('/data/changelog.json')）
+        // 更新日志：中英双写，语言切换时重渲染（不使用 doc.js 里的默认 json）
         const CHANGELOG_DATA = [
+            {
+                version: "v3.0.0",
+                date: "2026-11-05",
+                changes_zh: [
+                    "一次性补齐 90 项前端功能，覆盖阅读体验、笔记与记忆、首页书架、写作台、社区与作者及全局能力。",
+                    "阅读器新增进度与剩余时间、书内全文搜索、多色划线、朗读听书、护眼主题与引用卡片。",
+                    "首页书架新增分类与作者筛选、拖拽排序、日历热力图、时长柱状图、成就勋章与猜你喜欢。",
+                    "写作台升级为多草稿、分卷章节树、版本快照、回收站与大纲人物卡，并支持导入 Markdown。",
+                    "新增 Ctrl/⌘+K 命令面板、快捷键帮助、数据备份迁移、跨标签同步与无障碍支持。",
+                    "全部为纯本地实现，未改动后端；不含生词本、PWA 离线、AI 生图与任何需要密钥的服务。"
+                ],
+                changes_en: [
+                    "Added 90 front-end features across reading, notes & memory, bookshelf, writing desk, community & authors, and global tools.",
+                    "Reader: progress and time left, full-book search, multi-color highlights, read-aloud, eye-care themes and quote cards.",
+                    "Bookshelf: category and author filters, drag sorting, calendar heatmap, reading bars, achievements and recommendations.",
+                    "Writing desk: multiple drafts, volume/chapter tree, version snapshots, trash, outline and character cards, Markdown import.",
+                    "Global: Ctrl/⌘+K command palette, shortcut help, backup & migration, cross-tab sync and accessibility support.",
+                    "Entirely local; no backend changes. No vocabulary notebook, offline PWA, AI images or services requiring API keys."
+                ]
+            },
             {
                 version: "v1.0.0",
                 date: "2026-10-25",
-                changes: [
+                changes_zh: [
                     "完成前端基础架构搭建（纯静态、无构建）。",
                     "上线全站双语、深色模式与自定义背景。",
                     "发布终极版万能阅读器，支持拖拽布局与笔记功能。",
                     "新增「共创书库」板块，支持外部作者接口接入。"
+                ],
+                changes_en: [
+                    "Built the front-end foundation (pure static, no build step).",
+                    "Launched site-wide bilingual UI, dark mode and custom backgrounds.",
+                    "Released the universal reader with draggable layout and notes.",
+                    "Added the Community Library with external author API support."
                 ]
             },
             {
                 version: "v0.9.0 (Beta)",
                 date: "2026-09-15",
-                changes: [
+                changes_zh: [
                     "阅读器核心排版引擎内测。",
                     "圣经、诗经、鲁迅作品数据完成适配。",
                     "基础 PWA 离线缓存可用。"
+                ],
+                changes_en: [
+                    "Internal beta of the core typesetting engine.",
+                    "Adapted data for the Bible, Book of Songs and Lu Xun works.",
+                    "Basic PWA offline cache available."
                 ]
             }
         ];
 
-        // 手动渲染更新日志（为了支持双语，不使用 doc.js 里默认的 json）
         function renderChangelog() {
             const container = document.getElementById('changelogContainer');
             if (!container) return;
@@ -202,12 +245,13 @@
 
             let html = '<div class="changelog-timeline">';
             CHANGELOG_DATA.forEach(item => {
+                const list = lang === 'en' ? (item.changes_en || []) : (item.changes_zh || []);
                 html += `
                     <div class="changelog-item">
-                        <div class="changelog-version">${item.version}</div>
-                        <div class="changelog-date">${item.date}</div>
+                        <div class="changelog-version">${window.escapeHtml(item.version)}</div>
+                        <div class="changelog-date">${window.escapeHtml(item.date)}</div>
                         <ul class="changelog-list">
-                            ${item.changes.map(c => `<li>${c}</li>`).join('')}
+                            ${list.map(c => `<li>${window.escapeHtml(c)}</li>`).join('')}
                         </ul>
                     </div>
                 `;
