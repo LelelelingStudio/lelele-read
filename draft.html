@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>写作台 · 了了了读</title>
+    <link rel="stylesheet" href="common.css">
+    <link rel="stylesheet" href="other.css">
+    <script src="common.js"></script>
+    <script src="other.js"></script>
+    <script src="supabase-js.min.js"></script>
+    <script defer src="user-api.js"></script>
+    <script defer src="user-auth.js"></script>
+    <style>
+        .write-shell { max-width: 1100px; margin: 24px auto 60px; padding: 0 20px; display: flex; gap: 20px; align-items: flex-start; }
+        .write-side { width: 240px; flex-shrink: 0; position: sticky; top: 84px; }
+        .write-side h3 { font-size: .76rem; text-transform: uppercase; letter-spacing: .08em; color: var(--text-muted); margin: 0 0 10px 4px; }
+        .chap-list { display: grid; gap: 6px; max-height: 62vh; overflow: auto; }
+        .chap-item { display: flex; align-items: center; gap: 8px; border: 1px solid var(--border-color); border-radius: 10px; padding: 9px 11px; background: var(--bg-card); cursor: pointer; font-size: .86rem; color: var(--text-main); }
+        .chap-item:hover { border-color: var(--primary); }
+        .chap-item.active { border-color: var(--primary); color: var(--primary); font-weight: 600; }
+        .chap-item .num { color: var(--text-muted); font-size: .76rem; min-width: 16px; }
+        .chap-item .ttl { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .write-main { flex: 1; min-width: 0; }
+        .write-bookbar { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 16px 18px; margin-bottom: 16px; display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; }
+        .write-bookbar .read-field { margin: 0; flex: 1; min-width: 160px; }
+        .write-bookbar .read-field.author { flex: 0 0 150px; }
+        .write-toolbar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; align-items: center; }
+        .write-stat { margin-left: auto; font-size: .8rem; color: var(--text-muted); white-space: nowrap; }
+        .write-paper { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 18px; padding: 30px; box-shadow: var(--shadow-sm, 0 2px 10px rgba(0,0,0,.04)); }
+        .write-chap-title { width: 100%; border: 0; border-bottom: 1px solid var(--border-color); background: transparent; color: var(--text-main); font-size: 1.3rem; font-weight: 700; padding: 6px 0 12px; margin-bottom: 18px; outline: none; font-family: inherit; }
+        .write-chap-title:focus { border-color: var(--primary); }
+        .write-area { width: 100%; min-height: 52vh; border: 0; background: transparent; color: var(--text-main); font-size: 1.02rem; line-height: 2; resize: vertical; outline: none; font-family: inherit; }
+        .write-area::placeholder { color: var(--text-muted); }
+        .write-hint { font-size: .78rem; color: var(--text-muted); margin-top: 14px; line-height: 1.7; }
+        .dash-side-link:hover { color: var(--primary) !important; background: var(--bg-card); }
+        @media (max-width: 768px) {
+            .write-shell { flex-direction: column; }
+            .write-side { width: 100%; position: static; }
+            .chap-list { max-height: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="top-nav" style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 5%;border-bottom:1px solid var(--border-color);background:var(--bg-card);position:sticky;top:0;z-index:100">
+        <a href="index.html" class="brand" style="display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--text-main);font-weight:700">
+            <img src="leleleread.svg" alt="Logo" style="width:30px;height:30px;border-radius:50%" onerror="this.style.display='none'">
+            <span><span class="zh-inline">了了了读 · 写作台</span><span class="en-inline">lelele Read · Writing</span></span>
+        </a>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <a class="rd-btn" href="reader.html"><span class="zh-inline">读书器</span><span class="en-inline">Reader</span></a>
+            <a class="rd-btn" href="dashboard.html"><span class="zh-inline">作者面板</span><span class="en-inline">Dashboard</span></a>
+            <button class="rd-btn" onclick="toggleTheme()">🌙</button>
+            <button class="rd-btn" id="btnLang">EN</button>
+            <span id="authSlot" style="display:flex;gap:8px;align-items:center"></span>
+        </div>
+    </nav>
+
+    <div class="write-shell">
+        <aside class="write-side">
+            <h3><span class="zh-inline">章节</span><span class="en-inline">Chapters</span></h3>
+            <div class="chap-list" id="chapList"></div>
+            <button class="rd-btn" id="addChap" style="margin-top:10px;width:100%;justify-content:center"><span class="zh-inline">＋ 新章节</span><span class="en-inline">＋ New chapter</span></button>
+        </aside>
+
+        <main class="write-main">
+            <div class="write-bookbar">
+                <div class="read-field"><label><span class="zh-inline">书名（中）</span><span class="en-inline">Title (ZH)</span></label><input id="bkZh" placeholder="中文书名"></div>
+                <div class="read-field"><label><span class="zh-inline">书名（英）</span><span class="en-inline">Title (EN)</span></label><input id="bkEn" placeholder="English title"></div>
+                <div class="read-field author"><label><span class="zh-inline">作者标识</span><span class="en-inline">Author ID</span></label><input id="bkAuthor" disabled></div>
+            </div>
+
+            <div class="write-toolbar">
+                <button class="rd-btn" id="moveUp" title="上移">↑</button>
+                <button class="rd-btn" id="moveDown" title="下移">↓</button>
+                <button class="rd-btn" id="delChap"><span class="zh-inline">删除本章</span><span class="en-inline">Delete</span></button>
+                <button class="rd-btn primary" id="downloadBtn"><span class="zh-inline">下载 JSON</span><span class="en-inline">Download JSON</span></button>
+                <button class="rd-btn" id="importBtn"><span class="zh-inline">导入 JSON</span><span class="en-inline">Import</span></button>
+                <button class="rd-btn" id="clearBtn"><span class="zh-inline">清空</span><span class="en-inline">Clear</span></button>
+                <span class="write-stat" id="stat"></span>
+                <input type="file" id="importFile" accept=".json,application/json" style="display:none">
+            </div>
+
+            <div class="write-paper">
+                <input class="write-chap-title" id="chapTitle" placeholder="章节标题">
+                <textarea class="write-area" id="chapBody" placeholder="在这里写作…每段之间空一行。文字会自动保存在本机浏览器，关掉也不丢。"></textarea>
+                <div class="write-hint">
+                    <span class="zh-inline">草稿只存在本机浏览器（localStorage），不会上传。写好后可「下载 JSON」，再到作者面板的投稿入口提交；也可「导入 JSON」继续之前的稿子。</span>
+                    <span class="en-inline">Drafts are saved only in this browser (localStorage) and never uploaded. Download JSON to submit via your author panel, or import a JSON to continue an earlier draft.</span>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="footerPlaceholder"></div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', async function () {
+        const $ = id => document.getElementById(id);
+        const t = (zh, en) => window.getLang() === 'en' ? en : zh;
+        if (!window.UserAuth || !UserAuth.requireLogin('draft.html')) return;
+        UserAuth.renderAuthSlot();
+        $('btnLang').onclick = () => window.setLang(window.getLang() === 'zh' ? 'en' : 'zh');
+
+        let authorId = '';
+        let draft = { title_zh: '', title_en: '', author: '', chapters: [{ title: '', paragraphs: [] }] };
+        let cur = 0;
+
+        function esc(s) { return window.escapeHtml ? window.escapeHtml(s) : String(s).replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m])); }
+        function toast(msg) { if (window.showToast) window.showToast(msg); else console.log(msg); }
+
+        function key() { return 'lelele_read_draft_' + (authorId || 'anon'); }
+        function loadLocal() {
+            try {
+                const s = localStorage.getItem(key());
+                if (s) {
+                    const d = JSON.parse(s);
+                    if (d && Array.isArray(d.chapters) && d.chapters.length) {
+                        draft = Object.assign({ title_zh: '', title_en: '', author: authorId, chapters: [] }, d);
+                        draft.author = authorId;
+                        cur = 0;
+                    }
+                }
+            } catch (e) {}
+            if (!draft.chapters.length) draft.chapters = [{ title: '', paragraphs: [] }];
+        }
+        let saveTimer = null;
+        function saveLocal() {
+            clearTimeout(saveTimer);
+            saveTimer = setTimeout(() => {
+                try { localStorage.setItem(key(), JSON.stringify(draft)); toast(t('已自动保存', 'Auto-saved')); }
+                catch (e) { toast(t('保存失败：本地空间不足', 'Save failed')); }
+            }, 500);
+        }
+        function splitParas(text) { return text.split(/\n\s*\n/).map(s => s.trim()).filter(Boolean); }
+        function syncCurFromUI() {
+            if (!draft.chapters[cur]) return;
+            draft.chapters[cur].title = $('chapTitle').value;
+            draft.chapters[cur].paragraphs = splitParas($('chapBody').value);
+        }
+        function wordCount() {
+            return draft.chapters.reduce((n, c) => n + ((c.paragraphs || []).join('').length), 0);
+        }
+        function updateStat() {
+            $('stat').textContent = t('章节 ', 'Chapters ') + draft.chapters.length + ' · ' + t('字数 ', 'Words ') + wordCount();
+        }
+        function renderList() {
+            const list = $('chapList');
+            list.innerHTML = '';
+            draft.chapters.forEach((c, i) => {
+                const div = document.createElement('div');
+                div.className = 'chap-item' + (i === cur ? ' active' : '');
+                div.innerHTML = '<span class="num">' + (i + 1) + '</span><span class="ttl">' + esc(c.title || t('未命名', 'Untitled')) + '</span>';
+                div.onclick = () => { syncCurFromUI(); cur = i; renderEditor(); };
+                list.appendChild(div);
+            });
+            updateStat();
+        }
+        function renderEditor() {
+            const c = draft.chapters[cur] || { title: '', paragraphs: [] };
+            $('chapTitle').value = c.title || '';
+            $('chapBody').value = (c.paragraphs || []).join('\n\n');
+            renderList();
+        }
+        function render() {
+            $('bkZh').value = draft.title_zh || '';
+            $('bkEn').value = draft.title_en || '';
+            renderEditor();
+        }
+
+        function bind() {
+            $('bkZh').oninput = () => { draft.title_zh = $('bkZh').value; saveLocal(); };
+            $('bkEn').oninput = () => { draft.title_en = $('bkEn').value; saveLocal(); };
+            $('chapTitle').oninput = () => { if (draft.chapters[cur]) draft.chapters[cur].title = $('chapTitle').value; saveLocal(); renderList(); };
+            $('chapBody').oninput = () => { if (draft.chapters[cur]) draft.chapters[cur].paragraphs = splitParas($('chapBody').value); saveLocal(); updateStat(); };
+            $('addChap').onclick = () => { syncCurFromUI(); draft.chapters.splice(cur + 1, 0, { title: '', paragraphs: [] }); cur++; renderEditor(); saveLocal(); };
+            $('delChap').onclick = () => {
+                if (draft.chapters.length <= 1) { toast(t('至少保留一章', 'Keep at least one chapter')); return; }
+                ReadUI.confirm(t('删除本章？', 'Delete this chapter?'), () => {
+                    draft.chapters.splice(cur, 1); cur = Math.max(0, cur - 1); renderEditor(); saveLocal();
+                });
+            };
+            $('moveUp').onclick = () => { if (cur <= 0) return; const a = draft.chapters; [a[cur - 1], a[cur]] = [a[cur], a[cur - 1]]; cur--; renderEditor(); saveLocal(); };
+            $('moveDown').onclick = () => { if (cur >= draft.chapters.length - 1) return; const a = draft.chapters; [a[cur + 1], a[cur]] = [a[cur], a[cur + 1]]; cur++; renderEditor(); saveLocal(); };
+            $('downloadBtn').onclick = () => {
+                syncCurFromUI();
+                const out = {
+                    title_zh: draft.title_zh, title_en: draft.title_en, author: authorId,
+                    chapters: draft.chapters.map(c => ({ title: c.title, paragraphs: c.paragraphs }))
+                };
+                const blob = new Blob([JSON.stringify(out, null, 2)], { type: 'application/json' });
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = (draft.title_zh || 'draft') + '.json';
+                a.click();
+                URL.revokeObjectURL(a.href);
+                toast(t('已下载 JSON', 'Downloaded JSON'));
+            };
+            $('importBtn').onclick = () => $('importFile').click();
+            $('importFile').onchange = e => {
+                const f = e.target.files[0]; if (!f) return;
+                const r = new FileReader();
+                r.onload = () => {
+                    try {
+                        const d = JSON.parse(r.result);
+                        let chs = [];
+                        if (Array.isArray(d.chapters)) chs = d.chapters;
+                        else if (Array.isArray(d)) chs = d;
+                        if (!chs.length) throw 0;
+                        draft = {
+                            title_zh: d.title_zh || d.title || '', title_en: d.title_en || '',
+                            author: authorId,
+                            chapters: chs.map(c => ({
+                                title: c.title || '',
+                                paragraphs: Array.isArray(c.paragraphs) ? c.paragraphs
+                                    : (c.content ? splitParas(String(c.content)) : [])
+                            }))
+                        };
+                        cur = 0; render(); saveLocal(); toast(t('已导入', 'Imported'));
+                    } catch (err) { toast(t('JSON 解析失败', 'Invalid JSON')); }
+                };
+                r.readAsText(f); e.target.value = '';
+            };
+            $('clearBtn').onclick = () => {
+                ReadUI.confirm(t('清空当前草稿？', 'Clear current draft?'), () => {
+                    draft = { title_zh: '', title_en: '', author: authorId, chapters: [{ title: '', paragraphs: [] }] };
+                    cur = 0; render(); saveLocal();
+                });
+            };
+        }
+
+        async function init() {
+            const p = await UserAPI.getProfile();
+            const profile = (p && p.data) || {};
+            authorId = profile.author_id || '';
+            $('bkAuthor').value = authorId;
+            loadLocal();
+            bind();
+            render();
+        }
+
+        window.addEventListener('langChanged', render);
+        init();
+    });
+    </script>
+</body>
+</html>
