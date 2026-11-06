@@ -1,11 +1,11 @@
 /* =========================================================
    lelele-read Service Worker
-   v5 (阅读背景纯色与上一张历史之后)
+   v6 (规则页细化与版权说明之后)
    静态资源：stale-while-revalidate（命中即秒开，后台更新）
    数据 JSON：network-first + 1.5s 超时快速回退缓存
    外部域一律直通（作者总表、统计、Supabase 等）
    ========================================================= */
-const CACHE_NAME = 'lelele-read-v5';
+const CACHE_NAME = 'lelele-read-v6';
 
 const PRECACHE_ASSETS = [
     '/', '/index.html', '/reader.html', '/dashboard.html', '/login.html', '/docs.html',
