@@ -215,17 +215,17 @@
         function resolveProfile(authorId, lang) {
             const list = window.AUTHORS_DATA || [];
             const found = list.find(a => String(a.id) === String(authorId) || a.name_zh === authorId || a.name_en === authorId || a.slug === authorId);
+            const local = PINYIN_PROFILES[authorId] || {};
             if (found) {
                 return {
                     name: lang === 'en' ? (found.name_en || found.name_zh) : (found.name_zh || found.name_en),
-                    bio: lang === 'en' ? (found.bio_en || '') : (found.bio_zh || ''),
-                    avatar: found.avatar_url || '👤',
+                    bio: lang === 'en' ? (found.bio_en || local.bio_en || '') : (found.bio_zh || local.bio_zh || ''),
+                    avatar: found.avatar_url || local.avatar || '👤',
                     level: found.authorlevel || 1,
                     official: !!found.official
                 };
             }
-            const local = PINYIN_PROFILES[authorId];
-            if (local) return {
+            if (local.name_zh) return {
                 name: lang === 'en' ? local.name_en : local.name_zh,
                 bio: lang === 'en' ? local.bio_en : local.bio_zh,
                 avatar: local.avatar, level: 1, official: false

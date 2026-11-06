@@ -126,8 +126,16 @@
     // ==================== 4. 外部数据拉取 ====================
     // 跨域作者总表：5s 超时 + 状态校验 + 失败降级，任何情况下都派发 authorsLoaded，
     // 避免页面一直停在「…」或因为外部域挂起而白屏（借鉴「游」站白屏事故教训，不复用其代码）。
+    // 远程作者总表不可用时的本地兜底：保证任何情况下都不会把作者 ID 直接显示给读者
+    const AUTHORS_FALLBACK = [
+        { id: 1, name_zh: '了了了岭工作室', name_en: 'Leleleling Studio' },
+        { id: 'luxun', name_zh: '鲁迅', name_en: 'Lu Xun' },
+        { id: '佚名', name_zh: '佚名', name_en: 'Anonymous' },
+        { id: '书友们', name_zh: '书友们', name_en: 'Community contributors' }
+    ];
+
     function fetchAuthors() {
-        window.AUTHORS_DATA = [];
+        window.AUTHORS_DATA = AUTHORS_FALLBACK.slice();
         const ctrl = new AbortController();
         const timer = setTimeout(() => ctrl.abort(), 5000);
         fetch(CONFIG.AUTHOR_API + '?t=' + Date.now(), { signal: ctrl.signal })
@@ -136,11 +144,12 @@
                 return res.json();
             })
             .then(data => {
-                window.AUTHORS_DATA = Array.isArray(data) ? data : (data && Array.isArray(data.authors) ? data.authors : []);
+                const remote = Array.isArray(data) ? data : (data && Array.isArray(data.authors) ? data.authors : []);
+                window.AUTHORS_DATA = AUTHORS_FALLBACK.concat(remote);
             })
             .catch(err => {
                 console.warn('[read] 作者总表不可用，已降级:', err.message);
-                window.AUTHORS_DATA = [];
+                window.AUTHORS_DATA = AUTHORS_FALLBACK.slice();
             })
             .then(() => {
                 clearTimeout(timer);

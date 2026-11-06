@@ -65,17 +65,11 @@
     function renderChips() {
         if (!chipsEl) return;
         recent = arr('recent'); favorites = arr('favorites'); folders = arr('shelf_folders');
-        var authors = {};
-        books.forEach(function (b) { if (b.author) authors[b.author] = 1; });
         chipsEl.innerHTML =
             '<div class="ll-chip-row">' + CATS.map(function (c) {
                 return '<button type="button" class="ll-chip' + (filter === c[0] ? ' active' : '') + '" data-cat="' + c[0] + '">' + esc(t(c[1], c[2])) + '</button>';
             }).join('') + '</div>' +
             '<div class="sp-filters">' +
-            '<label class="ll-muted">' + esc(t('作者', 'Author')) + ' <select id="spAuthor"><option value="all">' + esc(t('全部', 'All')) + '</option>' +
-            Object.keys(authors).map(function (a) {
-                return '<option value="' + esc(a) + '"' + (authorFilter === a ? ' selected' : '') + '>' + esc(a) + '</option>';
-            }).join('') + '</select></label>' +
             '<label class="ll-muted">' + esc(t('收藏夹', 'Folder')) + ' <select id="spFolder"><option value="all">' + esc(t('全部', 'All')) + '</option>' +
             '<option value=""' + (folderFilter === '' ? ' selected' : '') + '>' + esc(t('未分组', 'Unsorted')) + '</option>' +
             folders.map(function (f) {
@@ -87,7 +81,6 @@
         Array.prototype.forEach.call(chipsEl.querySelectorAll('[data-cat]'), function (b) {
             b.onclick = function () { filter = b.dataset.cat; renderChips(); applyAll(); };
         });
-        el('spAuthor').onchange = function () { authorFilter = this.value; applyAll(); };
         el('spFolder').onchange = function () { folderFilter = this.value; renderChips(); applyAll(); };
         el('spNewFolder').onclick = function () {
             var name = prompt(t('新收藏夹名称', 'New folder name'));

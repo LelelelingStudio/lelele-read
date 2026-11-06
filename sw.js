@@ -1,27 +1,33 @@
 /* =========================================================
    lelele-read Service Worker
-   v2 (4.x 数据 JSON 化 / EPUB 双向转换之后)
+   v3 (公告 / 冬季主题 / 首页目录 / 作者名兜底之后)
    静态资源：stale-while-revalidate（命中即秒开，后台更新）
    数据 JSON：network-first + 1.5s 超时快速回退缓存
    外部域一律直通（作者总表、统计、Supabase 等）
    ========================================================= */
-const CACHE_NAME = 'lelele-read-v2';
+const CACHE_NAME = 'lelele-read-v3';
 
 const PRECACHE_ASSETS = [
     '/', '/index.html', '/reader.html', '/dashboard.html', '/login.html', '/docs.html',
     '/author.html', '/about.html', '/rules.html', '/privacy.html', '/copyright.html', '/404.html',
-    '/common.css', '/common.js', '/reader.css', '/reader.js',
+    '/common.css', '/common.js', '/common-ui.css', '/common-ui.js',
+    '/reader.css', '/reader.js', '/reader-plus.css', '/reader-plus.js',
     '/window.css', '/window.js', '/doc.css', '/doc.js',
     '/other.css', '/other.js', '/epub-bridge.css', '/epub-bridge.js',
     '/user-api.js', '/user-auth.js', '/jszip.min.js',
+    '/rank-plus.js', '/shelf-plus.js', '/home-nav.css', '/home-nav.js',
+    '/notice.css', '/notice.js', '/winter.css', '/winter.js',
     '/activity.css', '/activity.js', '/activity.json',
+    '/announcements.json', '/changelog.json',
     '/manifest-zh.json', '/manifest-en.json',
     '/leleleread.svg', '/favicon.ico', '/icon-192.png', '/icon-512.png',
+    '/winter-bg-read.png', '/winter-snowman-read.png', '/winter-tree-read.png',
+    '/winter-banner-read.png', '/winter-logo-read.png',
     '/data/books.json', '/data/community/books.json',
     '/data/bible/config.json', '/data/shijing/config.json', '/data/tree_zhou/config.json'
 ];
 
-const DATA_PATH_RE = /(?:\/|^)(books\.json|config\.json|activity\.json|manifest-(?:zh|en)\.json|chapters\/[^/]+\.json)$/;
+const DATA_PATH_RE = /(?:\/|^)(books\.json|config\.json|activity\.json|announcements\.json|changelog\.json|manifest-(?:zh|en)\.json|chapters\/[^/]+\.json)$/;
 
 self.addEventListener('install', event => {
     event.waitUntil(
