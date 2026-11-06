@@ -4,15 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>圣经 · 了了了读</title>
-    <meta http-equiv="refresh" content="0;url=../../reader.html?book=bible">
+    <meta http-equiv="refresh" content="0;url=../../bible.html">
     <link rel="stylesheet" href="../../common.css">
 </head>
 <body>
     <p style="font-family:system-ui;padding:2rem;text-align:center">
-        正在打开阅读器… <a href="../../reader.html?book=bible">若没有自动跳转，请点这里</a>
+        正在打开圣经阅读器… <a href="../../bible.html">若没有自动跳转，请点这里</a>
     </p>
     <script>
-        location.replace('../../reader.html?book=bible' + (new URLSearchParams(location.search).get('lang') === 'en' ? '&lang=en' : ''));
+        location.replace('../../bible.html' + (new URLSearchParams(location.search).get('lang') === 'en' ? '?lang=en' : ''));
     </script>
 </body>
 </html>

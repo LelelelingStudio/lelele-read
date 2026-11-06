@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>圣经 · 了了了读</title>
+    <meta name="theme-color" content="#2F5D50">
+    <link rel="icon" href="favicon.ico" type="image/x-icon" onerror="this.style.display='none'">
+    <link rel="stylesheet" href="common.css">
+    <link rel="stylesheet" href="common-ui.css">
+    <link rel="stylesheet" href="bible.css">
+    <script src="common.js"></script>
+    <script src="common-ui.js"></script>
+    <script src="epub-bridge.js"></script>
+    <script src="bible.js"></script>
+    <script src="bible-tools.js"></script>
+</head>
+<body class="bb-body bb-view-books">
+
+    <header class="bb-top">
+        <div class="bb-top-left">
+            <a class="bb-back" href="index.html" aria-label="返回书库 / Back to library">← <span data-zh="书库" data-en="Library">书库</span></a>
+            <span class="bb-brand"><span data-zh="圣经" data-en="Holy Bible">圣经</span> <i>·</i> <span data-zh="了了了读" data-en="lelele Read">了了了读</span></span>
+        </div>
+        <div class="bb-crumb" id="bbCrumb"></div>
+        <div class="bb-tools" id="bbTools">
+            <button type="button" class="bb-btn" data-act="search" title="搜索经文 / Search verses"><span class="bb-ico">⌕</span><span data-zh="搜索" data-en="Search">搜索</span></button>
+            <button type="button" class="bb-btn" data-act="copy" title="复制经文范围 / Copy a range"><span class="bb-ico">⧉</span><span data-zh="复制" data-en="Copy">复制</span></button>
+            <button type="button" class="bb-btn" data-act="export" title="导出 / Export"><span class="bb-ico">⇩</span><span data-zh="导出" data-en="Export">导出</span></button>
+            <button type="button" class="bb-btn" data-act="notes" title="我的笔记 / My notes"><span class="bb-ico">✎</span><span data-zh="笔记" data-en="Notes">笔记</span></button>
+            <button type="button" class="bb-btn" data-act="skin" title="阅读背景 / Reading background"><span class="bb-ico">◐</span><span data-zh="背景" data-en="Background">背景</span></button>
+            <button type="button" class="bb-btn" data-act="changelog" title="更新日志 / Changelog"><span class="bb-ico">⟳</span><span data-zh="日志" data-en="Changelog">日志</span></button>
+            <button type="button" class="bb-btn bb-btn-icon" id="bbLangBtn" title="切换中 / EN">EN</button>
+            <button type="button" class="bb-btn bb-btn-icon" data-act="theme" title="深色 / 浅色 / Dark mode">☾</button>
+        </div>
+    </header>
+
+    <div class="bb-app">
+        <aside class="bb-panel bb-books" id="bbBooks">
+            <div class="bb-panel-head">
+                <span data-zh="书卷目录" data-en="Books">书卷目录</span>
+                <span class="bb-count" id="bbBookCount">66</span>
+            </div>
+            <div class="bb-search">
+                <input type="text" id="bbBookSearch" autocomplete="off" data-ph-zh="搜索书卷或序号..." data-ph-en="Search books or number..." placeholder="搜索书卷或序号...">
+            </div>
+            <div class="bb-book-list" id="bbBookList"><div class="bb-loading" data-zh="正在加载目录…" data-en="Loading books…">正在加载目录…</div></div>
+        </aside>
+
+        <nav class="bb-panel bb-nav" id="bbNav">
+            <div class="bb-panel-head"><span data-zh="章节" data-en="Chapters">章节</span><span class="bb-count" id="bbChapCount"></span></div>
+            <div class="bb-chap-grid" id="bbChapGrid"></div>
+            <div class="bb-panel-sub"><span data-zh="节" data-en="Verses">节</span><span class="bb-count" id="bbVerseCount"></span></div>
+            <div class="bb-verse-grid" id="bbVerseGrid"></div>
+        </nav>
+
+        <main class="bb-read" id="bbRead">
+            <div class="bb-read-head" id="bbReadHead"></div>
+            <div class="bb-verses" id="bbVerses"></div>
+            <div class="bb-chapter-foot" id="bbChapFoot"></div>
+        </main>
+    </div>
+
+    <footer class="bb-foot" id="bbFoot">
+        <div class="bb-foot-pos" id="bbFootPos"></div>
+        <div class="bb-foot-tools">
+            <button type="button" class="bb-mini" data-act="font-minus" aria-label="缩小字号 / Smaller text">A−</button>
+            <span class="bb-font-val" id="bbFontVal">17</span>
+            <button type="button" class="bb-mini" data-act="font-plus" aria-label="放大字号 / Larger text">A+</button>
+            <span class="bb-sep"></span>
+            <button type="button" class="bb-mini bb-swatch" data-palette="paper" title="纸白 / Paper" aria-label="纸白 / Paper"></button>
+            <button type="button" class="bb-mini bb-swatch" data-palette="sepia" title="旧纸 / Sepia" aria-label="旧纸 / Sepia"></button>
+            <button type="button" class="bb-mini bb-swatch" data-palette="mint" title="青苔 / Mint" aria-label="青苔 / Mint"></button>
+            <span class="bb-sep"></span>
+            <button type="button" class="bb-mini" data-act="go-top" data-zh="回到顶部" data-en="Top">回到顶部</button>
+        </div>
+        <div class="bb-foot-progress"><i id="bbProgress"></i></div>
+    </footer>
+
+    <nav class="bb-mobile-nav" id="bbMobileNav">
+        <button type="button" data-view="books"><span>▤</span><span data-zh="书库" data-en="Books">书库</span></button>
+        <button type="button" data-view="chapters"><span>☷</span><span data-zh="章节" data-en="Chapters">章节</span></button>
+        <button type="button" data-view="read"><span>▧</span><span data-zh="阅读" data-en="Read">阅读</span></button>
+        <button type="button" data-act="notes"><span>✎</span><span data-zh="笔记" data-en="Notes">笔记</span></button>
+    </nav>
+
+    <div class="bb-overlay" id="bbOverlay" hidden><div class="bb-modal" id="bbModal" role="dialog" aria-modal="true"></div></div>
+    <div class="bb-sheet-mask" id="bbSheetMask" hidden></div>
+    <div class="bb-sheet" id="bbSheet" hidden role="dialog" aria-modal="true"></div>
+
+</body>
+</html>

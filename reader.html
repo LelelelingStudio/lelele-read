@@ -154,6 +154,11 @@
         const $ = id => document.getElementById(id);
         const params = new URLSearchParams(location.search);
         const bookId = params.get('book') || params.get('id');
+        // 圣经改用独立三栏经文阅读页；旧书签链接保留兼容
+        if (bookId === 'bible') {
+            location.replace('bible.html' + (params.get('lang') === 'en' ? '?lang=en' : ''));
+            return;
+        }
         let currentBook = null;
 
         function setStatus(msg) { $('epubStatus').textContent = msg || ''; }

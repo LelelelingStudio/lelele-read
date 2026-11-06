@@ -1,5 +1,11 @@
 [
   {
+    "version": "3.2.0",
+    "date": "2026-11-06",
+    "content_zh": "圣经阅读器独立升级为沉浸式经文阅读页。① 去掉「选择电脑版 / 手机版」入口，改为按屏幕宽度自动适配：桌面呈现书卷、章节与经文三栏，手机为书库 → 章节 → 阅读三段式，含底部导航与安全区留白。② 66 卷按旧约 / 新约分组，支持书卷搜索、章 / 节二级定位、逐节经文与节号；目录数据按需加载，首屏只请求两个 JSON。③ 新增经文关键词全卷搜索（分帧扫描、结果上限 200）、按章 / 节范围复制、当前章 / 整卷导出 TXT、可打印 HTML 与 EPUB。④ 单节可加书签、永久高亮与批注，并汇总到笔记面板；支持上传自定义阅读背景。⑤ 保留通用阅读器能力：断点续读与可分享深链、字号与三套纸感配色、深色模式、中英界面、全站公告、冬季主题、反馈、命令面板与更新日志。⑥ 视觉改为纸感米白 + 沉静墨绿、衬线经文排版与克制动效；首页书卡与旧 reader.html?book=bible 链接自动落到新页面，Service Worker 升级到 v4。",
+    "content_en": "The Bible reader becomes a dedicated immersive page. (1) Removed the desktop/mobile choice screen: layout now adapts automatically — three columns (books / chapters / verses) on desktop, a three-step books → chapters → reading flow on phones with a bottom bar and safe-area padding. (2) All 66 books are grouped into Old and New Testament with book search, chapter/verse navigation and verse numbers; the catalog and text are loaded on demand, so the first paint issues only two JSON requests. (3) Added full-Bible keyword search (chunked scan, 200-result cap), passage copying by chapter/verse range, and TXT, printable HTML and EPUB export. (4) Per-verse bookmarks, permanent highlights and annotations are collected in a notes panel; a custom reading background can be uploaded. (5) Kept universal-reader features: resume reading and shareable deep links, font size and three paper palettes, dark mode, bilingual UI, site notices, the winter theme, feedback, the command palette and the changelog. (6) New paper-cream and deep-green visual language with serif scripture typography and restrained motion; catalog cards and legacy reader.html?book=bible links redirect to the new page, and the Service Worker moves to v4."
+  },
+  {
     "version": "3.1.0",
     "date": "2026-11-05",
     "content_zh": "冬季限定主题、公告系统与首页目录导航。① 复制「了了了游」的冬季图片并按本站改名，新增全站飘雪、首页雪景背景与角落装饰，支持一键关闭、系统减少动画自动停用及移动端降级。② 新增公告系统：只展示有效期内最新一条，每天首次访问弹一次，首页顶栏提供「查看公告」入口与完整公告列表。③ 更新日志改为左侧版本列表 + 右侧详情的双栏样式，数据抽到 changelog.json，双语切换即时重绘。④ 首页重排：排行榜压缩为顶部紧凑卡片，继续阅读、阅读统计、勋章与推荐收进顶栏「目录」，切换分类时书库变化立即可见。⑤ 登录态顶栏不再铺邮箱，改为 👤 头像按钮与按钮化的作者后台入口。⑥ 修复排行榜重复条目、原始 ID 外露与图标错误，并统一热度文案。",

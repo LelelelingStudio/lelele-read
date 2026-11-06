@@ -12,6 +12,7 @@
     "desc_en": "Old and New Testament, 66 books",
     "format": "json",
     "configUrl": "/data/bible/config.json",
+    "url": "bible.html",
     "downloadable": true,
     "sort": 1
   },

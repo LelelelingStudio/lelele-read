@@ -1,11 +1,11 @@
 /* =========================================================
    lelele-read Service Worker
-   v3 (公告 / 冬季主题 / 首页目录 / 作者名兜底之后)
+   v4 (独立圣经阅读页之后)
    静态资源：stale-while-revalidate（命中即秒开，后台更新）
    数据 JSON：network-first + 1.5s 超时快速回退缓存
    外部域一律直通（作者总表、统计、Supabase 等）
    ========================================================= */
-const CACHE_NAME = 'lelele-read-v3';
+const CACHE_NAME = 'lelele-read-v4';
 
 const PRECACHE_ASSETS = [
     '/', '/index.html', '/reader.html', '/dashboard.html', '/login.html', '/docs.html',
@@ -17,6 +17,8 @@ const PRECACHE_ASSETS = [
     '/user-api.js', '/user-auth.js', '/jszip.min.js',
     '/rank-plus.js', '/shelf-plus.js', '/home-nav.css', '/home-nav.js',
     '/notice.css', '/notice.js', '/winter.css', '/winter.js',
+    '/bible.html', '/bible.css', '/bible.js', '/bible-tools.js',
+    '/data/bible/books.json',
     '/activity.css', '/activity.js', '/activity.json',
     '/announcements.json', '/changelog.json',
     '/manifest-zh.json', '/manifest-en.json',

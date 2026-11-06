@@ -1,0 +1,464 @@
+[
+  {
+    "order": 1,
+    "file": "01_genesis.json",
+    "title_zh": "创世记",
+    "testament": "old",
+    "chapterCount": 50
+  },
+  {
+    "order": 2,
+    "file": "02_exodus.json",
+    "title_zh": "出埃及记",
+    "testament": "old",
+    "chapterCount": 40
+  },
+  {
+    "order": 3,
+    "file": "03_leviticus.json",
+    "title_zh": "利未记",
+    "testament": "old",
+    "chapterCount": 27
+  },
+  {
+    "order": 4,
+    "file": "04_numbers.json",
+    "title_zh": "民数记",
+    "testament": "old",
+    "chapterCount": 36
+  },
+  {
+    "order": 5,
+    "file": "05_deuteronomy.json",
+    "title_zh": "申命记",
+    "testament": "old",
+    "chapterCount": 34
+  },
+  {
+    "order": 6,
+    "file": "06_joshua.json",
+    "title_zh": "约书亚记",
+    "testament": "old",
+    "chapterCount": 24
+  },
+  {
+    "order": 7,
+    "file": "07_judges.json",
+    "title_zh": "士师记",
+    "testament": "old",
+    "chapterCount": 21
+  },
+  {
+    "order": 8,
+    "file": "08_ruth.json",
+    "title_zh": "路得记",
+    "testament": "old",
+    "chapterCount": 4
+  },
+  {
+    "order": 9,
+    "file": "09_1samuel.json",
+    "title_zh": "撒母耳记上",
+    "testament": "old",
+    "chapterCount": 31
+  },
+  {
+    "order": 10,
+    "file": "10_2samuel.json",
+    "title_zh": "撒母耳记下",
+    "testament": "old",
+    "chapterCount": 24
+  },
+  {
+    "order": 11,
+    "file": "11_1kings.json",
+    "title_zh": "列王纪上",
+    "testament": "old",
+    "chapterCount": 22
+  },
+  {
+    "order": 12,
+    "file": "12_2kings.json",
+    "title_zh": "列王纪下",
+    "testament": "old",
+    "chapterCount": 25
+  },
+  {
+    "order": 13,
+    "file": "13_1chronicles.json",
+    "title_zh": "历代志上",
+    "testament": "old",
+    "chapterCount": 29
+  },
+  {
+    "order": 14,
+    "file": "14_2chronicles.json",
+    "title_zh": "历代志下",
+    "testament": "old",
+    "chapterCount": 36
+  },
+  {
+    "order": 15,
+    "file": "15_ezra.json",
+    "title_zh": "以斯拉记",
+    "testament": "old",
+    "chapterCount": 10
+  },
+  {
+    "order": 16,
+    "file": "16_nehemiah.json",
+    "title_zh": "尼希米记",
+    "testament": "old",
+    "chapterCount": 13
+  },
+  {
+    "order": 17,
+    "file": "17_esther.json",
+    "title_zh": "以斯帖记",
+    "testament": "old",
+    "chapterCount": 10
+  },
+  {
+    "order": 18,
+    "file": "18_job.json",
+    "title_zh": "约伯记",
+    "testament": "old",
+    "chapterCount": 42
+  },
+  {
+    "order": 19,
+    "file": "19_psalms.json",
+    "title_zh": "诗篇",
+    "testament": "old",
+    "chapterCount": 150
+  },
+  {
+    "order": 20,
+    "file": "20_proverbs.json",
+    "title_zh": "箴言",
+    "testament": "old",
+    "chapterCount": 31
+  },
+  {
+    "order": 21,
+    "file": "21_eccclesiastes.json",
+    "title_zh": "传道书",
+    "testament": "old",
+    "chapterCount": 12
+  },
+  {
+    "order": 22,
+    "file": "22_songofsolomon.json",
+    "title_zh": "雅歌",
+    "testament": "old",
+    "chapterCount": 8
+  },
+  {
+    "order": 23,
+    "file": "23_isaiah.json",
+    "title_zh": "以赛亚书",
+    "testament": "old",
+    "chapterCount": 66
+  },
+  {
+    "order": 24,
+    "file": "24_jeremiah.json",
+    "title_zh": "耶利米书",
+    "testament": "old",
+    "chapterCount": 52
+  },
+  {
+    "order": 25,
+    "file": "25_lamentations.json",
+    "title_zh": "耶利米哀歌",
+    "testament": "old",
+    "chapterCount": 5
+  },
+  {
+    "order": 26,
+    "file": "26_ezekiel.json",
+    "title_zh": "以西结书",
+    "testament": "old",
+    "chapterCount": 48
+  },
+  {
+    "order": 27,
+    "file": "27_daniel.json",
+    "title_zh": "但以理书",
+    "testament": "old",
+    "chapterCount": 12
+  },
+  {
+    "order": 28,
+    "file": "28_hosea.json",
+    "title_zh": "何西阿书",
+    "testament": "old",
+    "chapterCount": 14
+  },
+  {
+    "order": 29,
+    "file": "29_joel.json",
+    "title_zh": "约珥书",
+    "testament": "old",
+    "chapterCount": 3
+  },
+  {
+    "order": 30,
+    "file": "30_amos.json",
+    "title_zh": "阿摩司书",
+    "testament": "old",
+    "chapterCount": 9
+  },
+  {
+    "order": 31,
+    "file": "31_obadiah.json",
+    "title_zh": "俄巴底亚书",
+    "testament": "old",
+    "chapterCount": 1
+  },
+  {
+    "order": 32,
+    "file": "32_jonah.json",
+    "title_zh": "约拿书",
+    "testament": "old",
+    "chapterCount": 4
+  },
+  {
+    "order": 33,
+    "file": "33_micah.json",
+    "title_zh": "弥迦书",
+    "testament": "old",
+    "chapterCount": 7
+  },
+  {
+    "order": 34,
+    "file": "34_nahum.json",
+    "title_zh": "那鸿书",
+    "testament": "old",
+    "chapterCount": 3
+  },
+  {
+    "order": 35,
+    "file": "35_habakkuk.json",
+    "title_zh": "哈巴谷书",
+    "testament": "old",
+    "chapterCount": 3
+  },
+  {
+    "order": 36,
+    "file": "36_zephaniah.json",
+    "title_zh": "西番雅书",
+    "testament": "old",
+    "chapterCount": 3
+  },
+  {
+    "order": 37,
+    "file": "37_haggai.json",
+    "title_zh": "哈该书",
+    "testament": "old",
+    "chapterCount": 2
+  },
+  {
+    "order": 38,
+    "file": "38_zechariah.json",
+    "title_zh": "撒迦利亚书",
+    "testament": "old",
+    "chapterCount": 14
+  },
+  {
+    "order": 39,
+    "file": "39_malachi.json",
+    "title_zh": "玛拉基书",
+    "testament": "old",
+    "chapterCount": 4
+  },
+  {
+    "order": 40,
+    "file": "40_matthew.json",
+    "title_zh": "马太福音",
+    "testament": "new",
+    "chapterCount": 28
+  },
+  {
+    "order": 41,
+    "file": "41_mark.json",
+    "title_zh": "马可福音",
+    "testament": "new",
+    "chapterCount": 16
+  },
+  {
+    "order": 42,
+    "file": "42_luke.json",
+    "title_zh": "路加福音",
+    "testament": "new",
+    "chapterCount": 24
+  },
+  {
+    "order": 43,
+    "file": "43_john.json",
+    "title_zh": "约翰福音",
+    "testament": "new",
+    "chapterCount": 21
+  },
+  {
+    "order": 44,
+    "file": "44_acts.json",
+    "title_zh": "使徒行传",
+    "testament": "new",
+    "chapterCount": 28
+  },
+  {
+    "order": 45,
+    "file": "45_romans.json",
+    "title_zh": "罗马书",
+    "testament": "new",
+    "chapterCount": 16
+  },
+  {
+    "order": 46,
+    "file": "46_1corinthians.json",
+    "title_zh": "哥林多前书",
+    "testament": "new",
+    "chapterCount": 16
+  },
+  {
+    "order": 47,
+    "file": "47_2corinthians.json",
+    "title_zh": "哥林多后书",
+    "testament": "new",
+    "chapterCount": 13
+  },
+  {
+    "order": 48,
+    "file": "48_galatians.json",
+    "title_zh": "加拉太书",
+    "testament": "new",
+    "chapterCount": 6
+  },
+  {
+    "order": 49,
+    "file": "49_ephesians.json",
+    "title_zh": "以弗所书",
+    "testament": "new",
+    "chapterCount": 6
+  },
+  {
+    "order": 50,
+    "file": "50_philippians.json",
+    "title_zh": "腓立比书",
+    "testament": "new",
+    "chapterCount": 4
+  },
+  {
+    "order": 51,
+    "file": "51_colossians.json",
+    "title_zh": "歌罗西书",
+    "testament": "new",
+    "chapterCount": 4
+  },
+  {
+    "order": 52,
+    "file": "52_1thessalonians.json",
+    "title_zh": "帖撒罗尼迦前书",
+    "testament": "new",
+    "chapterCount": 5
+  },
+  {
+    "order": 53,
+    "file": "53_2thessalonians.json",
+    "title_zh": "帖撒罗尼迦后书",
+    "testament": "new",
+    "chapterCount": 3
+  },
+  {
+    "order": 54,
+    "file": "54_1timothy.json",
+    "title_zh": "提摩太前书",
+    "testament": "new",
+    "chapterCount": 6
+  },
+  {
+    "order": 55,
+    "file": "55_2timothy.json",
+    "title_zh": "提摩太后书",
+    "testament": "new",
+    "chapterCount": 4
+  },
+  {
+    "order": 56,
+    "file": "56_titus.json",
+    "title_zh": "提多书",
+    "testament": "new",
+    "chapterCount": 3
+  },
+  {
+    "order": 57,
+    "file": "57_philemon.json",
+    "title_zh": "腓利门书",
+    "testament": "new",
+    "chapterCount": 1
+  },
+  {
+    "order": 58,
+    "file": "58_hebrews.json",
+    "title_zh": "希伯来书",
+    "testament": "new",
+    "chapterCount": 13
+  },
+  {
+    "order": 59,
+    "file": "59_james.json",
+    "title_zh": "雅各书",
+    "testament": "new",
+    "chapterCount": 5
+  },
+  {
+    "order": 60,
+    "file": "60_1peter.json",
+    "title_zh": "彼得前书",
+    "testament": "new",
+    "chapterCount": 5
+  },
+  {
+    "order": 61,
+    "file": "61_2peter.json",
+    "title_zh": "彼得后书",
+    "testament": "new",
+    "chapterCount": 3
+  },
+  {
+    "order": 62,
+    "file": "62_1john.json",
+    "title_zh": "约翰一书",
+    "testament": "new",
+    "chapterCount": 5
+  },
+  {
+    "order": 63,
+    "file": "63_2john.json",
+    "title_zh": "约翰二书",
+    "testament": "new",
+    "chapterCount": 1
+  },
+  {
+    "order": 64,
+    "file": "64_3john.json",
+    "title_zh": "约翰三书",
+    "testament": "new",
+    "chapterCount": 1
+  },
+  {
+    "order": 65,
+    "file": "65_jude.json",
+    "title_zh": "犹大书",
+    "testament": "new",
+    "chapterCount": 1
+  },
+  {
+    "order": 66,
+    "file": "66_revelation.json",
+    "title_zh": "启示录",
+    "testament": "new",
+    "chapterCount": 22
+  }
+]

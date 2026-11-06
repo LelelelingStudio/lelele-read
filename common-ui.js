@@ -485,6 +485,8 @@
             { id: 'backup', zh: '数据备份与迁移', en: 'Backup & restore', icon: '⇩', keywords: 'export import 备份', run: function () { UI.openBackup(); } },
             { id: 'home', zh: '回到首页', en: 'Go to home', icon: '⌂', keywords: 'home index', run: function () { location.href = BASE + 'index.html'; } },
             { id: 'reader', zh: '打开阅读器', en: 'Open reader', icon: '▤', keywords: 'read book', run: function () { location.href = BASE + 'reader.html'; } },
+            { id: 'bible', zh: '打开圣经阅读器', en: 'Open Bible reader', icon: '✞', keywords: 'bible 圣经 holy', run: function () { location.href = BASE + 'bible.html'; } },
+            { id: 'bible-search', zh: '搜索圣经经文', en: 'Search Bible verses', icon: '⌕', keywords: 'bible verse search 经文 搜索', run: function () { if (win.LeleleBibleTools) win.LeleleBibleTools.openSearch(); else location.href = BASE + 'bible.html?act=search'; } },
             { id: 'draft', zh: '打开写作台', en: 'Open writing desk', icon: '✍', keywords: 'write draft', run: function () { location.href = BASE + 'draft.html'; } },
             { id: 'community', zh: '共创书库', en: 'Community library', icon: '❖', keywords: 'community', run: function () { location.href = (isSubPage ? './' : 'data/community/') + 'index.html'; } },
             { id: 'dashboard', zh: '作者面板', en: 'Author dashboard', icon: '◈', keywords: 'author dashboard', run: function () { location.href = BASE + 'dashboard.html'; } },
