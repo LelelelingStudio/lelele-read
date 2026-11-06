@@ -105,10 +105,14 @@
             if (!isAuthor) {
                 return `<section class="dash-panel">
                     <h2>${esc(t('成为作者', 'Become an author'))}</h2>
-                    <p class="desc">${esc(t('你当前是读者身份。填写作者标识即可一键升级为作者，无需重新注册、无需再输密码。', 'You are a reader now. Pick an Author ID to upgrade to author in one click—no new account, no extra password.'))}</p>
+                    <p class="desc">${esc(t('你当前是读者身份。一键升级为作者即可投稿，作者标识由系统自动生成，无需手动填写。', 'You are a reader now. Upgrade to author in one click to submit works—your Author ID is generated automatically, no manual entry needed.'))}</p>
+                    <div style="background:rgba(59,110,75,.08);border-left:4px solid var(--primary);padding:12px 16px;border-radius:0 10px 10px 0;margin:0 0 16px;color:var(--text-main);font-size:.9rem;line-height:1.6">
+                        <strong>${esc(t('填写前请确认：', 'Before you start: '))}</strong>
+                        ${esc(t('「显示名称」即笔名，请与你的个人中心保持一致；投稿表单中的「联系邮箱」请使用注册账户时的邮箱。', 'Your display name is your pen name—keep it consistent with your profile. The contact email in the submission form should match the one used to register.'))}
+                        <a href="dashboard.html" style="color:var(--primary);text-decoration:underline">${esc(t('去个人中心查看', 'View your profile'))}</a>
+                    </div>
                     <form id="becomeForm">
-                        <div class="read-field"><label>${esc(t('作者标识（用于认领作品，创建后不可改）', 'Author ID (used to claim your works, permanent)'))}</label><input id="bAuthorId" required placeholder="luxun / 2"></div>
-                        <div class="read-field"><label>${esc(t('显示名称', 'Display name'))}</label><input id="bDisplayName" value="${esc(profile.display_name || '')}"></div>
+                        <div class="read-field"><label>${esc(t('显示名称（即笔名，与个人中心一致）', 'Display name (pen name, keep it consistent with your profile)'))}</label><input id="bDisplayName" value="${esc(profile.display_name || '')}"></div>
                         <div class="read-field"><label>${esc(t('中文简介', 'Bio (Chinese)'))}</label><textarea id="bBioZh">${esc(profile.bio_zh || '')}</textarea></div>
                         <div class="read-field"><label>${esc(t('英文简介', 'Bio (English)'))}</label><textarea id="bBioEn">${esc(profile.bio_en || '')}</textarea></div>
                         <button class="rd-btn primary" type="submit">${esc(t('一键成为作者', 'Become an author'))}</button>
@@ -157,6 +161,12 @@
             return `<section class="dash-panel">
                 <h2>${esc(t('共创投稿', 'Submissions'))}</h2>
                 <p class="desc">${esc(t('用下面的表单提交作品，审核通过后就会出现在共创书库。', 'Submit with the form below; approved works appear in the community library.'))}</p>
+                <div class="read-tip" id="submitTip" style="background:rgba(59,110,75,.08);border-left:4px solid var(--primary);padding:12px 16px;border-radius:0 10px 10px 0;margin:0 0 16px;color:var(--text-main);font-size:.9rem;line-height:1.6;display:flex;flex-wrap:wrap;align-items:center;gap:6px">
+                    <strong>${esc(t('投稿前提示：', 'Before submitting: '))}</strong>
+                    ${esc(t('表单里的「笔名」请与个人中心一致，「联系邮箱」请使用注册账户邮箱。', 'Use a pen name that matches your profile and the email tied to your account.'))}
+                    <a href="dashboard.html" style="color:var(--primary);text-decoration:underline">${esc(t('去个人中心', 'Go to profile'))}</a>
+                    <button type="button" data-dismiss style="margin-left:auto;background:transparent;border:1px solid var(--border-color);border-radius:8px;padding:2px 10px;cursor:pointer;color:var(--text-muted)">${esc(t('知道了', 'Got it'))}</button>
+                </div>
                 <div class="tally-embed">${frame}</div>
                 <h3 style="margin:22px 0 8px;color:var(--text-main)">${esc(t('我的投稿', 'My submissions'))}</h3>
                 <div class="dash-list">${items}</div>
@@ -193,17 +203,28 @@
             const bf = $('becomeForm');
             if (bf) bf.addEventListener('submit', async e => {
                 e.preventDefault();
-                const res = await UserAPI.becomeAuthor({
-                    authorId: $('bAuthorId').value.trim(),
+                const genId = () => 'author_' + Math.random().toString(36).slice(2, 10);
+                const payload = () => ({
+                    authorId: genId(),
                     displayName: $('bDisplayName').value.trim(),
                     bioZh: $('bBioZh').value.trim(),
                     bioEn: $('bBioEn').value.trim()
                 });
-                if (res.error) return ReadUI.showMsg($('becomeMsg'), res.error.message, false);
+                let res = await UserAPI.becomeAuthor(payload());
+                const msg = res.error ? (res.error.message || String(res.error)) : '';
+                if (res.error && /taken|占用|TAKEN/i.test(msg)) res = await UserAPI.becomeAuthor(payload());
+                if (res.error) return ReadUI.showMsg($('becomeMsg'), res.error.message || String(res.error), false);
                 await loadData();
                 render();
                 ReadUI.showMsg($('becomeMsg'), t('已升级为作者，继续完善资料吧！', 'Upgraded to author—finish your profile!'), true);
             });
+
+            const submitTip = $('submitTip');
+            if (submitTip) {
+                if (localStorage.getItem('lelele_seen_submit_tip')) submitTip.hidden = true;
+                const dis = submitTip.querySelector('[data-dismiss]');
+                if (dis) dis.addEventListener('click', () => { submitTip.hidden = true; try { localStorage.setItem('lelele_seen_submit_tip', '1'); } catch (e) {} });
+            }
 
             const sf = $('submitForm');
             if (sf) sf.addEventListener('submit', async e => {
