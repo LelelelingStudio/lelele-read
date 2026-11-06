@@ -57,11 +57,33 @@ html[data-bb-palette="mint"]:not(.dark-mode) {
     --bb-line: #D4E3DA;
     --bb-accent-soft: #DEEDE5;
 }
+html[data-bb-palette="rose"]:not(.dark-mode) {
+    --bb-bg: #F5E8EC; --bb-surface: #FFFDFE; --bb-surface-2: #F3E2E8; --bb-line: #EAD5DC; --bb-accent-soft: #F3E0E7;
+}
+html[data-bb-palette="sky"]:not(.dark-mode) {
+    --bb-bg: #E8EFF4; --bb-surface: #FDFEFF; --bb-surface-2: #DCEBF3; --bb-line: #CFE0EA; --bb-accent-soft: #DEEBF3;
+}
+html[data-bb-palette="slate"]:not(.dark-mode) {
+    --bb-bg: #EDEBE6; --bb-surface: #FBFAF7; --bb-surface-2: #E4E1D9; --bb-line: #D8D4C9; --bb-accent-soft: #E4E0D7;
+}
 
 /* 冬季雪景由独立的 fixed 图层绘制；页面底色始终跟随当前主题/配色，
    避免暗色模式被注入的浅色背景覆盖 */
 html[data-winter="on"] .bb-body,
 html.dark-mode[data-winter="on"] .bb-body { background-color: var(--bb-bg) !important; }
+
+/* 背景设置面板：纯色与自定义图片（含上一张历史） */
+.bb-skin-block { margin-bottom: 16px; }
+.bb-skin-label { font-size: .78rem; color: var(--bb-muted); margin-bottom: 8px; }
+.bb-skin-colors { display: flex; gap: 10px; flex-wrap: wrap; }
+.bb-skin-swatch { width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--bb-line); padding: 0; cursor: pointer; }
+.bb-skin-swatch.active { box-shadow: 0 0 0 3px var(--bb-accent-soft); border-color: var(--bb-accent); }
+html.dark-mode .bb-skin-colors { display: none; }
+.bb-skin-thumb { width: 76px; height: 100px; border-radius: 10px; border: 1px solid var(--bb-line); overflow: hidden; position: relative; cursor: pointer; background: var(--bb-surface); display: flex; align-items: center; justify-content: center; }
+.bb-skin-thumb.active { border-color: var(--bb-accent); box-shadow: 0 0 0 3px var(--bb-accent-soft); }
+.bb-skin-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.bb-skin-thumb span { color: var(--bb-faint); font-size: .72rem; }
+.bb-skin-prev { position: absolute; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.55); color: #fff; font-size: .64rem; text-align: center; padding: 2px; }
 
 * { box-sizing: border-box; }
 
@@ -81,13 +103,13 @@ html.dark-mode[data-winter="on"] .bb-body { background-color: var(--bb-bg) !impo
     background-attachment: fixed;
 }
 .bb-body.bb-custom-bg .bb-panel,
-.bb-body.bb-custom-bg .bb-read,
 .bb-body.bb-custom-bg .bb-top,
-.bb-body.bb-custom-bg .bb-foot { background-color: rgba(255, 255, 255, .88); }
+.bb-body.bb-custom-bg .bb-foot { background-color: rgba(255, 255, 255, .72); }
+.bb-body.bb-custom-bg .bb-read { background-color: transparent; }
 html.dark-mode .bb-body.bb-custom-bg .bb-panel,
-html.dark-mode .bb-body.bb-custom-bg .bb-read,
 html.dark-mode .bb-body.bb-custom-bg .bb-top,
-html.dark-mode .bb-body.bb-custom-bg .bb-foot { background-color: rgba(20, 30, 25, .9); }
+html.dark-mode .bb-body.bb-custom-bg .bb-foot { background-color: rgba(20, 30, 25, .8); }
+html.dark-mode .bb-body.bb-custom-bg .bb-read { background-color: transparent; }
 
 /* ---------- 顶栏 ---------- */
 .bb-top {

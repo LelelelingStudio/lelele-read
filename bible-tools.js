@@ -374,35 +374,87 @@
     }
 
     /* ---------------- 自定义背景 ---------------- */
+    function readSkin() {
+        var st = Store();
+        var raw = st ? st.get('bible_skin', null) : null;
+        if (!raw) return { current: '', previous: '' };
+        if (typeof raw === 'string') return { current: raw, previous: '' };
+        return { current: raw.current || '', previous: raw.previous || '' };
+    }
+    function writeSkin(state) {
+        var st = Store();
+        if (st) st.set('bible_skin', state);
+    }
+    var PALETTE_KEYS = [
+        { key: 'paper', zh: '纸白', en: 'Paper', color: '#FAF8F3' },
+        { key: 'sepia', zh: '旧纸', en: 'Sepia', color: '#F2E9D8' },
+        { key: 'mint', zh: '青苔', en: 'Mint', color: '#EFF5F1' },
+        { key: 'rose', zh: '淡粉', en: 'Rose', color: '#F5E8EC' },
+        { key: 'sky', zh: '淡蓝', en: 'Sky', color: '#E8EFF4' },
+        { key: 'slate', zh: '暖灰', en: 'Slate', color: '#EDEBE6' }
+    ];
     function openSkin() {
         var st = Store();
-        var body = '<div class="bb-field"><label>' + esc(t('上传一张图片作为阅读背景', 'Upload an image as reading background')) + '</label>' +
-            '<input type="file" id="bbSkinFile" accept="image/*"></div>' +
-            '<p class="bb-hint">' + esc(t('建议使用小于 1.5MB 的浅色图片；图片只保存在本机浏览器。', 'Use a light image under 1.5MB. It stays in this browser only.')) + '</p>' +
-            '<div id="bbSkinPreview" style="margin-top:12px"></div>';
+        var body = '<div class="bb-skin-block"><div class="bb-skin-label">' + esc(t('纯色背景', 'Solid colors')) + '</div>' +
+            '<div class="bb-skin-colors" id="bbSkinColors">' + PALETTE_KEYS.map(function (k) {
+                return '<button type="button" class="bb-swatch bb-skin-swatch" data-palette="' + k.key + '" title="' + esc(k.zh + ' ' + k.en) + '" style="background:' + k.color + '"></button>';
+            }).join('') + '</div></div>' +
+            '<div class="bb-skin-block"><div class="bb-skin-label">' + esc(t('自定义图片', 'Custom image')) + '</div>' +
+            '<input type="file" id="bbSkinFile" class="bb-skin-file" accept="image/*">' +
+            '<p class="bb-hint">' + esc(t('建议小于 1.5MB；上传新图会保留上一张，再次上传时旧图不再显示。', 'Under 1.5MB. A new image keeps the previous one as a choice; uploads again removes the older.')) + '</p>' +
+            '<div id="bbSkinHistory" style="display:flex;gap:10px;margin-top:12px"></div></div>';
         openModal(t('阅读背景', 'Reading background'), body,
             '<button type="button" class="bb-ghost" id="bbSkinReset">' + esc(t('恢复默认', 'Reset')) + '</button>' +
             '<button type="button" class="bb-primary" data-close>' + esc(t('完成', 'Done')) + '</button>',
             function (m) {
+                function renderHistory() {
+                    var s = readSkin();
+                    var box = m.querySelector('#bbSkinHistory');
+                    var html = '<div class="bb-skin-thumb' + (s.current ? ' active' : '') + '" title="' + esc(t('当前背景', 'Current background')) + '">' +
+                        (s.current ? '<img alt="" onerror="this.style.visibility=\'hidden\'" src="' + s.current + '">' : '<span>' + esc(t('默认', 'Default')) + '</span>') + '</div>';
+                    if (s.previous) {
+                        html += '<div class="bb-skin-thumb" data-prev="1" title="' + esc(t('上一张 · 点击恢复', 'Previous · tap to restore')) + '">' +
+                            '<img alt="" onerror="this.style.visibility=\'hidden\'" src="' + s.previous + '"><span class="bb-skin-prev">' + esc(t('上一张', 'Prev')) + '</span></div>';
+                    }
+                    box.innerHTML = html;
+                    box.querySelectorAll('[data-prev]').forEach(function (b) {
+                        b.onclick = function () {
+                            var s2 = readSkin();
+                            writeSkin({ current: s2.previous, previous: '' });
+                            B().applySkin();
+                            renderHistory();
+                            toast(t('已恢复上一张背景', 'Restored previous background'));
+                        };
+                    });
+                }
+                m.querySelectorAll('#bbSkinColors .bb-skin-swatch').forEach(function (btn) {
+                    btn.onclick = function () {
+                        B().setPalette(btn.getAttribute('data-palette'));
+                        m.querySelectorAll('#bbSkinColors .bb-skin-swatch').forEach(function (x) { x.classList.toggle('active', x === btn); });
+                        toast(t('已应用纯色背景', 'Solid color applied'));
+                    };
+                });
                 m.querySelector('#bbSkinFile').onchange = function (e) {
                     var file = e.target.files && e.target.files[0];
                     if (!file) return;
                     if (file.size > 1.5 * 1024 * 1024) { toast(t('图片过大，请换一张', 'Image too large')); return; }
                     var reader = new FileReader();
                     reader.onload = function () {
-                        if (st) st.set('bible_skin', reader.result);
+                        var s = readSkin();
+                        writeSkin({ current: reader.result, previous: s.current });
                         B().applySkin();
-                        m.querySelector('#bbSkinPreview').innerHTML = '<img alt="' + esc(t('背景预览', 'Background preview')) + '" onerror="this.style.display=\'none\'" src="' + reader.result + '" style="max-width:100%;max-height:160px;border-radius:10px">';
-                        toast(t('背景已应用', 'Background applied'));
+                        renderHistory();
+                        toast(t('背景已更新', 'Background updated'));
                     };
                     reader.readAsDataURL(file);
                 };
                 m.querySelector('#bbSkinReset').onclick = function () {
                     if (st) st.remove('bible_skin');
                     B().applySkin();
-                    m.querySelector('#bbSkinPreview').innerHTML = '';
+                    renderHistory();
                     toast(t('已恢复默认背景', 'Background reset'));
                 };
+                renderHistory();
             });
     }
 

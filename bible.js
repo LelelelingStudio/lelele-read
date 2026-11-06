@@ -232,14 +232,20 @@
         doc.documentElement.setAttribute('data-bb-palette', S.palette);
     }
     function applySkin() {
-        var skin = Store ? Store.get('bible_skin', '') : '';
-        if (skin) {
+        var raw = Store ? Store.get('bible_skin', null) : null;
+        var cur = typeof raw === 'string' ? (raw || '') : (raw && raw.current ? raw.current : '');
+        if (cur) {
             doc.body.classList.add('bb-custom-bg');
-            doc.body.style.backgroundImage = 'url("' + skin + '")';
+            doc.body.style.backgroundImage = 'url("' + cur + '")';
         } else {
             doc.body.classList.remove('bb-custom-bg');
             doc.body.style.backgroundImage = '';
         }
+    }
+    function setPalette(p) {
+        S.palette = p;
+        applyPalette();
+        if (Store) Store.set('bible_palette', p);
     }
 
     function applyLang() {
@@ -424,6 +430,7 @@
         refreshNotes: function () { renderVerses(); },
         setView: setView,
         applySkin: applySkin,
+        setPalette: setPalette,
         t: t,
         esc: esc,
         Store: Store,
