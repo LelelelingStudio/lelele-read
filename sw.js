@@ -1,11 +1,11 @@
 /* =========================================================
    lelele-read Service Worker
-   v7 (作者标识自动生成与投稿提示之后)
+   v9 (英文 WEB 译本与 27 包音频索引之后)
    静态资源：stale-while-revalidate（命中即秒开，后台更新）
    数据 JSON：network-first + 1.5s 超时快速回退缓存
-   外部域一律直通（作者总表、统计、Supabase 等）
+   外部域一律直通（作者总表、统计、Supabase、音频子域等）
    ========================================================= */
-const CACHE_NAME = 'lelele-read-v8';
+const CACHE_NAME = 'lelele-read-v9';
 
 const PRECACHE_ASSETS = [
     '/', '/index.html', '/reader.html', '/dashboard.html', '/login.html', '/docs.html',
@@ -18,7 +18,7 @@ const PRECACHE_ASSETS = [
     '/rank-plus.js', '/shelf-plus.js', '/home-nav.css', '/home-nav.js',
     '/notice.css', '/notice.js', '/winter.css', '/winter.js',
     '/bible.html', '/bible.css', '/bible.js', '/bible-tools.js',
-    '/data/bible/books.json',
+    '/data/bible/books.json', '/data/bible/web-books.json', '/data/bible/audio-index.json',
     '/activity.css', '/activity.js', '/activity.json',
     '/announcements.json', '/changelog.json',
     '/manifest-zh.json', '/manifest-en.json',
@@ -29,7 +29,7 @@ const PRECACHE_ASSETS = [
     '/data/bible/config.json', '/data/shijing/config.json', '/data/tree_zhou/config.json'
 ];
 
-const DATA_PATH_RE = /(?:\/|^)(books\.json|config\.json|activity\.json|announcements\.json|changelog\.json|manifest-(?:zh|en)\.json|web-books\.json|chapters\/[^/]+\.json|web\/[^/]+\.json)$/;
+const DATA_PATH_RE = /(?:\/|^)(books\.json|config\.json|activity\.json|announcements\.json|changelog\.json|manifest-(?:zh|en)\.json|web-books\.json|audio-index\.json|chapters\/[^/]+\.json|web\/[^/]+\.json)$/;
 
 self.addEventListener('install', event => {
     event.waitUntil(

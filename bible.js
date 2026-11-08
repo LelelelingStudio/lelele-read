@@ -23,6 +23,7 @@
     }
     function Tools() { return win.LeleleBibleTools || {}; }
     function isMobile() { return win.innerWidth <= 768; }
+    function toast(msg) { if (win.showToast) win.showToast(msg); }
 
     var S = {
         books: [], order: 1, chapter: 1, verse: 1,
@@ -37,18 +38,28 @@
         { id: 'cn', name_zh: '和合本', name_en: 'CUV' },
         { id: 'web', name_zh: '英文标准', name_en: 'WEB', publicDomain: true, source: 'eBible.org', note: 'World English Bible · Public Domain' }
     ];
-    // 新约戏剧化音频由用户独立托管在 surge 子域；每个子域含 manifest.json（base + files 列表）。
-    // 运行时合并成「文件名 -> 直链」映射，按当前书卷·章匹配播放。仓库不含任何音频文件。
-    // 部署并确认三个子域的 HTTPS 可访问后，把 AUDIO_ENABLED 改为 true 即启用听读。
+    // 新约戏剧化音频由用户拆成 27 个小包托管在 surge 单级子域 bibleaudio1..27.surge.sh
+    // （必须用单级子域：surge 的通配符证书是 *.surge.sh，多级子域会证书不匹配）。
+    // surge 不返回 CORS 头，浏览器无法 fetch 跨域 manifest.json；因此「文件名 -> 直链」
+    // 的映射随仓库发布在 data/bible/audio-index.json（同源），运行时只读这一份。
+    // <audio src> 跨域播放本身无需 CORS，所以音频直链可以正常播放。
+    // 部署并确认 27 个子域可访问后，把 AUDIO_ENABLED 改为 true 即全站启用听读；
+    // 也可不改代码，用 ?audio=1 或 localStorage 的 bible_audio=1 临时/长期启用（便于验证与灰度）。
     var AUDIO_ENABLED = false;
-    var AUDIO_MANIFESTS = [
-        'https://bibleaudio1.leleleread.surge.sh/manifest.json',
-        'https://bibleaudio2.leleleread.surge.sh/manifest.json',
-        'https://bibleaudio3.leleleread.surge.sh/manifest.json'
-    ];
+    var AUDIO_INDEX_URL = 'data/bible/audio-index.json';
     var audioMap = {};      // 文件名 -> 完整 URL
-    var audioReady = false; // manifest 是否已加载完毕
+    var audioReady = false; // 索引是否已加载完毕
     var audioEl = null;     // <audio> 单例
+
+    function audioEnabled() {
+        try {
+            var q = new URLSearchParams(location.search).get('audio');
+            if (q === '1') return true;
+            if (q === '0') return false;
+        } catch (e) { /* 忽略不支持 URLSearchParams 的环境 */ }
+        if (Store && String(Store.get('bible_audio', '0')) === '1') return true;
+        return AUDIO_ENABLED;
+    }
 
     function pad2(n) { return (n < 10 ? '0' : '') + n; }
 
@@ -131,23 +142,29 @@
             setAudioPlaying(false);
             if (el('bbAudioTitle')) el('bbAudioTitle').textContent = t('音频加载失败', 'Audio failed to load');
         });
-        if (AUDIO_ENABLED) loadAudioManifest();
+        if (audioEnabled()) loadAudioIndex();
     }
     function fmtTime(s) {
         if (!s || isNaN(s)) return '0:00';
         var m = Math.floor(s / 60), sec = Math.floor(s % 60);
         return m + ':' + (sec < 10 ? '0' : '') + sec;
     }
-    function loadAudioManifest() {
-        Promise.all(AUDIO_MANIFESTS.map(function (u) {
-            return fetch(u).then(function (r) { return r.ok ? r.json() : null; })
-                .then(function (j) {
-                    if (!j || !Array.isArray(j.files)) return;
-                    var base = j.base || u.replace(/manifest\.json$/, '');
-                    if (base && base.charAt(base.length - 1) !== '/') base += '/';
-                    j.files.forEach(function (f) { if (!audioMap[f]) audioMap[f] = base + f; });
-                }).catch(function () { /* 某子域未就绪则忽略 */ });
-        })).then(function () { audioReady = true; updateAudioUI(); });
+    function loadAudioIndex() {
+        return fetchJson(AUDIO_INDEX_URL).then(function (idx) {
+            if (!idx || typeof idx.base !== 'string' || !Array.isArray(idx.files)) {
+                throw new Error('bad audio index');
+            }
+            idx.files.forEach(function (item) {
+                if (!item || !item.f || !item.p) return;
+                var base = idx.base.replace('{p}', item.p);
+                if (base.charAt(base.length - 1) !== '/') base += '/';
+                audioMap[item.f] = base + item.f;
+            });
+            audioReady = true;
+            updateAudioUI();
+        }).catch(function (err) {
+            console.warn('[bible] audio index unavailable:', err && err.message);
+        });
     }
     function audioFileFor(order, chapter) {
         if (order < 40) return null; // 仅新约（MAT..REV = 40..66）有音频
@@ -178,7 +195,7 @@
         if (p) audioEl.play().catch(function () { toast(t('音频播放失败', 'Audio failed to play')); });
         else audioEl.pause();
     }
-    function toggleAudio() { setAudioPlaying(audioEl && !audioEl.paused); }
+    function toggleAudio() { setAudioPlaying(audioEl && audioEl.paused); }
 
     function currentChapter() {
         return S.data && S.data.chapters ? S.data.chapters[S.chapter - 1] : null;
