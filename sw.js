@@ -1,11 +1,11 @@
 /* =========================================================
    lelele-read Service Worker
-   v9 (英文 WEB 译本与 27 包音频索引之后)
+   v10 (听读全站启用，27 包音频上线之后)
    静态资源：stale-while-revalidate（命中即秒开，后台更新）
    数据 JSON：network-first + 1.5s 超时快速回退缓存
    外部域一律直通（作者总表、统计、Supabase、音频子域等）
    ========================================================= */
-const CACHE_NAME = 'lelele-read-v9';
+const CACHE_NAME = 'lelele-read-v10';
 
 const PRECACHE_ASSETS = [
     '/', '/index.html', '/reader.html', '/dashboard.html', '/login.html', '/docs.html',
@@ -18,7 +18,9 @@ const PRECACHE_ASSETS = [
     '/rank-plus.js', '/shelf-plus.js', '/home-nav.css', '/home-nav.js',
     '/notice.css', '/notice.js', '/winter.css', '/winter.js',
     '/bible.html', '/bible.css', '/bible.js', '/bible-tools.js',
-    '/data/bible/books.json', '/data/bible/web-books.json', '/data/bible/audio-index.json',
+    '/bible.css?v=10', '/bible.js?v=10', '/bible-tools.js?v=10',
+    '/data/bible/books.json', '/data/bible/web-books.json',
+    '/data/bible/audio-index.json', '/data/bible/audio-index.json?v=10',
     '/activity.css', '/activity.js', '/activity.json',
     '/announcements.json', '/changelog.json',
     '/manifest-zh.json', '/manifest-en.json',

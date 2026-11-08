@@ -43,21 +43,27 @@
     // surge 不返回 CORS 头，浏览器无法 fetch 跨域 manifest.json；因此「文件名 -> 直链」
     // 的映射随仓库发布在 data/bible/audio-index.json（同源），运行时只读这一份。
     // <audio src> 跨域播放本身无需 CORS，所以音频直链可以正常播放。
-    // 部署并确认 27 个子域可访问后，把 AUDIO_ENABLED 改为 true 即全站启用听读；
-    // 也可不改代码，用 ?audio=1 或 localStorage 的 bible_audio=1 临时/长期启用（便于验证与灰度）。
-    var AUDIO_ENABLED = false;
-    var AUDIO_INDEX_URL = 'data/bible/audio-index.json';
+    // 27 个子域 bibleaudio1..27.surge.sh 已全部部署并验证可访问（2026-11-08），听读全站启用。
+    // 排错/灰度时可用 ?audio=0 临时关闭，或 localStorage 的 bible_audio=0 长期关闭。
+    var AUDIO_ENABLED = true;
+    // 带版本号：CDN 曾缓存过该路径的 404 响应，加 query 保证拿到真实索引
+    var AUDIO_INDEX_URL = 'data/bible/audio-index.json?v=10';
     var audioMap = {};      // 文件名 -> 完整 URL
     var audioReady = false; // 索引是否已加载完毕
     var audioEl = null;     // <audio> 单例
 
+    var audioOverride = null; // '1' | '0' | null，缓存 URL 参数（save 会重写地址栏）
     function audioEnabled() {
-        try {
-            var q = new URLSearchParams(location.search).get('audio');
-            if (q === '1') return true;
-            if (q === '0') return false;
-        } catch (e) { /* 忽略不支持 URLSearchParams 的环境 */ }
-        if (Store && String(Store.get('bible_audio', '0')) === '1') return true;
+        if (audioOverride === null) {
+            try {
+                var q = new URLSearchParams(location.search).get('audio');
+                if (q === '1' || q === '0') audioOverride = q;
+            } catch (e) { /* 忽略不支持 URLSearchParams 的环境 */ }
+        }
+        if (audioOverride === '1') return true;
+        if (audioOverride === '0') return false;
+        var saved = Store ? Store.get('bible_audio', null) : null;
+        if (saved !== null && saved !== undefined) return String(saved) === '1';
         return AUDIO_ENABLED;
     }
 
@@ -341,6 +347,7 @@
         try {
             var q = '?book=' + S.order + '&chapter=' + S.chapter + '&verse=' + S.verse + '&v=' + S.version;
             if (win.getLang && win.getLang() === 'en') q += '&lang=en';
+            if (audioOverride) q += '&audio=' + audioOverride;
             history.replaceState(null, '', location.pathname + q);
         } catch (e) { /* file:// 或隐私模式忽略 */ }
     }
