@@ -22,6 +22,10 @@
             <a class="bb-back" href="index.html" aria-label="返回书库 / Back to library">← <span data-zh="书库" data-en="Library">书库</span></a>
             <span class="bb-brand"><span data-zh="圣经" data-en="Holy Bible">圣经</span> <i>·</i> <span data-zh="了了了读" data-en="lelele Read">了了了读</span></span>
         </div>
+        <div class="bb-version" id="bbVersion" role="tablist" aria-label="译本 / Translation">
+            <button type="button" class="bb-vbtn active" data-v="cn">中文</button>
+            <button type="button" class="bb-vbtn" data-v="web">English</button>
+        </div>
         <div class="bb-crumb" id="bbCrumb"></div>
         <div class="bb-tools" id="bbTools">
             <button type="button" class="bb-btn" data-act="search" title="搜索经文 / Search verses"><span class="bb-ico">⌕</span><span data-zh="搜索" data-en="Search">搜索</span></button>
@@ -30,6 +34,7 @@
             <button type="button" class="bb-btn" data-act="notes" title="我的笔记 / My notes"><span class="bb-ico">✎</span><span data-zh="笔记" data-en="Notes">笔记</span></button>
             <button type="button" class="bb-btn" data-act="skin" title="阅读背景 / Reading background"><span class="bb-ico">◐</span><span data-zh="背景" data-en="Background">背景</span></button>
             <button type="button" class="bb-btn" data-act="changelog" title="更新日志 / Changelog"><span class="bb-ico">⟳</span><span data-zh="日志" data-en="Changelog">日志</span></button>
+            <button type="button" class="bb-btn bb-btn-icon" data-act="about" title="译本与版权 / About">ℹ</button>
             <button type="button" class="bb-btn bb-btn-icon" id="bbLangBtn" title="切换中 / EN">EN</button>
             <button type="button" class="bb-btn bb-btn-icon" data-act="theme" title="深色 / 浅色 / Dark mode">☾</button>
         </div>
@@ -59,6 +64,13 @@
             <div class="bb-verses" id="bbVerses"></div>
             <div class="bb-chapter-foot" id="bbChapFoot"></div>
         </main>
+    </div>
+
+    <div class="bb-audio" id="bbAudio" hidden>
+        <button type="button" class="bb-audio-btn" id="bbAudioPlay" data-act="audio-toggle" aria-label="播放 / 暂停">▶</button>
+        <div class="bb-audio-info"><span class="bb-audio-title" id="bbAudioTitle"></span></div>
+        <div class="bb-audio-track" id="bbAudioTrack"><div class="bb-audio-bar" id="bbAudioBar"></div></div>
+        <span class="bb-audio-time" id="bbAudioTime">0:00</span>
     </div>
 
     <footer class="bb-foot" id="bbFoot">

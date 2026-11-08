@@ -25,6 +25,34 @@
     --bb-sans: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, sans-serif;
 }
 
+/* 译本切换分段控件（墨绿胶囊） */
+.bb-version { display: flex; gap: 2px; padding: 2px; background: var(--bb-surface-2); border: 1px solid var(--bb-line); border-radius: 999px; }
+.bb-vbtn { border: 0; background: transparent; color: var(--bb-muted); font: 600 13px var(--bb-sans); padding: 4px 12px; border-radius: 999px; cursor: pointer; transition: background .2s, color .2s; }
+.bb-vbtn:hover:not(.active) { color: var(--bb-ink); }
+.bb-vbtn.active { background: var(--bb-accent); color: #fff; box-shadow: 0 1px 4px rgba(47,93,80,.3); }
+@media (max-width: 768px) { .bb-vbtn { padding: 4px 10px; font-size: 12px; } }
+
+/* 听读细条（底部浮层，半透明面板 + 克制动效） */
+.bb-audio { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(var(--bb-foot-h) + 8px); width: min(680px, calc(100% - 32px)); display: flex; align-items: center; gap: 12px; padding: 8px 14px; background: rgba(255,255,255,.92); border: 1px solid var(--bb-line); border-radius: 14px; box-shadow: 0 6px 24px rgba(31,42,36,.12); backdrop-filter: blur(8px); z-index: 30; }
+html.dark-mode .bb-audio { background: rgba(24,36,30,.92); }
+.bb-audio[hidden] { display: none; }
+.bb-audio-btn { flex: 0 0 auto; width: 38px; height: 38px; border-radius: 50%; border: 0; background: var(--bb-accent); color: #fff; font-size: 15px; cursor: pointer; transition: transform .15s, background .2s; }
+.bb-audio-btn:hover { transform: scale(1.06); }
+.bb-audio-info { flex: 0 0 auto; min-width: 0; }
+.bb-audio-title { font: 600 13px var(--bb-sans); color: var(--bb-ink); white-space: nowrap; }
+.bb-audio-track { flex: 1 1 auto; height: 6px; background: var(--bb-surface-2); border-radius: 999px; overflow: hidden; }
+.bb-audio-bar { height: 100%; width: 0; background: linear-gradient(90deg, var(--bb-accent), var(--bb-accent-2)); transition: width .15s linear; }
+.bb-audio-time { flex: 0 0 auto; font: 500 12px var(--bb-sans); color: var(--bb-muted); }
+
+/* 译本与版权面板 */
+.bb-about-lead { color: var(--bb-muted); font-size: .9rem; line-height: 1.7; margin: 0 0 14px; }
+.bb-trans-list { list-style: none; margin: 0 0 14px; padding: 0; }
+.bb-trans-list li { padding: 10px 12px; border: 1px solid var(--bb-line); border-radius: 10px; margin-bottom: 8px; background: var(--bb-surface-2); }
+.bb-trans-list b { display: block; color: var(--bb-ink); margin-bottom: 2px; }
+.bb-trans-list span { font-size: .82rem; color: var(--bb-muted); }
+.bb-about-note { font-size: .82rem; color: var(--bb-muted); line-height: 1.6; }
+.bb-about-note a { color: var(--bb-accent); text-decoration: underline; }
+
 html.dark-mode {
     --bb-bg: #121B17;
     --bb-surface: #18241E;

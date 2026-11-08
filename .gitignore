@@ -5,3 +5,7 @@ Thumbs.db
 
 # 迁移归档：旧 JS 数据只保留在本地，不随静态站点发布（线上只允许 JSON）
 datas-old/
+
+# 英文 WEB 译本源文本（eng-web_readaloud/）：一次性转换的输入，1189 个 txt 源文件不入库；
+# 已转换产物在 data/bible/web/，转换脚本在 tools/convert-web.js
+eng-web_readaloud/

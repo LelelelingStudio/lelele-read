@@ -488,6 +488,21 @@
         });
     }
 
+    /* ---------------- 译本与版权 ---------------- */
+    function openAbout() {
+        var body = '<div class="bb-about">' +
+            '<p class="bb-about-lead">' + esc(t('了了了读 · 圣经阅读器接入多个公开版权译本，均保留原版权与署名。', 'lelele Read Bible reader ships multiple public-domain translations, with their copyright and attribution preserved.')) + '</p>' +
+            '<ul class="bb-trans-list">' +
+            '<li><b>' + esc(t('中文和合本（CUV）', 'Chinese Union Version (CUV)')) + '</b><span>' + esc(t('公有领域中文译本', 'Public-domain Chinese translation')) + '</span></li>' +
+            '<li><b>' + esc(t('英文标准译本（WEB）', 'World English Bible (WEB)')) + '</b><span>' + esc(t('Public Domain · 来源 eBible.org · 「World English Bible」为 eBible.org 商标', 'Public Domain · from eBible.org · "World English Bible" is a trademark of eBible.org')) + '</span></li>' +
+            '</ul>' +
+            '<p class="bb-about-note">' + esc(t('我们推荐使用已进入公共领域或采用 CC0 的内容；详情见 ', 'We recommend content in the public domain or under CC0. See ')) +
+            '<a href="rules.html" target="_blank" rel="noopener">' + esc(t('投稿与版权规则', 'submission & copyright rules')) + '</a>。</p>' +
+            '</div>';
+        openModal(t('译本与版权', 'Translations & Copyright'), body,
+            '<button type="button" class="bb-primary" data-close>' + esc(t('知道了', 'Got it')) + '</button>');
+    }
+
     /* ---------------- 单节操作 ---------------- */
     function openVerseActions(order, chap, verse) {
         B().getBookData(order).then(function (d) {
@@ -528,7 +543,7 @@
     win.LeleleBibleTools = {
         openSearch: openSearch, openCopy: openCopy, openExport: openExport,
         openNotes: openNotes, openSkin: openSkin, openChangelog: openChangelog,
-        openVerseActions: openVerseActions,
+        openAbout: openAbout, openVerseActions: openVerseActions,
         getNoteState: getNoteState, toggleBookmark: toggleBookmark,
         toggleHighlight: toggleHighlight, setAnnotation: setAnnotation,
         copyVerse: copyVerse, closeModal: closeModal, closeSheet: closeSheet

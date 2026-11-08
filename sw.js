@@ -5,7 +5,7 @@
    数据 JSON：network-first + 1.5s 超时快速回退缓存
    外部域一律直通（作者总表、统计、Supabase 等）
    ========================================================= */
-const CACHE_NAME = 'lelele-read-v7';
+const CACHE_NAME = 'lelele-read-v8';
 
 const PRECACHE_ASSETS = [
     '/', '/index.html', '/reader.html', '/dashboard.html', '/login.html', '/docs.html',
@@ -29,7 +29,7 @@ const PRECACHE_ASSETS = [
     '/data/bible/config.json', '/data/shijing/config.json', '/data/tree_zhou/config.json'
 ];
 
-const DATA_PATH_RE = /(?:\/|^)(books\.json|config\.json|activity\.json|announcements\.json|changelog\.json|manifest-(?:zh|en)\.json|chapters\/[^/]+\.json)$/;
+const DATA_PATH_RE = /(?:\/|^)(books\.json|config\.json|activity\.json|announcements\.json|changelog\.json|manifest-(?:zh|en)\.json|web-books\.json|chapters\/[^/]+\.json|web\/[^/]+\.json)$/;
 
 self.addEventListener('install', event => {
     event.waitUntil(

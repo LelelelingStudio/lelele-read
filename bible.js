@@ -27,8 +27,30 @@
     var S = {
         books: [], order: 1, chapter: 1, verse: 1,
         data: null, cache: {}, keyword: '',
-        font: 17, palette: 'paper', view: 'books', loading: false
+        font: 17, palette: 'paper', view: 'books', loading: false,
+        version: 'cn', cacheV: {}, translationMeta: null
     };
+
+    /* ---------------- 译本与音频配置 ---------------- */
+    // 译本：cn=中文和合本（默认），web=英文 WEB（公共领域，来源 eBible.org）
+    var TRANSLATIONS = [
+        { id: 'cn', name_zh: '和合本', name_en: 'CUV' },
+        { id: 'web', name_zh: '英文标准', name_en: 'WEB', publicDomain: true, source: 'eBible.org', note: 'World English Bible · Public Domain' }
+    ];
+    // 新约戏剧化音频由用户独立托管在 surge 子域；每个子域含 manifest.json（base + files 列表）。
+    // 运行时合并成「文件名 -> 直链」映射，按当前书卷·章匹配播放。仓库不含任何音频文件。
+    // 部署并确认三个子域的 HTTPS 可访问后，把 AUDIO_ENABLED 改为 true 即启用听读。
+    var AUDIO_ENABLED = false;
+    var AUDIO_MANIFESTS = [
+        'https://bibleaudio1.leleleread.surge.sh/manifest.json',
+        'https://bibleaudio2.leleleread.surge.sh/manifest.json',
+        'https://bibleaudio3.leleleread.surge.sh/manifest.json'
+    ];
+    var audioMap = {};      // 文件名 -> 完整 URL
+    var audioReady = false; // manifest 是否已加载完毕
+    var audioEl = null;     // <audio> 单例
+
+    function pad2(n) { return (n < 10 ? '0' : '') + n; }
 
     /* ---------------- 数据 ---------------- */
     function fetchJson(url, ms) {
@@ -55,15 +77,108 @@
     }
 
     function loadBook(order) {
-        if (S.cache[order]) return Promise.resolve(S.cache[order]);
         var meta = bookByOrder(order);
         if (!meta) return Promise.reject(new Error('book ' + order + ' not found'));
-        return fetchJson('data/bible/chapters/' + meta.file).then(function (data) {
+        S.cacheV[order] = S.cacheV[order] || {};
+        if (S.cacheV[order][S.version]) return Promise.resolve(S.cacheV[order][S.version]);
+        var dir = S.version === 'web' ? 'web/' : 'chapters/';
+        return fetchJson('data/bible/' + dir + meta.file).then(function (data) {
             if (!data || !Array.isArray(data.chapters)) throw new Error('bad chapter data');
-            S.cache[order] = data;
+            S.cacheV[order][S.version] = data;
             return data;
         });
     }
+
+    function metaUrl() {
+        return S.version === 'web' ? 'data/bible/web-books.json' : 'data/bible/books.json';
+    }
+    function loadMeta() {
+        return fetchJson(metaUrl()).then(function (raw) {
+            S.books = (raw && Array.isArray(raw.books)) ? raw.books : (Array.isArray(raw) ? raw : []);
+            S.translationMeta = (raw && !Array.isArray(raw)) ? raw : null;
+        });
+    }
+
+    /* ---------------- 译本切换 ---------------- */
+    function renderVersionSwitch() {
+        Array.prototype.forEach.call(doc.querySelectorAll('#bbVersion [data-v]'), function (b) {
+            b.classList.toggle('active', b.getAttribute('data-v') === S.version);
+        });
+    }
+    function setVersion(v) {
+        if (v !== 'cn' && v !== 'web') return;
+        if (v === S.version) return;
+        S.version = v;
+        if (Store) Store.set('bible_version', v);
+        renderVersionSwitch();
+        loadMeta().then(function () {
+            return openBook(S.order, S.chapter, S.verse, isMobile() ? 'chapters' : 'read');
+        }).catch(showError);
+    }
+
+    /* ---------------- 听读（外部托管的 WEB 新约戏剧化音频） ---------------- */
+    function ensureAudio() {
+        if (audioEl) return;
+        audioEl = new Audio();
+        audioEl.preload = 'none';
+        audioEl.addEventListener('timeupdate', function () {
+            var pct = audioEl.duration ? (audioEl.currentTime / audioEl.duration * 100) : 0;
+            if (el('bbAudioBar')) el('bbAudioBar').style.width = pct + '%';
+            if (el('bbAudioTime')) el('bbAudioTime').textContent = fmtTime(audioEl.currentTime) + ' / ' + fmtTime(audioEl.duration);
+        });
+        audioEl.addEventListener('ended', function () { setAudioPlaying(false); });
+        audioEl.addEventListener('error', function () {
+            setAudioPlaying(false);
+            if (el('bbAudioTitle')) el('bbAudioTitle').textContent = t('音频加载失败', 'Audio failed to load');
+        });
+        if (AUDIO_ENABLED) loadAudioManifest();
+    }
+    function fmtTime(s) {
+        if (!s || isNaN(s)) return '0:00';
+        var m = Math.floor(s / 60), sec = Math.floor(s % 60);
+        return m + ':' + (sec < 10 ? '0' : '') + sec;
+    }
+    function loadAudioManifest() {
+        Promise.all(AUDIO_MANIFESTS.map(function (u) {
+            return fetch(u).then(function (r) { return r.ok ? r.json() : null; })
+                .then(function (j) {
+                    if (!j || !Array.isArray(j.files)) return;
+                    var base = j.base || u.replace(/manifest\.json$/, '');
+                    if (base && base.charAt(base.length - 1) !== '/') base += '/';
+                    j.files.forEach(function (f) { if (!audioMap[f]) audioMap[f] = base + f; });
+                }).catch(function () { /* 某子域未就绪则忽略 */ });
+        })).then(function () { audioReady = true; updateAudioUI(); });
+    }
+    function audioFileFor(order, chapter) {
+        if (order < 40) return null; // 仅新约（MAT..REV = 40..66）有音频
+        var prefix = 'B' + pad2(order - 39) + '___' + pad2(chapter) + '_';
+        for (var k in audioMap) { if (k.indexOf(prefix) === 0) return audioMap[k]; }
+        return null;
+    }
+    function updateAudioUI() {
+        var box = el('bbAudio');
+        if (!box) return;
+        var meta = bookByOrder(S.order);
+        if (!meta) { box.hidden = true; return; }
+        var url = audioReady ? audioFileFor(S.order, S.chapter) : null;
+        if (!url) { box.hidden = true; return; }
+        box.hidden = false;
+        el('bbAudioTitle').textContent = meta.title_zh + ' ' + S.chapter;
+        if (audioEl.src !== url) {
+            audioEl.src = url;
+            if (el('bbAudioBar')) el('bbAudioBar').style.width = '0%';
+            if (el('bbAudioTime')) el('bbAudioTime').textContent = '0:00 / 0:00';
+            setAudioPlaying(false);
+        }
+    }
+    function setAudioPlaying(p) {
+        var btn = el('bbAudioPlay');
+        if (btn) btn.textContent = p ? '❙❙' : '▶';
+        if (!audioEl) return;
+        if (p) audioEl.play().catch(function () { toast(t('音频播放失败', 'Audio failed to play')); });
+        else audioEl.pause();
+    }
+    function toggleAudio() { setAudioPlaying(audioEl && !audioEl.paused); }
 
     function currentChapter() {
         return S.data && S.data.chapters ? S.data.chapters[S.chapter - 1] : null;
@@ -207,7 +322,7 @@
     function save() {
         if (Store) Store.set('bible_progress', { order: S.order, chapter: S.chapter, verse: S.verse });
         try {
-            var q = '?book=' + S.order + '&chapter=' + S.chapter + '&verse=' + S.verse;
+            var q = '?book=' + S.order + '&chapter=' + S.chapter + '&verse=' + S.verse + '&v=' + S.version;
             if (win.getLang && win.getLang() === 'en') q += '&lang=en';
             history.replaceState(null, '', location.pathname + q);
         } catch (e) { /* file:// 或隐私模式忽略 */ }
@@ -215,6 +330,9 @@
 
     function restore() {
         var p = new URLSearchParams(location.search);
+        var sv = (Store ? Store.get('bible_version', 'cn') : 'cn');
+        if (p.get('v') === 'cn' || p.get('v') === 'web') sv = p.get('v');
+        S.version = sv;
         var saved = Store ? Store.get('bible_progress', {}) : {};
         var order = parseInt(p.get('book'), 10) || (saved && saved.order) || 1;
         S.order = Math.max(1, Math.min(66, order));
@@ -290,6 +408,7 @@
             renderChapters(); renderVerses();
             el('bbRead').scrollTop = 0;
             save();
+            updateAudioUI();
             return data;
         }).catch(showError);
     }
@@ -350,6 +469,9 @@
             node = target.closest('[data-view]');
             if (node) { setView(node.getAttribute('data-view')); return; }
 
+            node = target.closest('[data-v]');
+            if (node) { setVersion(node.getAttribute('data-v')); return; }
+
             node = target.closest('[data-palette]');
             if (node) {
                 S.palette = node.getAttribute('data-palette');
@@ -376,7 +498,9 @@
                 theme: function () { if (win.toggleTheme) win.toggleTheme(); },
                 retry: function () { openBook(S.order, S.chapter, S.verse); },
                 'prev-chapter': function () { goChapter(S.chapter - 1); },
-                'next-chapter': function () { goChapter(S.chapter + 1); }
+                'next-chapter': function () { goChapter(S.chapter + 1); },
+                'audio-toggle': function () { toggleAudio(); },
+                'about': function () { if (Tools().openAbout) Tools().openAbout(); }
             };
             if (map[act]) map[act]();
         });
@@ -435,7 +559,9 @@
         esc: esc,
         Store: Store,
         toast: function (msg) { if (win.showToast) win.showToast(msg); },
-        save: save
+        save: save,
+        setVersion: setVersion,
+        getVersion: function () { return S.version; }
     };
 
     /* ---------------- 启动 ---------------- */
@@ -447,10 +573,12 @@
         applySkin();
         applyLang();
 
+        renderVersionSwitch();
+        ensureAudio();
+
         // 手机首屏：普通进入先看到 66 卷书库；带深链时直接落在阅读视图
         var hadDeepLink = new URLSearchParams(location.search).has('book');
-        fetchJson('data/bible/books.json').then(function (list) {
-            S.books = Array.isArray(list) ? list : [];
+        loadMeta().then(function () {
             if (!S.books.length) throw new Error('empty book list');
             renderBooks();
             return openBook(S.order, S.chapter, S.verse, hadDeepLink ? 'read' : 'books');
