@@ -14,7 +14,30 @@
     var Store = L && L.Store;
 
     function el(id) { return doc.getElementById(id); }
-    function t(zh, en) { return (win.getLang && win.getLang() === 'en') ? en : zh; }
+    function isEn() { return !!(win.getLang && win.getLang() === 'en'); }
+    function t(zh, en) { return isEn() ? en : zh; }
+
+    // 66 卷标准英文书名（按 order 1..66）。web-books.json 的 title_en 是小写，仅作兜底。
+    var BOOK_NAMES_EN = [
+        'Genesis', 'Exodus', 'Leviticus', 'Numbers', 'Deuteronomy', 'Joshua', 'Judges', 'Ruth',
+        '1 Samuel', '2 Samuel', '1 Kings', '2 Kings', '1 Chronicles', '2 Chronicles', 'Ezra',
+        'Nehemiah', 'Esther', 'Job', 'Psalms', 'Proverbs', 'Ecclesiastes', 'Song of Solomon',
+        'Isaiah', 'Jeremiah', 'Lamentations', 'Ezekiel', 'Daniel', 'Hosea', 'Joel', 'Amos',
+        'Obadiah', 'Jonah', 'Micah', 'Nahum', 'Habakkuk', 'Zephaniah', 'Haggai', 'Zechariah',
+        'Malachi', 'Matthew', 'Mark', 'Luke', 'John', 'Acts', 'Romans', '1 Corinthians',
+        '2 Corinthians', 'Galatians', 'Ephesians', 'Philippians', 'Colossians',
+        '1 Thessalonians', '2 Thessalonians', '1 Timothy', '2 Timothy', 'Titus', 'Philemon',
+        'Hebrews', 'James', '1 Peter', '2 Peter', '1 John', '2 John', '3 John', 'Jude',
+        'Revelation'
+    ];
+    function titleCase(s) {
+        return String(s || '').replace(/\b[a-z]/g, function (c) { return c.toUpperCase(); });
+    }
+    function bookTitle(meta) {
+        if (!meta) return '';
+        if (!isEn()) return meta.title_zh || '';
+        return BOOK_NAMES_EN[meta.order - 1] || titleCase(meta.title_en) || meta.title_zh || '';
+    }
     function esc(s) {
         s = (s === null || s === undefined) ? '' : String(s);
         return win.escapeHtml ? win.escapeHtml(s) : s.replace(/[&<>"']/g, function (c) {
@@ -47,11 +70,12 @@
     // 排错/灰度时可用 ?audio=0 临时关闭，或 localStorage 的 bible_audio=0 长期关闭。
     var AUDIO_ENABLED = true;
     // 带版本号：CDN 曾缓存过该路径的 404 响应，加 query 保证拿到真实索引
-    var AUDIO_INDEX_URL = 'data/bible/audio-index.json?v=10';
+    var AUDIO_INDEX_URL = 'data/bible/audio-index.json?v=11';
     var audioMap = {};      // 文件名 -> 完整 URL
     var audioReady = false; // 索引是否已加载完毕
     var audioEl = null;     // <audio> 单例
 
+    var booted = false;       // 启动完成后才允许 langChanged 重写地址栏
     var audioOverride = null; // '1' | '0' | null，缓存 URL 参数（save 会重写地址栏）
     function audioEnabled() {
         if (audioOverride === null) {
@@ -116,18 +140,30 @@
         });
     }
 
-    /* ---------------- 译本切换 ---------------- */
+    /* ---------------- 译本与界面语言（二者是同一个状态） ---------------- */
+    // 中文界面 = 和合本 CUV；English 界面 = World English Bible WEB。
+    // 切换任一侧都同步另一侧，并用 common.js 的 lelele_read_lang 持久化，
+    // 这样在站点任何页面切换语言，跳回圣经页仍是同一语言/译本。
+    function langOf(v) { return v === 'web' ? 'en' : 'zh'; }
+    function versionOf(l) { return l === 'en' ? 'web' : 'cn'; }
+
     function renderVersionSwitch() {
         Array.prototype.forEach.call(doc.querySelectorAll('#bbVersion [data-v]'), function (b) {
-            b.classList.toggle('active', b.getAttribute('data-v') === S.version);
+            var v = b.getAttribute('data-v');
+            b.classList.toggle('active', v === S.version);
+            b.textContent = v === 'cn' ? t('中文', 'Chinese') : t('English', 'English');
         });
     }
-    function setVersion(v) {
+    function setVersion(v, skipLangSync) {
         if (v !== 'cn' && v !== 'web') return;
-        if (v === S.version) return;
+        var changed = v !== S.version;
         S.version = v;
         if (Store) Store.set('bible_version', v);
+        if (!skipLangSync && win.setLang && (!win.getLang || win.getLang() !== langOf(v))) {
+            win.setLang(langOf(v)); // 会派发 langChanged，由下方监听统一重绘
+        }
         renderVersionSwitch();
+        if (!changed) { applyLang(); return; }
         loadMeta().then(function () {
             return openBook(S.order, S.chapter, S.verse, isMobile() ? 'chapters' : 'read');
         }).catch(showError);
@@ -180,13 +216,20 @@
     }
     function updateAudioUI() {
         var box = el('bbAudio');
-        if (!box) return;
+        if (!box || !audioEl) return;
+        // 音频是英文 WEB 新约戏剧化朗读，只在英文界面显示；中文（和合本）隐藏并停播。
         var meta = bookByOrder(S.order);
-        if (!meta) { box.hidden = true; return; }
-        var url = audioReady ? audioFileFor(S.order, S.chapter) : null;
-        if (!url) { box.hidden = true; return; }
+        var url = (audioReady && isEn() && audioEnabled()) ? audioFileFor(S.order, S.chapter) : null;
+        if (!meta || !url) {
+            box.hidden = true;
+            if (audioEl && !audioEl.paused) setAudioPlaying(false);
+            return;
+        }
         box.hidden = false;
-        el('bbAudioTitle').textContent = meta.title_zh + ' ' + S.chapter;
+        var play = el('bbAudioPlay');
+        if (play) play.setAttribute('aria-label', t('播放 / 暂停', 'Play / Pause'));
+        el('bbAudioTitle').textContent = bookTitle(meta) + ' · ' + t('第 ' + S.chapter + ' 章', 'Chapter ' + S.chapter);
+        // 章节变化时换音源：必须每次调用（goChapter / goVerse / 语言切换都会走到这里）。
         if (audioEl.src !== url) {
             audioEl.src = url;
             if (el('bbAudioBar')) el('bbAudioBar').style.width = '0%';
@@ -234,7 +277,10 @@
             var list = S.books.filter(function (b) {
                 if (b.testament !== group) return false;
                 if (!kw) return true;
-                return b.title_zh.toLowerCase().indexOf(kw) !== -1 || String(b.order) === kw;
+                return String(bookTitle(b)).toLowerCase().indexOf(kw) !== -1 ||
+                    String(b.title_zh || '').toLowerCase().indexOf(kw) !== -1 ||
+                    String(b.title_en || '').toLowerCase().indexOf(kw) !== -1 ||
+                    String(b.order) === kw;
             });
             if (!list.length) return;
             html += '<div class="bb-group-title">' + esc(group === 'old'
@@ -243,8 +289,8 @@
             list.forEach(function (b) {
                 html += '<button type="button" class="bb-book' + (b.order === S.order ? ' active' : '') +
                     '" data-order="' + b.order + '"><span><span class="bb-book-no">' + b.order +
-                    '</span>' + esc(b.title_zh) + '</span><span class="bb-book-meta">' +
-                    b.chapterCount + ' ' + esc(t('章', 'ch')) + '</span></button>';
+                    '</span>' + esc(bookTitle(b)) + '</span><span class="bb-book-meta">' +
+                    b.chapterCount + ' ' + esc(t('章', 'chapters')) + '</span></button>';
             });
         });
         box.innerHTML = html || '<div class="bb-empty">' + esc(t('没有找到匹配的书卷', 'No matching books')) + '</div>';
@@ -292,7 +338,7 @@
             foot.innerHTML = '';
             return;
         }
-        head.innerHTML = '<h1>' + esc(meta.title_zh) + ' · ' + esc(t('第 ' + S.chapter + ' 章', 'Chapter ' + S.chapter)) +
+        head.innerHTML = '<h1>' + esc(bookTitle(meta)) + ' · ' + esc(t('第 ' + S.chapter + ' 章', 'Chapter ' + S.chapter)) +
             '</h1><p>' + esc(t('共 ' + verseCount() + ' 节 · 点击节号可标记与分享', verseCount() + ' verses · tap a verse number to mark or share')) + '</p>';
 
         var html = '';
@@ -327,7 +373,7 @@
         var node = el('bbCrumb');
         if (!node) return;
         if (!meta) { node.textContent = t('圣经 · 66 卷', 'Holy Bible · 66 books'); return; }
-        node.innerHTML = '<b>' + esc(meta.title_zh) + '</b> · ' + esc(t('第 ' + S.chapter + ' 章', 'Ch. ' + S.chapter)) +
+        node.innerHTML = '<b>' + esc(bookTitle(meta)) + '</b> · ' + esc(t('第 ' + S.chapter + ' 章', 'Ch. ' + S.chapter)) +
             ' · ' + esc(t('第 ' + S.verse + ' 节', 'v. ' + S.verse));
     }
 
@@ -335,7 +381,7 @@
         var meta = bookByOrder(S.order);
         var node = el('bbFootPos');
         if (node && meta) {
-            node.textContent = meta.title_zh + ' ' + S.chapter + ':' + S.verse + ' · ' +
+            node.textContent = bookTitle(meta) + ' ' + S.chapter + ':' + S.verse + ' · ' +
                 t('共 ' + meta.chapterCount + ' 章', meta.chapterCount + ' chapters');
         }
         if (el('bbFontVal')) el('bbFontVal').textContent = String(S.font);
@@ -345,8 +391,8 @@
     function save() {
         if (Store) Store.set('bible_progress', { order: S.order, chapter: S.chapter, verse: S.verse });
         try {
-            var q = '?book=' + S.order + '&chapter=' + S.chapter + '&verse=' + S.verse + '&v=' + S.version;
-            if (win.getLang && win.getLang() === 'en') q += '&lang=en';
+            var q = '?book=' + S.order + '&chapter=' + S.chapter + '&verse=' + S.verse +
+                '&v=' + S.version + '&lang=' + (isEn() ? 'en' : 'zh');
             if (audioOverride) q += '&audio=' + audioOverride;
             history.replaceState(null, '', location.pathname + q);
         } catch (e) { /* file:// 或隐私模式忽略 */ }
@@ -354,9 +400,18 @@
 
     function restore() {
         var p = new URLSearchParams(location.search);
-        var sv = (Store ? Store.get('bible_version', 'cn') : 'cn');
-        if (p.get('v') === 'cn' || p.get('v') === 'web') sv = p.get('v');
+        var vParam = p.get('v'), lParam = p.get('lang');
+        // 译本 == 界面语言，唯一真相是全站语言（common.js 已合并 ?lang= 与 localStorage）。
+        // 优先级：显式深链 v > 显式深链 lang > 当前全站语言；不再读旧的 bible_version，
+        // 否则「在别的页面切了语言、跳回圣经页」会被旧译本记忆盖掉。
+        var sv;
+        if (vParam === 'cn' || vParam === 'web') sv = vParam;
+        else if (lParam === 'en' || lParam === 'zh') sv = versionOf(lParam);
+        else sv = versionOf(win.getLang ? win.getLang() : 'zh');
         S.version = sv;
+        // 译本即界面语言：无论从哪种入口进来，二者始终对齐并写入 localStorage
+        var want = langOf(sv);
+        if (win.setLang && (!win.getLang || win.getLang() !== want)) win.setLang(want);
         var saved = Store ? Store.get('bible_progress', {}) : {};
         var order = parseInt(p.get('book'), 10) || (saved && saved.order) || 1;
         S.order = Math.max(1, Math.min(66, order));
@@ -397,11 +452,19 @@
         Array.prototype.forEach.call(doc.querySelectorAll('[data-ph-zh]'), function (node) {
             node.setAttribute('placeholder', t(node.getAttribute('data-ph-zh'), node.getAttribute('data-ph-en') || node.getAttribute('data-ph-zh')));
         });
+        Array.prototype.forEach.call(doc.querySelectorAll('[data-t-zh]'), function (node) {
+            var tip = t(node.getAttribute('data-t-zh'), node.getAttribute('data-t-en') || node.getAttribute('data-t-zh'));
+            if (node.hasAttribute('title')) node.setAttribute('title', tip);
+            if (node.hasAttribute('aria-label')) node.setAttribute('aria-label', tip);
+        });
         if (el('bbLangBtn')) {
             el('bbLangBtn').textContent = t('EN', '中');
-            el('bbLangBtn').title = t('切换 English', '切换到中文');
+            el('bbLangBtn').title = t('切换 English', 'Switch to Chinese');
         }
+        doc.title = t('圣经 · 了了了读', 'Holy Bible · lelele Read');
+        renderVersionSwitch();
         renderBooks(); renderChapters(); renderVerses();
+        updateAudioUI();
     }
 
     /* ---------------- 打开与跳转 ---------------- */
@@ -444,6 +507,7 @@
         renderChapters(); renderVerses();
         el('bbRead').scrollTop = 0;
         save();
+        updateAudioUI();
     }
 
     function goVerse(v) {
@@ -542,7 +606,14 @@
                 if (win.setLang) win.setLang(win.getLang && win.getLang() === 'zh' ? 'en' : 'zh');
             };
         }
-        win.addEventListener('langChanged', function () { applyLang(); save(); });
+        win.addEventListener('langChanged', function () {
+            // 全站任意位置（含其它页面）切换语言都会走到这里；译本跟随语言。
+            var want = versionOf(win.getLang ? win.getLang() : 'zh');
+            if (want !== S.version) setVersion(want, true);
+            applyLang();
+            if (Tools().refreshAbout) Tools().refreshAbout();
+            if (booted) save();
+        });
         win.addEventListener('themeChanged', function () { applySkin(); });
         var read = el('bbRead');
         if (read) {
@@ -581,6 +652,7 @@
         setPalette: setPalette,
         t: t,
         esc: esc,
+        bookTitle: bookTitle,
         Store: Store,
         toast: function (msg) { if (win.showToast) win.showToast(msg); },
         save: save,
@@ -606,6 +678,8 @@
             if (!S.books.length) throw new Error('empty book list');
             renderBooks();
             return openBook(S.order, S.chapter, S.verse, hadDeepLink ? 'read' : 'books');
+        }).then(function () {
+            booted = true;
         }).catch(function (err) {
             console.warn('[bible] catalog failed:', err && err.message);
             el('bbBookList').innerHTML = '<div class="bb-empty">' +

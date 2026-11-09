@@ -8,35 +8,35 @@
     <link rel="icon" href="favicon.ico" type="image/x-icon" onerror="this.style.display='none'">
     <link rel="stylesheet" href="common.css">
     <link rel="stylesheet" href="common-ui.css">
-    <link rel="stylesheet" href="bible.css?v=10">
+    <link rel="stylesheet" href="bible.css?v=11">
     <script src="common.js"></script>
     <script src="common-ui.js"></script>
     <script src="epub-bridge.js"></script>
-    <script src="bible.js?v=10"></script>
-    <script src="bible-tools.js?v=10"></script>
+    <script src="bible.js?v=11"></script>
+    <script src="bible-tools.js?v=11"></script>
 </head>
 <body class="bb-body bb-view-books">
 
     <header class="bb-top">
         <div class="bb-top-left">
-            <a class="bb-back" href="index.html" aria-label="返回书库 / Back to library">← <span data-zh="书库" data-en="Library">书库</span></a>
+            <a class="bb-back" href="index.html" data-t-zh="返回书库" data-t-en="Back to library" aria-label="返回书库">← <span data-zh="书库" data-en="Library">书库</span></a>
             <span class="bb-brand"><span data-zh="圣经" data-en="Holy Bible">圣经</span> <i>·</i> <span data-zh="了了了读" data-en="lelele Read">了了了读</span></span>
         </div>
-        <div class="bb-version" id="bbVersion" role="tablist" aria-label="译本 / Translation">
+        <div class="bb-version" id="bbVersion" role="tablist" data-t-zh="译本" data-t-en="Translation" aria-label="译本">
             <button type="button" class="bb-vbtn active" data-v="cn">中文</button>
             <button type="button" class="bb-vbtn" data-v="web">English</button>
         </div>
         <div class="bb-crumb" id="bbCrumb"></div>
         <div class="bb-tools" id="bbTools">
-            <button type="button" class="bb-btn" data-act="search" title="搜索经文 / Search verses"><span class="bb-ico">⌕</span><span data-zh="搜索" data-en="Search">搜索</span></button>
-            <button type="button" class="bb-btn" data-act="copy" title="复制经文范围 / Copy a range"><span class="bb-ico">⧉</span><span data-zh="复制" data-en="Copy">复制</span></button>
-            <button type="button" class="bb-btn" data-act="export" title="导出 / Export"><span class="bb-ico">⇩</span><span data-zh="导出" data-en="Export">导出</span></button>
-            <button type="button" class="bb-btn" data-act="notes" title="我的笔记 / My notes"><span class="bb-ico">✎</span><span data-zh="笔记" data-en="Notes">笔记</span></button>
-            <button type="button" class="bb-btn" data-act="skin" title="阅读背景 / Reading background"><span class="bb-ico">◐</span><span data-zh="背景" data-en="Background">背景</span></button>
-            <button type="button" class="bb-btn" data-act="changelog" title="更新日志 / Changelog"><span class="bb-ico">⟳</span><span data-zh="日志" data-en="Changelog">日志</span></button>
-            <button type="button" class="bb-btn bb-btn-icon" data-act="about" title="译本与版权 / About">ℹ</button>
-            <button type="button" class="bb-btn bb-btn-icon" id="bbLangBtn" title="切换中 / EN">EN</button>
-            <button type="button" class="bb-btn bb-btn-icon" data-act="theme" title="深色 / 浅色 / Dark mode">☾</button>
+            <button type="button" class="bb-btn" data-act="search" data-t-zh="搜索经文" data-t-en="Search verses" title="搜索经文"><span class="bb-ico">⌕</span><span data-zh="搜索" data-en="Search">搜索</span></button>
+            <button type="button" class="bb-btn" data-act="copy" data-t-zh="复制经文范围" data-t-en="Copy a range" title="复制经文范围"><span class="bb-ico">⧉</span><span data-zh="复制" data-en="Copy">复制</span></button>
+            <button type="button" class="bb-btn" data-act="export" data-t-zh="导出" data-t-en="Export" title="导出"><span class="bb-ico">⇩</span><span data-zh="导出" data-en="Export">导出</span></button>
+            <button type="button" class="bb-btn" data-act="notes" data-t-zh="我的笔记" data-t-en="My notes" title="我的笔记"><span class="bb-ico">✎</span><span data-zh="笔记" data-en="Notes">笔记</span></button>
+            <button type="button" class="bb-btn" data-act="skin" data-t-zh="阅读背景" data-t-en="Reading background" title="阅读背景"><span class="bb-ico">◐</span><span data-zh="背景" data-en="Background">背景</span></button>
+            <button type="button" class="bb-btn" data-act="changelog" data-t-zh="更新日志" data-t-en="Changelog" title="更新日志"><span class="bb-ico">⟳</span><span data-zh="日志" data-en="Changelog">日志</span></button>
+            <button type="button" class="bb-btn bb-btn-icon" data-act="about" data-t-zh="译本与版权" data-t-en="Translations &amp; Copyright" title="译本与版权">ℹ</button>
+            <button type="button" class="bb-btn bb-btn-icon" id="bbLangBtn" title="切换 English">EN</button>
+            <button type="button" class="bb-btn bb-btn-icon" data-act="theme" data-t-zh="深色 / 浅色" data-t-en="Dark / Light mode" title="深色 / 浅色">☾</button>
         </div>
     </header>
 
@@ -67,7 +67,7 @@
     </div>
 
     <div class="bb-audio" id="bbAudio" hidden>
-        <button type="button" class="bb-audio-btn" id="bbAudioPlay" data-act="audio-toggle" aria-label="播放 / 暂停">▶</button>
+        <button type="button" class="bb-audio-btn" id="bbAudioPlay" data-act="audio-toggle" data-t-zh="播放 / 暂停" data-t-en="Play / Pause" aria-label="播放 / 暂停">▶</button>
         <div class="bb-audio-info"><span class="bb-audio-title" id="bbAudioTitle"></span></div>
         <div class="bb-audio-track" id="bbAudioTrack"><div class="bb-audio-bar" id="bbAudioBar"></div></div>
         <span class="bb-audio-time" id="bbAudioTime">0:00</span>
@@ -76,13 +76,13 @@
     <footer class="bb-foot" id="bbFoot">
         <div class="bb-foot-pos" id="bbFootPos"></div>
         <div class="bb-foot-tools">
-            <button type="button" class="bb-mini" data-act="font-minus" aria-label="缩小字号 / Smaller text">A−</button>
+            <button type="button" class="bb-mini" data-act="font-minus" data-t-zh="缩小字号" data-t-en="Smaller text" aria-label="缩小字号">A−</button>
             <span class="bb-font-val" id="bbFontVal">17</span>
-            <button type="button" class="bb-mini" data-act="font-plus" aria-label="放大字号 / Larger text">A+</button>
+            <button type="button" class="bb-mini" data-act="font-plus" data-t-zh="放大字号" data-t-en="Larger text" aria-label="放大字号">A+</button>
             <span class="bb-sep"></span>
-            <button type="button" class="bb-mini bb-swatch" data-palette="paper" title="纸白 / Paper" aria-label="纸白 / Paper"></button>
-            <button type="button" class="bb-mini bb-swatch" data-palette="sepia" title="旧纸 / Sepia" aria-label="旧纸 / Sepia"></button>
-            <button type="button" class="bb-mini bb-swatch" data-palette="mint" title="青苔 / Mint" aria-label="青苔 / Mint"></button>
+            <button type="button" class="bb-mini bb-swatch" data-palette="paper" data-t-zh="纸白" data-t-en="Paper" title="纸白" aria-label="纸白"></button>
+            <button type="button" class="bb-mini bb-swatch" data-palette="sepia" data-t-zh="旧纸" data-t-en="Sepia" title="旧纸" aria-label="旧纸"></button>
+            <button type="button" class="bb-mini bb-swatch" data-palette="mint" data-t-zh="青苔" data-t-en="Mint" title="青苔" aria-label="青苔"></button>
             <span class="bb-sep"></span>
             <button type="button" class="bb-mini" data-act="go-top" data-zh="回到顶部" data-en="Top">回到顶部</button>
         </div>

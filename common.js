@@ -66,6 +66,8 @@
         let lang = CONFIG.DEFAULT_LANG;
         if (urlLang === 'en' || urlLang === 'zh') {
             lang = urlLang;
+            // 链接传参进站时同步写入 localStorage，保证之后跳到不带参数的页面仍是同一语言
+            try { localStorage.setItem('lelele_read_lang', lang); } catch (e) {}
         } else if (storedLang === 'en' || storedLang === 'zh') {
             lang = storedLang;
         } else {

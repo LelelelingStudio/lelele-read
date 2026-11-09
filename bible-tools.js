@@ -15,6 +15,11 @@
     function esc(s) { return B() ? B().esc(s) : String(s == null ? '' : s); }
     function Store() { return B() && B().Store; }
     function toast(msg) { if (B()) B().toast(msg); }
+    function bookName(meta) {
+        if (!meta) return '';
+        var b = B();
+        return (b && b.bookTitle) ? b.bookTitle(meta) : (meta.title_zh || '');
+    }
 
     /* ---------------- 笔记数据 ---------------- */
     var NOTE_KEY = 'bible_notes';
@@ -88,6 +93,7 @@
     function openModal(title, body, foot, onMount) {
         var ov = el('bbOverlay'), m = el('bbModal');
         if (!ov || !m) return null;
+        m.removeAttribute('data-modal');
         m.innerHTML = '<div class="bb-modal-head"><h3>' + esc(title) + '</h3>' +
             '<button type="button" class="bb-x" data-close aria-label="' + esc(t('关闭', 'Close')) + '">×</button></div>' +
             '<div class="bb-modal-body">' + body + '</div>' +
@@ -140,14 +146,14 @@
     function bookOptions(selected) {
         return B().getBooks().map(function (b) {
             return '<option value="' + b.order + '"' + (b.order === selected ? ' selected' : '') + '>' +
-                esc(b.title_zh) + '</option>';
+                esc(bookName(b)) + '</option>';
         }).join('');
     }
     function buildRange(order, fromChap, toChap, fromVerse, toVerse, withTitle, withVerseNo) {
         return B().getBookData(order).then(function (data) {
             var meta = B().getBook(order);
             var lines = [], chapters = [];
-            if (withTitle) lines.push(meta ? meta.title_zh : '');
+            if (withTitle) lines.push(bookName(meta));
             for (var c = fromChap; c <= toChap; c++) {
                 var ch = data.chapters[c - 1];
                 if (!ch) continue;
@@ -164,7 +170,7 @@
                 }
                 chapters.push({ title: ch.title || t('第 ' + c + ' 章', 'Chapter ' + c), paragraphs: picked });
             }
-            return { lines: lines, chapters: chapters, title: meta ? meta.title_zh : '' };
+            return { lines: lines, chapters: chapters, title: bookName(meta) };
         });
     }
     function chapterOptions(count, selected) {
@@ -217,7 +223,7 @@
                             (ch.paragraphs || []).forEach(function (p, vi) {
                                 if (results.length >= 200) return;
                                 if (String(p).indexOf(kw) !== -1) {
-                                    results.push({ order: slice[i].order, title: slice[i].title_zh, chap: ci + 1, verse: vi + 1, text: p });
+                                    results.push({ order: slice[i].order, title: bookName(slice[i]), chap: ci + 1, verse: vi + 1, text: p });
                                 }
                             });
                         });
@@ -280,7 +286,7 @@
         B().getBookData(order).then(function (d) {
             var meta = B().getBook(order);
             var text = d.chapters[chap - 1].paragraphs[verse - 1];
-            return copyText(meta.title_zh + ' ' + chap + ':' + verse + ' ' + text).then(function () {
+            return copyText(bookName(meta) + ' ' + chap + ':' + verse + ' ' + text).then(function () {
                 toast(t('已复制该节', 'Verse copied'));
             });
         }).catch(function () { toast(t('复制失败', 'Copy failed')); });
@@ -350,7 +356,7 @@
                 box.innerHTML = list.map(function (x) {
                     var meta = B().getBook(x.order);
                     return '<button type="button" class="bb-note-item" data-order="' + x.order + '" data-chap="' + x.chap + '" data-verse="' + x.verse + '">' +
-                        '<small>' + esc(meta ? meta.title_zh : x.order) + ' ' + x.chap + ':' + x.verse + '</small>' +
+                        '<small>' + esc(meta ? bookName(meta) : x.order) + ' ' + x.chap + ':' + x.verse + '</small>' +
                         '<p>' + esc(x.text || '') + '</p>' +
                         (x.note ? '<p style="color:var(--bb-accent)">✎ ' + esc(x.note) + '</p>' : '') + '</button>';
                 }).join('');
@@ -491,16 +497,31 @@
     /* ---------------- 译本与版权 ---------------- */
     function openAbout() {
         var body = '<div class="bb-about">' +
-            '<p class="bb-about-lead">' + esc(t('了了了读 · 圣经阅读器接入多个公开版权译本，均保留原版权与署名。', 'lelele Read Bible reader ships multiple public-domain translations, with their copyright and attribution preserved.')) + '</p>' +
+            '<p class="bb-about-lead">' + esc(t(
+                '界面语言与经文译本一一对应：切换到中文使用和合本，切换到 English 使用 WEB。两个译本均属公有领域，保留原署名。',
+                'The interface language and the Bible translation are paired: Chinese uses the CUV, English uses the WEB. Both are public domain and their attribution is preserved.')) + '</p>' +
             '<ul class="bb-trans-list">' +
-            '<li><b>' + esc(t('中文和合本（CUV）', 'Chinese Union Version (CUV)')) + '</b><span>' + esc(t('公有领域中文译本', 'Public-domain Chinese translation')) + '</span></li>' +
-            '<li><b>' + esc(t('英文标准译本（WEB）', 'World English Bible (WEB)')) + '</b><span>' + esc(t('Public Domain · 来源 eBible.org · 「World English Bible」为 eBible.org 商标', 'Public Domain · from eBible.org · "World English Bible" is a trademark of eBible.org')) + '</span></li>' +
+            '<li><b>' + esc(t('中文 · 和合本（CUV）', 'Chinese · Chinese Union Version (CUV)')) + '</b><span>' + esc(t('公有领域中文译本，无音频朗读。', 'Public-domain Chinese translation. No audio.')) + '</span></li>' +
+            '<li><b>' + esc(t('English · World English Bible（WEB）', 'English · World English Bible (WEB)')) + '</b><span>' + esc(t(
+                'Public Domain · 来源 eBible.org · 新约 27 卷配有戏剧化英文朗读。',
+                'Public Domain · from eBible.org · the 27 New Testament books include dramatized English audio.')) + '</span></li>' +
             '</ul>' +
             '<p class="bb-about-note">' + esc(t('我们推荐使用已进入公共领域或采用 CC0 的内容；详情见 ', 'We recommend content in the public domain or under CC0. See ')) +
             '<a href="rules.html" target="_blank" rel="noopener">' + esc(t('投稿与版权规则', 'submission & copyright rules')) + '</a>。</p>' +
             '</div>';
-        openModal(t('译本与版权', 'Translations & Copyright'), body,
+        var m = openModal(t('译本与版权', 'Translations & Copyright'), body,
             '<button type="button" class="bb-primary" data-close>' + esc(t('知道了', 'Got it')) + '</button>');
+        if (m) m.setAttribute('data-modal', 'about');
+    }
+    // 弹窗打开期间若语言被切换（站内任意位置）：about 即时重绘；
+    // 其它工具弹窗是静态 HTML 且带用户输入，直接关闭，重新打开即是新语言。
+    function refreshAbout() {
+        var ov = el('bbOverlay'), m = el('bbModal');
+        if (ov && !ov.hidden && m && m.getAttribute('data-modal') === 'about') {
+            openAbout();
+            return;
+        }
+        closeModal(); closeSheet();
     }
 
     /* ---------------- 单节操作 ---------------- */
@@ -509,7 +530,7 @@
             var meta = B().getBook(order);
             var text = (d.chapters[chap - 1].paragraphs || [])[verse - 1] || '';
             var state = getNoteState(order, chap, verse);
-            var html = '<h4>' + esc(meta ? meta.title_zh : '') + ' ' + chap + ':' + verse + '</h4>' +
+            var html = '<h4>' + esc(bookName(meta)) + ' ' + chap + ':' + verse + '</h4>' +
                 '<p class="bb-sheet-quote">' + esc(text) + '</p>' +
                 '<div class="bb-field"><label>' + esc(t('批注', 'Note')) + '</label><textarea id="bbNoteText" placeholder="' + esc(t('写下你的想法…', 'Write a note…')) + '">' + esc(state.annotation) + '</textarea></div>' +
                 '<div class="bb-sheet-actions">' +
@@ -530,7 +551,8 @@
                     else if (act === 'note') setAnnotation(order, chap, verse, s.querySelector('#bbNoteText').value);
                     else if (act === 'copy') copyVerse(order, chap, verse);
                     else if (act === 'share') {
-                        var url = location.origin + location.pathname + '?book=' + order + '&chapter=' + chap + '&verse=' + verse;
+                        var url = location.origin + location.pathname + '?book=' + order + '&chapter=' + chap +
+                            '&verse=' + verse + '&lang=' + (B() && B().getVersion && B().getVersion() === 'web' ? 'en' : 'zh');
                         copyText(url).then(function () { toast(t('链接已复制', 'Link copied')); });
                     }
                     if (act === 'bookmark' || act === 'highlight' || act === 'close') closeSheet();
@@ -546,7 +568,8 @@
         openAbout: openAbout, openVerseActions: openVerseActions,
         getNoteState: getNoteState, toggleBookmark: toggleBookmark,
         toggleHighlight: toggleHighlight, setAnnotation: setAnnotation,
-        copyVerse: copyVerse, closeModal: closeModal, closeSheet: closeSheet
+        copyVerse: copyVerse, closeModal: closeModal, closeSheet: closeSheet,
+        refreshAbout: refreshAbout
     };
 
     /* ---------------- DOM 绑定 ---------------- */
