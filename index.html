@@ -155,6 +155,22 @@
             grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
             gap: 20px;
         }
+        .book-folder { margin-bottom: 28px; }
+        .book-folder-head {
+            display: flex; align-items: center; gap: 10px;
+            width: 100%; margin-bottom: 14px; padding: 10px 16px;
+            background: var(--bg-card); border: 1px solid var(--border-color);
+            border-radius: 12px; color: var(--text-main);
+            font-size: 1.05rem; font-weight: 700; cursor: pointer;
+            text-align: left;
+        }
+        .book-folder-head:hover { border-color: var(--primary); }
+        .book-folder-arrow { color: var(--primary); font-size: 0.9rem; }
+        .book-folder-count {
+            margin-left: auto; font-size: 0.82rem; font-weight: 500;
+            color: var(--text-muted);
+        }
+        .book-folder-body[hidden] { display: none; }
         .book-card {
             background: var(--bg-card);
             border-radius: 16px;
@@ -280,8 +296,14 @@
     <div class="categories-container">
         <div class="categories">
             <button class="cat-btn active" data-cat="all"><span class="zh-inline">全部</span><span class="en-inline">All</span></button>
-            <button class="cat-btn" data-cat="classic"><span class="zh-inline">古典</span><span class="en-inline">Classics</span></button>
+            <button class="cat-btn" data-cat="jing"><span class="zh-inline">经部</span><span class="en-inline">Classics</span></button>
+            <button class="cat-btn" data-cat="history"><span class="zh-inline">史部</span><span class="en-inline">History</span></button>
+            <button class="cat-btn" data-cat="zi"><span class="zh-inline">子部</span><span class="en-inline">Philosophy</span></button>
+            <button class="cat-btn" data-cat="classics-lit"><span class="zh-inline">集部</span><span class="en-inline">Literature</span></button>
+            <button class="cat-btn" data-cat="poetry-cn"><span class="zh-inline">中国诗歌</span><span class="en-inline">Chinese Poetry</span></button>
+            <button class="cat-btn" data-cat="poetry-world"><span class="zh-inline">世界诗歌</span><span class="en-inline">World Poetry</span></button>
             <button class="cat-btn" data-cat="religion"><span class="zh-inline">宗教</span><span class="en-inline">Religion</span></button>
+            <button class="cat-btn" data-cat="classic"><span class="zh-inline">其它</span><span class="en-inline">Other</span></button>
             <button class="cat-btn" data-cat="community"><span class="zh-inline">共创书库</span><span class="en-inline">Community</span></button>
         </div>
     </div>
@@ -347,7 +369,18 @@
                 return;
             }
 
-            filtered.sort((a, b) => (a.sort || 99) - (b.sort || 99)).forEach(book => {
+            const CAT_LABELS = {
+                jing: ['经部 · 儒家经典', 'Classics · Confucian'],
+                history: ['史部 · 史书典籍', 'History · Chronicles'],
+                zi: ['子部 · 诸子百家', 'Philosophy · Masters'],
+                'classics-lit': ['集部 · 诗文词赋', 'Literature · Anthologies'],
+                'poetry-cn': ['中国诗歌', 'Chinese Poetry'],
+                'poetry-world': ['世界诗歌', 'World Poetry'],
+                religion: ['宗教', 'Religion'],
+                classic: ['其它', 'Other'],
+                community: ['共创书库', 'Community']
+            };
+            const makeCard = book => {
                 const title = lang === 'en' ? (book.title_en || book.title_zh) : (book.title_zh || book.title_en);
                 const desc = lang === 'en' ? (book.desc_en || '') : (book.desc_zh || '');
                 const card = document.createElement('div');
@@ -373,8 +406,54 @@
                     if (window.leleleTrack) window.leleleTrack('read_open-book_' + book.title_zh);
                     window.location.href = bookLink(book, lang);
                 };
-                gridEl.appendChild(card);
-            });
+                return card;
+            };
+            const ordered = filtered.slice().sort((a, b) => (a.sort || 99) - (b.sort || 99));
+            if (currentCategory === 'all' && !currentKeyword) {
+                // 全部视图：按分类像文件夹一样分组，默认展开前两组
+                const groups = new Map();
+                ordered.forEach(b => {
+                    const k = b.cat || 'classic';
+                    if (!groups.has(k)) groups.set(k, []);
+                    groups.get(k).push(b);
+                });
+                // 固定分类顺序：经史子集 -> 诗歌 -> 宗教/其它/共创
+                const CAT_ORDER = ['jing', 'history', 'zi', 'classics-lit', 'poetry-cn', 'poetry-world', 'religion', 'classic', 'community'];
+                const sortedCats = Array.from(groups.keys()).sort((a, b) => {
+                    const ia = CAT_ORDER.indexOf(a), ib = CAT_ORDER.indexOf(b);
+                    return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib);
+                });
+                let gi = 0;
+                sortedCats.forEach(cat => {
+                    const list = groups.get(cat);
+                    const label = CAT_LABELS[cat] || [cat, cat];
+                    const wrap = document.createElement('section');
+                    wrap.className = 'book-folder';
+                    const head = document.createElement('button');
+                    head.type = 'button';
+                    head.className = 'book-folder-head';
+                    head.innerHTML = '<span class="book-folder-arrow">' + (gi < 2 ? '▾' : '▸') + '</span>' +
+                        '<span>' + window.escapeHtml(lang === 'en' ? label[1] : label[0]) + '</span>' +
+                        '<span class="book-folder-count">' + list.length + '</span>';
+                    const body = document.createElement('div');
+                    body.className = 'book-grid book-folder-body';
+                    if (gi >= 2) body.hidden = true;
+                    list.forEach(b => body.appendChild(makeCard(b)));
+                    head.onclick = () => {
+                        body.hidden = !body.hidden;
+                        head.querySelector('.book-folder-arrow').textContent = body.hidden ? '▸' : '▾';
+                    };
+                    wrap.appendChild(head);
+                    wrap.appendChild(body);
+                    gridEl.appendChild(wrap);
+                    gi++;
+                });
+            } else {
+                const body = document.createElement('div');
+                body.className = 'book-grid';
+                ordered.forEach(b => body.appendChild(makeCard(b)));
+                gridEl.appendChild(body);
+            }
         }
 
         async function loadBooks() {

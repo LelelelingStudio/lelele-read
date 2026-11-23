@@ -79,6 +79,17 @@ function addBook(entry) {
 }
 
 /* ---------- 1. 62 部古籍 ---------- */
+// 经史子集粗分：宁可归入最多的一类，也不新增过多按钮
+const JING = ['周易','尚书','诗经','周礼','仪礼','礼记','大学','中庸','论语','孟子','孝经','尔雅','说文','春秋','公羊','谷梁','左传'];
+const SHI = ['史记','汉书','后汉书','三国志','资治通鉴','战国策','国语','越绝','吴越','华阳','水经','徐霞客','贞观','通典','文献通考','史通','文史通义','廿二史','日知录','困学纪闻','四库','书目','校雠'];
+const ZI  = ['老子','道德经','庄子','列子','荀子','韩非','墨子','孙子','吴子','六韬','三略','司马法','鬼谷','公孙龙','邓析','尹文','慎子','申子','商君','管子','晏子','吕氏','淮南','论衡','抱朴','世说','菜根','围炉','小窗','了凡','冰鉴','反经','人物志','伤寒','金匮','本草','内经','神农','三十六计','百战','尉缭','三字经','千字文','百家姓','增广','成语','楹联','对联','家训','格言'];
+function gujiCat(name) {
+    if (SHI.some(k => name.indexOf(k) !== -1)) return 'history';
+    if (JING.some(k => name.indexOf(k) !== -1)) return 'jing';
+    if (ZI.some(k => name.indexOf(k) !== -1)) return 'zi';
+    return 'classics-lit';
+}
+
 function convertGuji() {
     const dir = path.join(SRC, 'chinese-ancient-text-master');
     const files = fs.readdirSync(dir).filter(f => f.endsWith('.json')).sort((a, b) => a.localeCompare(b, 'zh'));
@@ -106,7 +117,7 @@ function convertGuji() {
             }))
         });
         addBook({
-            id, title_zh: name, title_en: name, author: '佚名', cat: 'classic', icon: '📜',
+            id, title_zh: name, title_en: name, author: '佚名', cat: gujiCat(name), icon: '📜',
             desc_zh: desc.slice(0, 90) || ('《' + name + '》全文，共 ' + chapters.length + ' 篇。'),
             desc_en: desc.slice(0, 90) || (name + ', ' + chapters.length + ' sections. Text in Chinese.'),
             format: 'json', configUrl: '/data/guji/' + id + '/config.json',
@@ -194,7 +205,8 @@ function convertPoetry() {
                 }))
             });
             addBook({
-                id, title_zh: title, title_en: titleEn, author: '佚名', cat: 'poetry', icon: '🖋️',
+                id, title_zh: title, title_en: titleEn, author: '佚名',
+                cat: g.dir.indexOf('China-') === 0 ? 'poetry-cn' : 'poetry-world', icon: '🖋️',
                 desc_zh: '收录 ' + vol.list.length + ' 首诗，来自 ' + vol.authors.length + ' 位作者。',
                 desc_en: vol.list.length + ' poems by ' + vol.authors.length + ' authors. Text in original language.',
                 format: 'json', configUrl: '/data/poetry/' + id + '/config.json',
@@ -208,10 +220,11 @@ function convertPoetry() {
 /* ---------- 3. 登记 books.json ---------- */
 function register() {
     const books = readJson(BOOKS_JSON);
-    const ids = new Set(added.map(b => b.id));
-    const kept = books.filter(b => !ids.has(b.id));
+    // 幂等：先剔除本脚本管理的全部旧条目（含拆分前遗留的单卷 id），再写入本次结果。
+    const managed = b => (b.id && (b.id.indexOf('guji-') === 0 || b.id.indexOf('poetry-') === 0));
+    const kept = books.filter(b => !managed(b));
     fs.writeFileSync(BOOKS_JSON, JSON.stringify(kept.concat(added), null, 2) + '\n', 'utf8');
-    console.log('books.json 条目:', kept.length, '->', kept.length + added.length);
+    console.log('books.json 条目:', books.length, '->', kept.length + added.length);
 }
 
 convertGuji();
